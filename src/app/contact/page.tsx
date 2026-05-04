@@ -1,0 +1,147 @@
+'use client';
+
+import { useState } from 'react';
+
+const TOPICS = [
+  'General Enquiry',
+  'Listing Support',
+  'Tenant / Landlord Dispute',
+  'Mortgage Advice Referral',
+  'Legal Advice Referral',
+  'Technical Issue',
+  'Partnership / Media',
+  'Other',
+];
+
+const SUPPORT_CARDS = [
+  { icon: '📧', title: 'Email Support',    detail: 'support@azhousingsolutions.ca', sub: 'Response within 24 hours' },
+  { icon: '📞', title: 'Phone Support',    detail: '1-800-AZ-HOUSE',               sub: 'Mon–Fri, 9am–6pm EST' },
+  { icon: '💬', title: 'Live Chat',        detail: 'Available in-app',              sub: 'Typical reply: under 5 min' },
+  { icon: '🏢', title: 'Head Office',      detail: 'Toronto, Ontario, Canada',     sub: 'By appointment only' },
+];
+
+export default function ContactPage() {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', topic: '', message: '' });
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleSubmit = async () => {
+    if (!form.name || !form.email || !form.message) return;
+    setSending(true);
+    await new Promise(r => setTimeout(r, 900));
+    setSending(false);
+    setSent(true);
+  };
+
+  return (
+    <main style={{ minHeight: '100vh', background: 'var(--cream)' }}>
+      {/* Hero */}
+      <section style={{ background: 'var(--dark)', color: '#fff', padding: 'clamp(60px,8vw,90px) 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 600, margin: '0 auto' }}>
+          <h1 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(2rem,5vw,3rem)', marginBottom: 14, lineHeight: 1.2 }}>
+            Contact & <span style={{ color: 'var(--accent)' }}>Support</span>
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: '1.05rem', lineHeight: 1.7 }}>
+            We're here to help — whether you have a question about a listing, need advice, or want to talk to a specialist.
+          </p>
+        </div>
+      </section>
+
+      <div style={{ maxWidth: 1060, margin: '0 auto', padding: 'clamp(48px,6vw,80px) 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 48, alignItems: 'start' }}>
+
+        {/* Form */}
+        <div>
+          <h2 style={{ fontFamily: 'var(--serif)', fontSize: '1.7rem', color: 'var(--dark)', marginBottom: 8 }}>Send Us a Message</h2>
+          <p style={{ color: 'var(--mid)', marginBottom: 28, fontSize: 14 }}>We'll get back to you within one business day.</p>
+
+          {sent ? (
+            <div style={{ background: '#f0faf4', border: '1px solid #bde8cc', borderRadius: 14, padding: '36px 32px', textAlign: 'center' }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+              <h3 style={{ fontFamily: 'var(--serif)', fontSize: '1.4rem', color: 'var(--dark)', marginBottom: 10 }}>Message Sent!</h3>
+              <p style={{ color: 'var(--mid)', lineHeight: 1.7 }}>Thanks, {form.name}. Our team will be in touch at <strong>{form.email}</strong> within one business day.</p>
+            </div>
+          ) : (
+            <div style={{ background: '#fff', borderRadius: 16, padding: '32px 28px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)', display: 'block', marginBottom: 6 }}>Full Name *</label>
+                  <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Jane Smith"
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid rgba(0,0,0,0.15)', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)', display: 'block', marginBottom: 6 }}>Phone (optional)</label>
+                  <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="416-555-0100"
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid rgba(0,0,0,0.15)', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)', display: 'block', marginBottom: 6 }}>Email Address *</label>
+                <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="jane@example.com"
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid rgba(0,0,0,0.15)', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)', display: 'block', marginBottom: 6 }}>Topic</label>
+                <select value={form.topic} onChange={e => set('topic', e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid rgba(0,0,0,0.15)', borderRadius: 8, fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box' }}>
+                  <option value="">Select a topic…</option>
+                  {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)', display: 'block', marginBottom: 6 }}>Message *</label>
+                <textarea value={form.message} onChange={e => set('message', e.target.value)} rows={5} placeholder="Tell us how we can help…"
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid rgba(0,0,0,0.15)', borderRadius: 8, fontSize: 14, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+              </div>
+
+              <button
+                onClick={handleSubmit}
+                disabled={sending || !form.name || !form.email || !form.message}
+                style={{ background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 10, padding: '13px 0', fontWeight: 700, fontSize: 15, cursor: 'pointer', opacity: (sending || !form.name || !form.email || !form.message) ? 0.6 : 1, transition: 'opacity .2s' }}>
+                {sending ? 'Sending…' : 'Send Message'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Right panel */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <h2 style={{ fontFamily: 'var(--serif)', fontSize: '1.7rem', color: 'var(--dark)', marginBottom: 0 }}>Other Ways to Reach Us</h2>
+
+          {SUPPORT_CARDS.map(c => (
+            <div key={c.title} style={{ background: '#fff', borderRadius: 14, padding: '22px 20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: 16, alignItems: 'center' }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{c.icon}</div>
+              <div>
+                <div style={{ fontWeight: 700, color: 'var(--dark)', fontSize: 15, marginBottom: 2 }}>{c.title}</div>
+                <div style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 500, marginBottom: 2 }}>{c.detail}</div>
+                <div style={{ fontSize: 12, color: 'var(--mid)' }}>{c.sub}</div>
+              </div>
+            </div>
+          ))}
+
+          {/* FAQ shortcut */}
+          <div style={{ background: 'var(--dark)', borderRadius: 14, padding: '24px 22px', color: '#fff' }}>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>Looking for quick answers?</div>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>
+              Check the Landlord Portal for FAQs, pricing, and getting started guides.
+            </p>
+            <a href="/landlord#faq" style={{ background: 'var(--accent)', color: '#fff', textDecoration: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 13, display: 'inline-block' }}>View FAQs</a>
+          </div>
+        </div>
+      </div>
+
+      {/* Map placeholder */}
+      <div style={{ background: '#e8e4dc', height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mid)', fontSize: 15, gap: 10 }}>
+        <span style={{ fontSize: 28 }}>📍</span>
+        <div>
+          <div style={{ fontWeight: 600, color: 'var(--dark)' }}>A-Z Housing Solutions</div>
+          <div style={{ fontSize: 13 }}>Toronto, Ontario — By appointment only</div>
+        </div>
+      </div>
+    </main>
+  );
+}
