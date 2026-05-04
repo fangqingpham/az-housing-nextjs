@@ -11,24 +11,55 @@ export function useAuth() {
   const supa = getSupabaseBrowserClient()
 
   const loadUser = useCallback(async () => {
-    const { data: { session } } = await supa.auth.getSession()
-    if (!session?.user) { setUser(null); setLoading(false); return }
-    const appUser = await findUser(session.user.email!)
+    setLoading(true)
+
+    const {
+      data: { session },
+    } = await supa.auth.getSession()
+
+    if (!session?.user?.email) {
+      setUser(null)
+      setLoading(false)
+      return
+    }
+
+    let appUser = await findUser(session.user.email)
+
+    if (!appUser) {
+      await upsertUser({
+        id: session.user.id,
+        email: session.user.email,
+        fname: '',
+        lname: '',
+        phone: '',
+        role: 'buyer',
+        joined: new Date().toLocaleDateString(),
+      })
+
+      appUser = await findUser(session.user.email)
+    }
+
     setUser(appUser)
     setLoading(false)
   }, [supa])
 
   useEffect(() => {
     loadUser()
-    const { data: { subscription } } = supa.auth.onAuthStateChange(() => {
+
+    const {
+      data: { subscription },
+    } = supa.auth.onAuthStateChange(() => {
       loadUser()
     })
+
     return () => subscription.unsubscribe()
   }, [loadUser, supa])
 
   const signIn = async (email: string, password: string): Promise<string | null> => {
     const { error } = await supa.auth.signInWithPassword({ email, password })
+
     if (error) return error.message
+
     await loadUser()
     return null
   }
@@ -42,7 +73,9 @@ export function useAuth() {
     role: AppUser['role']
   ): Promise<string | null> => {
     const { data, error } = await supa.auth.signUp({ email, password })
+
     if (error) return error.message
+
     if (data.user) {
       await upsertUser({
         id: data.user.id,
@@ -54,6 +87,7 @@ export function useAuth() {
         joined: new Date().toLocaleDateString(),
       })
     }
+
     await loadUser()
     return null
   }
