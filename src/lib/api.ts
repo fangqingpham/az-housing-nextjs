@@ -56,11 +56,27 @@ export async function findUser(email: string): Promise<AppUser | null> {
 }
 
 export async function upsertUser(u: Omit<AppUser, 'created_at'>): Promise<AppUser | null> {
+  const payload = {
+    id: u.id,
+    email: u.email,
+    fname: u.fname || '',
+    lname: u.lname || '',
+    phone: u.phone || '',
+    role: u.role || 'buyer',
+  }
+
   const { data, error } = await supa()
     .from('users')
-    .upsert([u], { onConflict: 'id' })
+    .upsert(payload, { onConflict: 'id' })
     .select()
-  return error ? null : (data[0] as AppUser)
+    .single()
+
+  if (error) {
+    console.error('upsertUser error:', error)
+    return null
+  }
+
+  return data as AppUser
 }
 
 export async function updateUser(id: string, changes: Partial<AppUser>): Promise<boolean> {
