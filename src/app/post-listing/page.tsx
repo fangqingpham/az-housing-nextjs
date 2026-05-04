@@ -199,7 +199,7 @@ export default function PostListingPage() {
             <div style={{ fontWeight: 500, marginBottom: '4px' }}>
               {uploading ? 'Uploading…' : 'Click to upload photos'}
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--mid)' }}>JPG, PNG or WEBP — up to 10 photos</div>
+            <div style={{ fontSize: '12px', color: 'var(--mid)' }}>JPG, PNG or WEBP -- up to 10 photos</div>
             <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotos} disabled={uploading} />
           </label>
           {uploadedPhotos.length > 0 && (

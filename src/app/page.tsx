@@ -18,8 +18,8 @@ export default function HomePage() {
   const [saleListings, setSaleListings] = useState<Listing[]>([])
   const [rentListings, setRentListings] = useState<Listing[]>([])
   const [savedIds, setSavedIds] = useState<string[]>([])
-  const [listingCount, setListingCount] = useState('—')
-  const [userCount, setUserCount] = useState('—')
+  const [listingCount, setListingCount] = useState('--')
+  const [userCount, setUserCount] = useState('--')
   const { user } = useAuth()
   const { message, visible, showToast } = useToast()
   const router = useRouter()
@@ -56,7 +56,7 @@ export default function HomePage() {
 
       {/* HERO */}
       <section className="hero">
-        <span className="eyebrow">From Search to Sold, We've Got You Covered</span>
+        <span className="eyebrow">From Search to Sold, We\'ve Got You Covered</span>
         <h1>Find Your Perfect Home Across Canada</h1>
         <p className="hero-sub">
           Browse thousands of listings from trusted sellers and agents across Canada.

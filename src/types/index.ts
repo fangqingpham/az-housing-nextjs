@@ -74,8 +74,11 @@ export interface BlogPost {
   excerpt: string
   date: string
   read: string
+  readTime?: string
   color: string
   body: string
+  image?: string
+  author?: string
 }
 
 export type MapFilter = 'all' | 'sale' | 'rent'

@@ -17,7 +17,7 @@ export default function PropertyMap({ address, title }: PropertyMapProps) {
     initializedRef.current = true
 
     const initMap = async () => {
-      // Prefer Google Maps if loaded
+      // Google Maps (if available)
       if (typeof google !== 'undefined' && google.maps) {
         const geocoder = new google.maps.Geocoder()
         geocoder.geocode({ address: address + ', Canada' }, (results, status) => {
@@ -29,30 +29,34 @@ export default function PropertyMap({ address, title }: PropertyMapProps) {
               mapTypeControl: false,
             })
             new google.maps.Marker({ position: pos, map, title: title || address })
-          } else {
-            // Fallback to iframe
-            if (mapRef.current) {
-              mapRef.current.innerHTML = `<iframe src="https://maps.google.com/maps?q=${encodeURIComponent(address + ', Canada')}&output=embed&z=16" style="width:100%;height:260px;border:none" allowfullscreen loading="lazy"></iframe>`
-            }
+          } else if (mapRef.current) {
+            mapRef.current.innerHTML = `<iframe src="https://maps.google.com/maps?q=${encodeURIComponent(address + ', Canada')}&output=embed&z=16" style="width:100%;height:260px;border:none" allowfullscreen loading="lazy"></iframe>`
           }
         })
         return
       }
 
-      // Leaflet + Nominatim geocoding
+      // Leaflet
       try {
         const L = (await import('leaflet')).default
+        // @ts-ignore
         await import('leaflet/dist/leaflet.css')
 
-        mapInstanceRef.current = L.map(mapRef.current, { zoomControl: true, scrollWheelZoom: false })
-          .setView([43.6532, -79.3832], 13)
+        if (mapRef.current) {
+          mapInstanceRef.current = L.map(mapRef.current, {
+            zoomControl: true,
+            scrollWheelZoom: false,
+          }).setView([43.6532, -79.3832], 13)
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          maxZoom: 19,
-        }).addTo(mapInstanceRef.current)
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+          }).addTo(mapInstanceRef.current)
 
-        setTimeout(() => mapInstanceRef.current?.invalidateSize(), 200)
+          setTimeout(() => {
+            mapInstanceRef.current?.invalidateSize()
+          }, 200)
+        }
 
         const res = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=ca`
@@ -62,6 +66,7 @@ export default function PropertyMap({ address, title }: PropertyMapProps) {
         if (data?.[0] && mapInstanceRef.current) {
           const lat = parseFloat(data[0].lat)
           const lon = parseFloat(data[0].lon)
+
           mapInstanceRef.current.setView([lat, lon], 16)
 
           const icon = L.divIcon({
@@ -73,14 +78,19 @@ export default function PropertyMap({ address, title }: PropertyMapProps) {
 
           L.marker([lat, lon], { icon })
             .addTo(mapInstanceRef.current)
-            .bindPopup(`<b>${title || 'Property'}</b><br/><span style="font-size:12px">${address}</span><br/><a href="https://maps.google.com/?q=${encodeURIComponent(address)}" target="_blank" style="color:#F5A623;font-size:12px">Open in Google Maps →</a>`)
+            .bindPopup(
+              `<b>${title || 'Property'}</b><br/>
+               <span style="font-size:12px">${address}</span><br/>
+               <a href="https://maps.google.com/?q=${encodeURIComponent(address)}" target="_blank" style="color:#F5A623;font-size:12px">
+               Open in Google Maps →
+               </a>`
+            )
             .openPopup()
-        } else {
-          // Nominatim failed → iframe fallback
-          if (mapRef.current) {
-            if (mapInstanceRef.current) { try { mapInstanceRef.current.remove() } catch {} }
-            mapRef.current.innerHTML = `<iframe src="https://maps.google.com/maps?q=${encodeURIComponent(address + ', Canada')}&output=embed&z=15" style="width:100%;height:260px;border:none" allowfullscreen loading="lazy"></iframe>`
+        } else if (mapRef.current) {
+          if (mapInstanceRef.current) {
+            try { mapInstanceRef.current.remove() } catch {}
           }
+          mapRef.current.innerHTML = `<iframe src="https://maps.google.com/maps?q=${encodeURIComponent(address + ', Canada')}&output=embed&z=15" style="width:100%;height:260px;border:none" allowfullscreen loading="lazy"></iframe>`
         }
       } catch {
         if (mapRef.current) {
@@ -90,6 +100,7 @@ export default function PropertyMap({ address, title }: PropertyMapProps) {
     }
 
     const timer = setTimeout(initMap, 400)
+
     return () => {
       clearTimeout(timer)
       if (mapInstanceRef.current) {
@@ -102,8 +113,13 @@ export default function PropertyMap({ address, title }: PropertyMapProps) {
   return (
     <div
       ref={mapRef}
-      id="property-map"
-      style={{ width: '100%', height: 260, borderRadius: 'var(--r)', border: '1px solid var(--border)', background: '#EEF0EC' }}
+      style={{
+        width: '100%',
+        height: 260,
+        borderRadius: 'var(--r)',
+        border: '1px solid var(--border)',
+        background: '#EEF0EC',
+      }}
     />
   )
 }

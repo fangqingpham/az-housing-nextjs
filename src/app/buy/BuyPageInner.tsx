@@ -1,9 +1,7 @@
 'use client'
 
-import { Suspense } from 'react'
 import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import PropertyCard from '@/components/listings/PropertyCard'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
@@ -12,7 +10,7 @@ import { getListings, getSavedIds, toggleSaved, ensureSeedData } from '@/lib/api
 import { SEED_LISTINGS } from '@/lib/utils'
 import type { Listing } from '@/types'
 
-function RentPageContent() {
+export default function BuyPageInner() {
   const searchParams = useSearchParams()
   const [listings, setListings] = useState<Listing[]>([])
   const [savedIds, setSavedIds] = useState<string[]>([])
@@ -21,6 +19,7 @@ function RentPageContent() {
   const [ptype, setPtype] = useState(searchParams.get('type') || '')
   const [beds, setBeds] = useState(searchParams.get('beds') || '')
   const [price, setPrice] = useState('')
+  const [sort, setSort] = useState('newest')
   const { user } = useAuth()
   const { message, visible, showToast } = useToast()
 
@@ -29,10 +28,8 @@ function RentPageContent() {
       setLoading(true)
       await ensureSeedData(SEED_LISTINGS as any)
       const all = await getListings()
-      const rent = all.filter(
-        l => (l.status === 'published' || l.author === 'seed') && l.type === 'For Rent'
-      )
-      setListings(rent)
+      const sale = all.filter(l => (l.status === 'published' || l.author === 'seed') && l.type === 'For Sale')
+      setListings(sale)
       setLoading(false)
       if (user) setSavedIds(await getSavedIds(user.id))
     }
@@ -43,26 +40,25 @@ function RentPageContent() {
     let r = listings
     if (search) {
       const q = search.toLowerCase()
-      r = r.filter(
-        l =>
-          l.title?.toLowerCase().includes(q) ||
-          l.city?.toLowerCase().includes(q) ||
-          l.addr?.toLowerCase().includes(q)
+      r = r.filter(l =>
+        l.title?.toLowerCase().includes(q) ||
+        l.city?.toLowerCase().includes(q) ||
+        l.addr?.toLowerCase().includes(q) ||
+        l.province?.toLowerCase().includes(q)
       )
     }
     if (ptype) r = r.filter(l => l.ptype === ptype)
     if (beds) r = r.filter(l => l.beds >= parseInt(beds))
-    if (price === 'u1500')
-      r = r.filter(l => parseFloat(String(l.price).replace(/[^0-9.]/g, '')) < 1500)
-    if (price === '1500-2500')
-      r = r.filter(l => {
-        const p = parseFloat(String(l.price).replace(/[^0-9.]/g, ''))
-        return p >= 1500 && p < 2500
-      })
-    if (price === '2500+')
-      r = r.filter(l => parseFloat(String(l.price).replace(/[^0-9.]/g, '')) >= 2500)
+    if (price === 'u500') r = r.filter(l => parseFloat(String(l.price).replace(/[^0-9.]/g, '')) < 500000)
+    if (price === '500-1m') r = r.filter(l => {
+      const p = parseFloat(String(l.price).replace(/[^0-9.]/g, ''))
+      return p >= 500000 && p < 1000000
+    })
+    if (price === '1m+') r = r.filter(l => parseFloat(String(l.price).replace(/[^0-9.]/g, '')) >= 1000000)
+    if (sort === 'price-asc') r = [...r].sort((a, b) => parseFloat(String(a.price).replace(/[^0-9.]/g, '')) - parseFloat(String(b.price).replace(/[^0-9.]/g, '')))
+    if (sort === 'price-desc') r = [...r].sort((a, b) => parseFloat(String(b.price).replace(/[^0-9.]/g, '')) - parseFloat(String(a.price).replace(/[^0-9.]/g, '')))
     return r
-  }, [listings, search, ptype, beds, price])
+  }, [listings, search, ptype, beds, price, sort])
 
   const handleToggleSave = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
@@ -71,7 +67,7 @@ function RentPageContent() {
       return
     }
     const nowSaved = await toggleSaved(user.id, id)
-    setSavedIds(prev => (nowSaved ? [...prev, id] : prev.filter(x => x !== id)))
+    setSavedIds(prev => nowSaved ? [...prev, id] : prev.filter(x => x !== id))
     showToast(nowSaved ? 'Property saved! ♥' : 'Removed from saved.')
   }
 
@@ -79,10 +75,12 @@ function RentPageContent() {
     <>
       <Toast message={message} visible={visible} />
       <div className="container" style={{ paddingTop: '2rem', paddingBottom: '3rem' }}>
-        <h1>For Rent</h1>
+        <h1>For Sale</h1>
 
         {loading ? (
-          <p>Loading…</p>
+          <div className="empty-state"><p>Loading listings…</p></div>
+        ) : filtered.length === 0 ? (
+          <div className="empty-state"><p>No properties match your filters.</p></div>
         ) : (
           <div className="grid">
             {filtered.map(l => (
@@ -97,13 +95,5 @@ function RentPageContent() {
         )}
       </div>
     </>
-  )
-}
-
-export default function RentPage() {
-  return (
-    <Suspense fallback={<div />}>
-      <RentPageContent />
-    </Suspense>
   )
 }

@@ -27,7 +27,7 @@ export function safeFeats(l: Listing | null): string[] {
 }
 
 export function safePrice(p: string | number | undefined | null): string {
-  if (!p) return '—'
+  if (!p) return '--'
   const s = String(p).trim()
   if (/^\d[\d,]*(\.\d+)?(\/mo)?$/.test(s)) return '$' + s
   return s
@@ -88,7 +88,7 @@ export const BLOGS: BlogPost[] = [
     <h3>3. How are maintenance requests handled?</h3>
     <p>Ask for the average response time and whether there is 24/7 emergency support.</p>
     <h3>4. What is the pet policy?</h3>
-    <p>Even if you don't have a pet today, your situation may change — and in many provinces, blanket pet bans have legal nuances worth understanding.</p>
+    <p>Even if you don't have a pet today, your situation may change -- and in many provinces, blanket pet bans have legal nuances worth understanding.</p>
     <h3>5. What are the lease renewal terms?</h3>
     <p>In Ontario, landlords must give 90 days' notice of rent increases. Knowing the process helps you plan ahead.</p>`,
   },
@@ -96,7 +96,7 @@ export const BLOGS: BlogPost[] = [
     id: 'b2',
     title: 'How to Stage Your Home for a Fast Sale',
     cat: 'Selling Tips',
-    excerpt: 'Professional staging can reduce time on market by up to 40%. Here\'s what the experts do — and what you can DIY.',
+    excerpt: 'Professional staging can reduce time on market by up to 40%. Here\'s what the experts do -- and what you can DIY.',
     date: 'April 7, 2026',
     read: '7 min read',
     color: '#FEF3DC',
@@ -112,7 +112,7 @@ export const BLOGS: BlogPost[] = [
     id: 'b3',
     title: 'Understanding Mortgage Pre-Approval in Canada',
     cat: 'Buying Guide',
-    excerpt: 'Pre-approval isn\'t just a formality — it\'s a strategic advantage in competitive markets. Here\'s exactly how it works.',
+    excerpt: 'Pre-approval isn\'t just a formality -- it\'s a strategic advantage in competitive markets. Here\'s exactly how it works.',
     date: 'March 29, 2026',
     read: '6 min read',
     color: '#E1F5EE',
@@ -148,11 +148,11 @@ export const BLOGS: BlogPost[] = [
     date: 'March 14, 2026',
     read: '5 min read',
     color: '#FDE8E8',
-    body: `<p>Maintenance fees are one of the most misunderstood costs in condo ownership. Understanding what's included — and what isn't — is critical before you buy.</p>
+    body: `<p>Maintenance fees are one of the most misunderstood costs in condo ownership. Understanding what's included -- and what isn't -- is critical before you buy.</p>
     <h3>What's Usually Included</h3>
     <p>Building insurance, reserve fund contributions, property management, common element upkeep (lobbies, gym, pool), and sometimes utilities like water and heat.</p>
     <h3>The Reserve Fund</h3>
-    <p>This is your safety net for major repairs — roof replacement, elevator servicing, garage waterproofing. A healthy reserve fund should cover 100% of projected 30-year expenses.</p>
+    <p>This is your safety net for major repairs -- roof replacement, elevator servicing, garage waterproofing. A healthy reserve fund should cover 100% of projected 30-year expenses.</p>
     <h3>Status Certificate</h3>
     <p>Always request a status certificate before purchasing. It reveals the financial health of the corporation, any pending special assessments, and whether the unit has outstanding common expense arrears.</p>`,
   },
@@ -166,7 +166,7 @@ export const BLOGS: BlogPost[] = [
     color: '#E8F0FD',
     body: `<p>Both cities consistently rank among the world's least affordable, but their market drivers, lifestyle offerings, and long-term outlooks differ significantly.</p>
     <h3>Affordability</h3>
-    <p>Metro Vancouver's benchmark detached home price consistently exceeds Toronto's by roughly 15–20%, driven in part by land scarcity between mountains and ocean.</p>
+    <p>Metro Vancouver's benchmark detached home price consistently exceeds Toronto's by roughly 15-20%, driven in part by land scarcity between mountains and ocean.</p>
     <h3>Rental Market</h3>
     <p>Vancouver has Canada's tightest rental vacancy rate (often below 1%), pushing rents higher. Toronto offers more supply diversity with active condo development.</p>
     <h3>Lifestyle Considerations</h3>

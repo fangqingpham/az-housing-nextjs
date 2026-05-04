@@ -161,7 +161,7 @@ export default function PropertyDetailPage() {
             )}
           </div>
 
-          {/* Right column — Contact card */}
+          {/* Right column -- Contact card */}
           <div>
             <div className="ccard">
               <div className="agent-row">
@@ -198,7 +198,7 @@ export default function PropertyDetailPage() {
               </div>
               <div className="fg">
                 <label>Message</label>
-                <textarea className="fc" value={msg} onChange={e => setMsg(e.target.value)} placeholder="Hi, I'm interested in this property…" />
+                <textarea className="fc" value={msg} onChange={e => setMsg(e.target.value)} placeholder="Hi, I\'m interested in this property…" />
               </div>
               <button className="btn btn-primary btn-full" onClick={() => handleSendMessage('enquiry')} style={{ marginBottom: '.5rem' }}>
                 Send Message

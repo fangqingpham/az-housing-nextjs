@@ -92,7 +92,8 @@ export default function MapView({
   const initLeafletMap = useCallback(async () => {
     if (!mapRef.current || leafletInstanceRef.current) return
     const L = (await import('leaflet')).default
-    await import('leaflet/dist/leaflet.css')
+    // @ts-ignore
+        await import('leaflet/dist/leaflet.css')
 
     leafletInstanceRef.current = L.map(mapRef.current, { zoomControl: true })
       .setView(center, zoom)
@@ -110,7 +111,7 @@ export default function MapView({
       const isRent = l.type === 'For Rent'
       const color = isRent ? '#2D7A4F' : '#1B2A4A'
       const icon = L.divIcon({
-        html: `<div style="background:${color};color:white;padding:4px 9px;border-radius:14px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.3);border:2px solid white;cursor:pointer">${l.price || '—'}</div>`,
+        html: `<div style="background:${color};color:white;padding:4px 9px;border-radius:14px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.3);border:2px solid white;cursor:pointer">${l.price || '--'}</div>`,
         className: '',
         iconAnchor: [0, 0],
       })

@@ -52,7 +52,7 @@ export default function AdminPage() {
 
   // Settings
   const [sitename, setSitename] = useState('A - Z Housing Solutions')
-  const [tagline, setTagline] = useState("From Search to Sold, We've Got You Covered")
+  const [tagline, setTagline] = useState("From Search to Sold, We\'ve Got You Covered")
   const [adminEmail, setAdminEmail] = useState('')
   const [heroText, setHeroText] = useState('')
   const [heroSub, setHeroSub] = useState('')
@@ -379,12 +379,12 @@ export default function AdminPage() {
                           <div style={{ fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.title}</div>
                           <div style={{ fontSize: 11, color: 'var(--mid)' }}>{l.ptype || ''}</div>
                         </td>
-                        <td style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>{l.price || '—'}</td>
+                        <td style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>{l.price || '--'}</td>
                         <td><span className={`status-pill ${l.type === 'For Rent' ? 'sp-rent' : 'sp-sale'}`}>{l.type}</span></td>
                         <td style={{ fontSize: 12, color: 'var(--mid)' }}>{l.city}{l.province ? ', ' + l.province : ''}</td>
-                        <td style={{ textAlign: 'center' }}>{l.beds || '—'}</td>
+                        <td style={{ textAlign: 'center' }}>{l.beds || '--'}</td>
                         <td><span className={`status-pill ${status === 'published' ? 'sp-published' : 'sp-pending'}`}>{status}</span></td>
-                        <td style={{ fontSize: 12, color: 'var(--mid)', whiteSpace: 'nowrap' }}>{l.date || '—'}</td>
+                        <td style={{ fontSize: 12, color: 'var(--mid)', whiteSpace: 'nowrap' }}>{l.date || '--'}</td>
                         <td>
                           <div className="admin-actions">
                             <button className="btn btn-sm" onClick={() => router.push(`/property/${l.id}`)}>View</button>
@@ -458,8 +458,8 @@ export default function AdminPage() {
                           <td style={{ fontWeight: 500 }}>{u.fname} {u.lname || ''}</td>
                           <td style={{ fontSize: 13 }}>{u.email}</td>
                           <td><span className="status-pill sp-published">{u.role || 'buyer'}</span></td>
-                          <td style={{ fontSize: 12, color: 'var(--mid)' }}>{u.phone || '—'}</td>
-                          <td style={{ fontSize: 12, color: 'var(--mid)' }}>{u.joined || '—'}</td>
+                          <td style={{ fontSize: 12, color: 'var(--mid)' }}>{u.phone || '--'}</td>
+                          <td style={{ fontSize: 12, color: 'var(--mid)' }}>{u.joined || '--'}</td>
                           <td><button className="btn btn-sm btn-danger" onClick={() => adminDeleteUser(u.id)}>Delete</button></td>
                         </tr>
                       ))}

@@ -137,7 +137,7 @@ export default function DashboardPage() {
               <Link href="/post-listing" className="btn btn-sm btn-accent">+ Post New Listing</Link>
             </div>
             {myListings.length === 0
-              ? <p style={{ color: 'var(--mid)', fontSize: '14px' }}>You haven't posted any listings yet. <Link href="/post-listing" style={{ color: 'var(--accent)' }}>Post your first!</Link></p>
+              ? <p style={{ color: 'var(--mid)', fontSize: '14px' }}>You haven\'t posted any listings yet. <Link href="/post-listing" style={{ color: 'var(--accent)' }}>Post your first!</Link></p>
               : myListings.map(l => {
                 const imgs = safeImgs(l)
                 return (
@@ -171,7 +171,7 @@ export default function DashboardPage() {
           <div>
             {savedListings.length === 0
               ? <p style={{ color: 'var(--mid)', fontSize: '14px' }}>
-                You haven't saved any properties yet. Browse listings and tap ♡ to save.
+                You haven\'t saved any properties yet. Browse listings and tap ♡ to save.
               </p>
               : <div className="saved-grid">
                 {savedListings.map(l => (
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                     <span style={{ color: 'var(--mid)' }}>{m.type === 'viewing' ? 'Viewing Request' : 'Message'}</span>
                   </div>
                   <div className="msg-from">
-                    {m.from} — <a href={`mailto:${m.fromemail}`} style={{ color: 'var(--accent)' }}>{m.fromemail}</a>
+                    {m.from} -- <a href={`mailto:${m.fromemail}`} style={{ color: 'var(--accent)' }}>{m.fromemail}</a>
                     {m.phone ? ' · ' + m.phone : ''}
                   </div>
                   <div className="msg-text">{m.text}</div>

@@ -62,7 +62,7 @@ export default function Footer() {
               A - <span>Z</span> Housing
             </Link>
             <p style={{ fontSize: 14, lineHeight: 1.75, maxWidth: 260, marginBottom: 20, color: 'rgba(255,255,255,0.55)' }}>
-              Canada's complete platform for property search, listing, and real estate guidance — from search to sold.
+              Canada\'s complete platform for property search, listing, and real estate guidance -- from search to sold.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               {['Facebook', 'Instagram', 'LinkedIn', 'X'].map(s => (

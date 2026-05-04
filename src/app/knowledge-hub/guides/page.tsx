@@ -8,10 +8,10 @@ const GUIDE_CATEGORIES = [
     color: 'var(--accent)',
     title: 'Buying & Selling',
     guides: [
-      { title: 'First-Time Buyer's Complete Guide',  time: '12 min read', desc: 'Everything from pre-approval to closing day.' },
-      { title: 'How to Price Your Home to Sell',      time: '8 min read',  desc: 'Data-driven pricing strategies for the Canadian market.' },
-      { title: 'Understanding Closing Costs',         time: '6 min read',  desc: 'Land transfer tax, legal fees, and what to budget.' },
-      { title: 'Buying in a Seller's Market',         time: '7 min read',  desc: 'Offer strategies, escalation clauses & deposit advice.' },
+      { title: "First-Time Buyer's Complete Guide",  time: '12 min read', desc: 'Everything from pre-approval to closing day.' },
+      { title: 'How to Price Your Home to Sell',     time: '8 min read',  desc: 'Data-driven pricing strategies for the Canadian market.' },
+      { title: 'Understanding Closing Costs',        time: '6 min read',  desc: 'Land transfer tax, legal fees, and what to budget.' },
+      { title: "Buying in a Seller's Market",        time: '7 min read',  desc: 'Offer strategies, escalation clauses & deposit advice.' },
     ],
   },
   {
@@ -21,7 +21,7 @@ const GUIDE_CATEGORIES = [
     guides: [
       { title: 'Fixed vs Variable Rate: Which Is Right for You?', time: '9 min read',  desc: 'Breaking down the trade-offs in plain language.' },
       { title: 'How the Mortgage Stress Test Works',              time: '5 min read',  desc: 'Qualifying rates, calculations & what to expect.' },
-      { title: 'FHSA, RRSP Home Buyers' Plan & FHBTC',           time: '10 min read', desc: 'Maximise federal programs to boost your down payment.' },
+      { title: "FHSA, RRSP Home Buyers' Plan & FHBTC",           time: '10 min read', desc: 'Maximise federal programs to boost your down payment.' },
       { title: 'Renewing vs Refinancing Your Mortgage',          time: '7 min read',  desc: 'When to switch lenders and how to negotiate.' },
     ],
   },
@@ -75,13 +75,12 @@ export default function GuidesPage() {
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.05rem', lineHeight: 1.7, maxWidth: 540, margin: '0 auto 32px' }}>
             Free, expert-written guides covering buying, selling, renting, mortgages, renovations, and the latest legal changes.
           </p>
-          {/* Category quick-nav */}
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             {GUIDE_CATEGORIES.map(c => (
               <a key={c.title} href={`#${c.title.toLowerCase().replace(/[^a-z]+/g, '-')}`}
                 style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: '#fff', textDecoration: 'none', borderRadius: 8, padding: '7px 15px', fontSize: 13, fontWeight: 500 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}>
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.2)')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)')}>
                 {c.icon} {c.title}
               </a>
             ))}
@@ -94,20 +93,17 @@ export default function GuidesPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 64 }}>
           {GUIDE_CATEGORIES.map(cat => (
             <section key={cat.title} id={cat.title.toLowerCase().replace(/[^a-z]+/g, '-')} style={{ scrollMarginTop: 80 }}>
-              {/* Category header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28, paddingBottom: 18, borderBottom: `3px solid ${cat.color}` }}>
                 <span style={{ fontSize: 32 }}>{cat.icon}</span>
                 <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(1.4rem,3vw,1.9rem)', color: 'var(--dark)', margin: 0 }}>{cat.title}</h2>
               </div>
-
-              {/* Guide cards grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 20 }}>
                 {cat.guides.map(g => (
                   <article
                     key={g.title}
                     style={{ background: '#fff', borderRadius: 13, padding: '24px 22px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', cursor: 'pointer', transition: 'transform .2s, box-shadow .2s', borderTop: `3px solid ${cat.color}`, display: 'flex', flexDirection: 'column' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)'; }}
                   >
                     <h3 style={{ fontFamily: 'var(--serif)', fontSize: '1rem', color: 'var(--dark)', lineHeight: 1.4, marginBottom: 10, flex: 1 }}>{g.title}</h3>
                     <p style={{ color: 'var(--mid)', fontSize: 13, lineHeight: 1.6, marginBottom: 14 }}>{g.desc}</p>
@@ -128,7 +124,9 @@ export default function GuidesPage() {
         <div style={{ maxWidth: 720, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 36, alignItems: 'center' }}>
           <div>
             <h3 style={{ fontFamily: 'var(--serif)', fontSize: '1.8rem', color: 'var(--dark)', marginBottom: 12 }}>Looking for the latest news?</h3>
-            <p style={{ color: 'var(--mid)', lineHeight: 1.7, marginBottom: 24 }}>Visit our blog for weekly market commentary, policy updates, and advice from Canadian real estate professionals.</p>
+            <p style={{ color: 'var(--mid)', lineHeight: 1.7, marginBottom: 24 }}>
+              Visit our blog for weekly market commentary, policy updates, and advice from Canadian real estate professionals.
+            </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <Link href="/blog" style={{ background: 'var(--dark)', color: '#fff', textDecoration: 'none', borderRadius: 10, padding: '12px 24px', fontWeight: 700, fontSize: 14 }}>Read the Blog</Link>
               <Link href="/contact" style={{ background: 'var(--cream)', color: 'var(--dark)', textDecoration: 'none', borderRadius: 10, padding: '12px 24px', fontWeight: 600, fontSize: 14, border: '1px solid rgba(0,0,0,0.1)' }}>Ask an Expert</Link>

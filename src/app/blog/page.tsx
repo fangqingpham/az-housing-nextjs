@@ -48,7 +48,7 @@ export default function BlogPage() {
             >
               <div
                 style={{
-                  background: `url(${BLOGS[0].image}) center/cover no-repeat`,
+                  background: `url(${BLOGS[0].image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80'}) center/cover no-repeat`,
                   minHeight: 260,
                 }}
               />
@@ -83,9 +83,9 @@ export default function BlogPage() {
                 </h2>
                 <p style={{ color: 'var(--mid)', lineHeight: 1.7, marginBottom: 20 }}>{BLOGS[0].excerpt}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: 'var(--mid)' }}>
-                  <span>✍️ {BLOGS[0].author}</span>
+                  <span>✍️ {BLOGS[0].author || 'A-Z Housing Team'}</span>
                   <span>📅 {BLOGS[0].date}</span>
-                  <span>⏱ {BLOGS[0].readTime}</span>
+                  <span>⏱ {BLOGS[0].readTime || BLOGS[0].read}</span>
                 </div>
               </div>
             </article>
@@ -125,7 +125,7 @@ export default function BlogPage() {
                 <div
                   style={{
                     height: 180,
-                    background: `url(${post.image}) center/cover no-repeat`,
+                    background: `url(${post.image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80'}) center/cover no-repeat`,
                   }}
                 />
                 <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -162,8 +162,8 @@ export default function BlogPage() {
                       paddingTop: 14,
                     }}
                   >
-                    <span>✍️ {post.author}</span>
-                    <span style={{ marginLeft: 'auto' }}>⏱ {post.readTime}</span>
+                    <span>✍️ {post.author || 'A-Z Housing Team'}</span>
+                    <span style={{ marginLeft: 'auto' }}>⏱ {post.readTime || post.read}</span>
                   </div>
                 </div>
               </article>
