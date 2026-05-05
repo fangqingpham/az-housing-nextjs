@@ -75,24 +75,26 @@ export default function PostListingPage() {
     setSubmitting(true)
 
     const listing = {
-      id: 'l' + Date.now(),
-      type: listingType,
-      title,
-      ptype,
-      price,
-      beds: parseInt(beds) || 0,
-      baths: parseInt(baths) || 0,
-      sqft: parseInt(sqft) || 0,
-      garage: parseInt(garage) || 0,
-      addr, city, province, postal,
-      description,
-      feats: feats.split('\n').filter(Boolean),
-      agent: agentName,
-      email: agentEmail,
-      imgs: uploadedPhotos,
-      date: new Date().toLocaleDateString(),
-      author: user.id,
-      status: 'published' as const,
+      const listing = {
+  title,
+  price: parseFloat(String(price).replace(/[^0-9.]/g, '')) || 0,
+  price_type: listingType === 'For Rent' ? 'rent' : 'sale',
+  type: ptype,
+  bedrooms: parseInt(beds) || 0,
+  bathrooms: parseInt(baths) || 0,
+  area: parseInt(sqft) || 0,
+  address: addr,
+  location: `${addr}, ${city}, ${province} ${postal}`,
+  city,
+  province,
+  description,
+  features: feats.split('\n').filter(Boolean),
+  images: uploadedPhotos,
+  agent_name: agentName,
+  agent_email: agentEmail,
+  status: 'published' as const,
+  author: user.id,
+
     }
 
     const result = await insertListing(listing)
