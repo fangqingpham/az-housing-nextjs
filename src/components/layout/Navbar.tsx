@@ -392,7 +392,7 @@ export default function Navbar() {
         <Link
   href="/"
   style={{
-    marginRight: 14,
+    marginRight: 16,
     flexShrink: 0,
     textDecoration: 'none',
     display: 'flex',
@@ -403,11 +403,12 @@ export default function Navbar() {
   <Image
     src="/logo.png"
     alt="A-Z Housing Solutions"
-    width={105}
-    height={42}
+    width={80}
+    height={36}
     priority
     style={{
-      width: '105px',
+      width: '80px',
+      maxHeight: '44px',
       height: 'auto',
       objectFit: 'contain',
       display: 'block',
