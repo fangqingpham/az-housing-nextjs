@@ -18,12 +18,59 @@ interface MapViewProps {
   zoom?: number
 }
 
-function getListingCoords(listing: any): [number, number] {
+const geocodeCache = new Map<string, [number, number]>()
+
+function getAddressText(listing: any) {
+  return [
+    listing.address || listing.addr || '',
+    listing.city || '',
+    listing.province || '',
+    listing.postal || '',
+    'Canada',
+  ]
+    .filter(Boolean)
+    .join(', ')
+}
+
+function getSavedCoords(listing: any): [number, number] | null {
   const lat = Number(listing.lat)
   const lng = Number(listing.lng)
 
   if (!Number.isNaN(lat) && !Number.isNaN(lng) && lat !== 0 && lng !== 0) {
     return [lat, lng]
+  }
+
+  return null
+}
+
+async function geocodeListing(listing: any): Promise<[number, number]> {
+  const saved = getSavedCoords(listing)
+
+  if (saved) return saved
+
+  const address = getAddressText(listing)
+
+  if (geocodeCache.has(address)) {
+    return geocodeCache.get(address)!
+  }
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`
+    const res = await fetch(url)
+    const data = await res.json()
+
+    if (Array.isArray(data) && data.length > 0) {
+      const lat = Number(data[0].lat)
+      const lng = Number(data[0].lon)
+
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+        const coords: [number, number] = [lat, lng]
+        geocodeCache.set(address, coords)
+        return coords
+      }
+    }
+  } catch (err) {
+    console.warn('Geocoding failed:', address, err)
   }
 
   return getCityCoords(listing)
@@ -34,7 +81,7 @@ export default function MapView({
   onMarkerClick,
   highlightedId,
   center = [43.6532, -79.3832],
-  zoom = 9,
+  zoom = 10,
 }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null)
 
@@ -63,15 +110,15 @@ export default function MapView({
     leafletMarkersRef.current = []
   }, [])
 
-  const placeGoogleMarkers = useCallback(() => {
+  const placeGoogleMarkers = useCallback(async () => {
     const map = googleMapRef.current
 
     if (!map || typeof google === 'undefined') return
 
     clearGoogleMarkers()
 
-    listings.forEach(listing => {
-      const [lat, lng] = getListingCoords(listing)
+    for (const listing of listings as any[]) {
+      const [lat, lng] = await geocodeListing(listing)
       const isRent = listing.type === 'For Rent'
       const color = isRent ? '#2D7A4F' : '#1B2A4A'
 
@@ -118,10 +165,10 @@ export default function MapView({
 
       ;(marker as any)._infoWindow = infoWindow
       googleMarkersRef.current.push(marker)
-    })
+    }
   }, [listings, highlightedId, onMarkerClick, clearGoogleMarkers])
 
-  const placeLeafletMarkers = useCallback(() => {
+  const placeLeafletMarkers = useCallback(async () => {
     const map = leafletMapRef.current
     const L = leafletLibRef.current
 
@@ -129,8 +176,12 @@ export default function MapView({
 
     clearLeafletMarkers()
 
-    listings.forEach(listing => {
-      const [lat, lng] = getListingCoords(listing)
+    const bounds: [number, number][] = []
+
+    for (const listing of listings as any[]) {
+      const [lat, lng] = await geocodeListing(listing)
+      bounds.push([lat, lng])
+
       const isRent = listing.type === 'For Rent'
       const color = isRent ? '#2D7A4F' : '#1B2A4A'
       const isHighlighted = highlightedId === listing.id
@@ -173,7 +224,14 @@ export default function MapView({
       })
 
       leafletMarkersRef.current.push(marker)
-    })
+    }
+
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, {
+        padding: [60, 60],
+        maxZoom: 13,
+      })
+    }
   }, [listings, highlightedId, onMarkerClick, clearLeafletMarkers])
 
   const initGoogleMap = useCallback(() => {
