@@ -3,13 +3,39 @@ import type { Listing, AppUser, Message } from '@/types'
 
 const supa = () => getSupabaseBrowserClient()
 
+function normalizeListing(l: any) {
+  return {
+    ...l,
+
+    // Supabase table fields → frontend expected fields
+    imgs: l.images || [],
+    feats: l.features || [],
+    addr: l.address || '',
+    ptype: l.type || '',
+    beds: l.bedrooms || 0,
+    baths: l.bathrooms || 0,
+    sqft: l.area || 0,
+    agent: l.agent_name || '',
+    email: l.agent_email || '',
+
+    // Keep existing frontend filters working
+    type: l.price_type === 'rent' ? 'For Rent' : 'For Sale',
+  }
+}
+
 // ── Listings ───────────────────────────────────────────────────────────
 export async function getListings(): Promise<Listing[]> {
   const { data, error } = await supa()
     .from('listings')
     .select('*')
     .order('created_at', { ascending: false })
-  return error ? [] : (data as Listing[])
+
+  if (error) {
+    console.error('getListings:', error)
+    return []
+  }
+
+  return (data || []).map(normalizeListing) as Listing[]
 }
 
 export async function getListingById(id: string): Promise<Listing | null> {
@@ -18,12 +44,21 @@ export async function getListingById(id: string): Promise<Listing | null> {
     .select('*')
     .eq('id', id)
     .single()
-  return error ? null : (data as Listing)
+
+  if (error) {
+    console.error('getListingById:', error)
+    return null
+  }
+
+  return normalizeListing(data) as Listing
 }
 
 export async function insertListing(l: Omit<Listing, 'created_at'>): Promise<Listing | null> {
   const { data, error } = await supa().from('listings').insert([l]).select()
-  if (error) { console.error('insertListing:', error); return null }
+  if (error) {
+    console.error('insertListing:', error)
+    return null
+  }
   return data[0] as Listing
 }
 
@@ -154,7 +189,10 @@ export async function uploadPhoto(file: File, prefix = 'listings'): Promise<stri
     .storage
     .from('property-photos')
     .upload(path, file, { upsert: true, contentType: file.type })
-  if (error) { console.error('uploadPhoto:', error); return null }
+  if (error) {
+    console.error('uploadPhoto:', error)
+    return null
+  }
   const { data: urlData } = supa()
     .storage
     .from('property-photos')
