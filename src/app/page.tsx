@@ -56,7 +56,7 @@ export default function HomePage() {
 
       {/* HERO */}
       <section className="hero">
-        <span className="eyebrow">From Search to Sold, We\'ve Got You Covered</span>
+        <span className="eyebrow">From Search to Sold, We've Got You Covered</span>
         <h1>Find Your Perfect Home Across Canada</h1>
         <p className="hero-sub">
           Browse thousands of listings from trusted sellers and agents across Canada.
@@ -69,21 +69,7 @@ export default function HomePage() {
             <button key={f} className="adv-chip">{f}</button>
           ))}
         </div>
-
-        <div className="stats">
-          <div>
-            <span className="sn" id="stat-count">{listingCount}</span>
-            <span className="sl">Active Listings</span>
-          </div>
-          <div>
-            <span className="sn">Canada</span>
-            <span className="sl">Nationwide</span>
-          </div>
-          <div>
-            <span className="sn" id="stat-users">{userCount}</span>
-            <span className="sl">Registered Users</span>
-          </div>
-        </div>
+        
       </section>
 
       {/* FEATURED FOR SALE */}
