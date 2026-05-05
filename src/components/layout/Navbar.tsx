@@ -403,12 +403,12 @@ export default function Navbar() {
   <Image
     src="/logo.png"
     alt="A-Z Housing Solutions"
-    width={80}
-    height={36}
+    width={90}
+    height={40}
     priority
     style={{
-      width: '80px',
-      maxHeight: '44px',
+      width: '90px',
+      maxHeight: '40px',
       height: 'auto',
       objectFit: 'contain',
       display: 'block',
