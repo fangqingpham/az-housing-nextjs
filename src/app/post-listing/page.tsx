@@ -75,8 +75,7 @@ export default function PostListingPage() {
     setSubmitting(true)
 
     const listing = {
-      const listing = {
-  title,
+        title,
   price: parseFloat(String(price).replace(/[^0-9.]/g, '')) || 0,
   price_type: listingType === 'For Rent' ? 'rent' : 'sale',
   type: ptype,
