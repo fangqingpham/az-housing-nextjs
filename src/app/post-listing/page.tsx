@@ -96,7 +96,7 @@ export default function PostListingPage() {
 
     }
 
-    const result = await insertListing(listing)
+    const result = await insertListing(listing as any)
     setSubmitting(false)
     if (!result) { showToast('Error publishing. Please try again.'); return }
 
