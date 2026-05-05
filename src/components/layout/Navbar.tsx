@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
@@ -389,16 +390,29 @@ export default function Navbar() {
         }}
       >
         <Link
-          href="/"
-          className="logo"
-          style={{
-            marginRight: 10,
-            flexShrink: 0,
-            textDecoration: 'none',
-          }}
-        >
-          A - <span>Z</span> Housing
-        </Link>
+  href="/"
+  style={{
+    marginRight: 18,
+    flexShrink: 0,
+    textDecoration: 'none',
+    display: 'flex',
+    alignItems: 'center',
+  }}
+>
+  <Image
+    src="/logo.png"
+    alt="A-Z Housing Solutions"
+    width={150}
+    height={50}
+    priority
+    style={{
+      width: '150px',
+      height: 'auto',
+      objectFit: 'contain',
+      display: 'block',
+    }}
+  />
+</Link>
 
         <div
           className="nav-links"

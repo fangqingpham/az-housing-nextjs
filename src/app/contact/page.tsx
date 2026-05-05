@@ -18,7 +18,7 @@ const SUPPORT_CARDS = [
   {
     icon: '📧',
     title: 'Email Support',
-    detail: 'support@azhousingsolutions.ca',
+    detail: 'azhousing.solutions@outlook.com',
     sub: 'Response within 24 hours',
   },
   {
