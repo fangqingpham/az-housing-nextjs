@@ -129,11 +129,11 @@ function SimpleDropdown({
             textDecoration: 'none',
             transition: 'background .15s',
           }}
-          onMouseEnter={event => {
-            event.currentTarget.style.background = 'var(--cream)'
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'var(--cream)'
           }}
-          onMouseLeave={event => {
-            event.currentTarget.style.background = 'transparent'
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent'
           }}
         >
           <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--dark)' }}>
@@ -200,7 +200,6 @@ function ServicesPanel({
               alignItems: 'center',
               justifyContent: 'space-between',
               color: activeGroup === group.key ? 'var(--dark)' : 'var(--mid)',
-              transition: 'all .15s',
             }}
           >
             {group.label}
@@ -255,11 +254,11 @@ function ServicesPanel({
               textDecoration: 'none',
               transition: 'background .15s',
             }}
-            onMouseEnter={event => {
-              event.currentTarget.style.background = 'var(--cream)'
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'var(--cream)'
             }}
-            onMouseLeave={event => {
-              event.currentTarget.style.background = 'transparent'
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent'
             }}
           >
             <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>
@@ -295,7 +294,7 @@ function MobileAccordion({
         style={{
           width: '100%',
           textAlign: 'left',
-          padding: '13px 20px',
+          padding: '14px 18px',
           background: 'none',
           border: 'none',
           cursor: 'pointer',
@@ -323,16 +322,57 @@ function MobileAccordion({
   )
 }
 
+function MobileLink({
+  href,
+  children,
+  onClick,
+}: {
+  href: string
+  children: React.ReactNode
+  onClick: () => void
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      style={{
+        display: 'block',
+        padding: '11px 18px 11px 34px',
+        fontSize: 14,
+        color: 'var(--mid)',
+        textDecoration: 'none',
+        borderBottom: '1px solid rgba(0,0,0,0.04)',
+      }}
+    >
+      {children}
+    </Link>
+  )
+}
+
 export default function Navbar() {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [mobileServicesGroup, setMobileServicesGroup] = useState<string | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
 
   const { user, signOut } = useAuth()
   const pathname = usePathname()
   const router = useRouter()
   const navRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const updateSize = () => {
+      setIsMobile(window.innerWidth <= 900)
+    }
+
+    updateSize()
+    window.addEventListener('resize', updateSize)
+
+    return () => {
+      window.removeEventListener('resize', updateSize)
+    }
+  }, [])
 
   useEffect(() => {
     const handler = (event: MouseEvent) => {
@@ -358,6 +398,7 @@ export default function Navbar() {
   const handleSignOut = async () => {
     await signOut()
     setUserMenuOpen(false)
+    setMobileOpen(false)
     router.push('/')
   }
 
@@ -375,326 +416,344 @@ export default function Navbar() {
         borderBottom: '1px solid rgba(0,0,0,0.08)',
         boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
         overflow: 'visible',
+        width: '100%',
+        maxWidth: '100vw',
       }}
     >
       <div
         style={{
           maxWidth: 1400,
+          width: '100%',
           margin: '0 auto',
-          padding: '0 20px',
-          height: 62,
+          padding: isMobile ? '0 14px' : '0 20px',
+          height: isMobile ? 58 : 62,
           display: 'flex',
           alignItems: 'center',
+          justifyContent: isMobile ? 'space-between' : 'flex-start',
           gap: 2,
           overflow: 'visible',
         }}
       >
         <Link
-  href="/"
-  style={{
-    marginRight: 14,
-    flexShrink: 0,
-    textDecoration: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    height: 62,
-  }}
->
-  <Image
-    src="/logo.png"
-    alt="A-Z Housing Solutions"
-    width={100}
-    height={42}
-    priority
-    style={{
-      width: '100px',
-      height: 'auto',
-      objectFit: 'contain',
-      display: 'block',
-    }}
-  />
-</Link>
-
-        <div
-          className="nav-links"
+          href="/"
           style={{
+            marginRight: isMobile ? 0 : 14,
+            flexShrink: 0,
+            textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
-            flex: 1,
-            gap: 0,
-            flexWrap: 'nowrap',
-            overflow: 'visible',
-            minWidth: 0,
+            height: isMobile ? 58 : 62,
           }}
         >
-          {NAV.map(item => {
-            if (item.kind === 'link') {
-              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
+          <Image
+            src="/logo.png"
+            alt="A-Z Housing Solutions"
+            width={isMobile ? 58 : 88}
+            height={isMobile ? 32 : 42}
+            priority
+            style={{
+              width: isMobile ? '58px' : '88px',
+              maxHeight: isMobile ? '44px' : '54px',
+              height: 'auto',
+              objectFit: 'contain',
+              display: 'block',
+            }}
+          />
+        </Link>
+
+        {!isMobile && (
+          <div
+            className="nav-links"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              flex: 1,
+              gap: 0,
+              flexWrap: 'nowrap',
+              overflow: 'visible',
+              minWidth: 0,
+            }}
+          >
+            {NAV.map(item => {
+              if (item.kind === 'link') {
+                const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    style={{
+                      padding: '0 10px',
+                      height: 62,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                      textDecoration: 'none',
+                      color: active ? 'var(--accent)' : 'var(--dark)',
+                      borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              }
+
+              const active =
+                item.kind === 'dropdown'
+                  ? item.items.some(subItem => pathname.startsWith(subItem.href))
+                  : item.groups.some(group =>
+                      group.items.some(subItem => pathname.startsWith(subItem.href.split('#')[0]))
+                    )
 
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  style={{
-                    padding: '0 10px',
-                    height: 62,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    whiteSpace: 'nowrap',
-                    textDecoration: 'none',
-                    color: active ? 'var(--accent)' : 'var(--dark)',
-                    borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
-                    transition: 'color .15s',
-                  }}
-                >
-                  {item.label}
-                </Link>
-              )
-            }
-
-            const active =
-              item.kind === 'dropdown'
-                ? item.items.some(subItem => pathname.startsWith(subItem.href))
-                : item.groups.some(group =>
-                    group.items.some(subItem => pathname.startsWith(subItem.href.split('#')[0]))
-                  )
-
-            return (
-              <div
-                key={item.key}
-                style={{
-                  position: 'relative',
-                  height: 62,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  overflow: 'visible',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setOpenKey(current => (current === item.key ? null : item.key))}
-                  style={{
-                    padding: '0 10px',
-                    height: 62,
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    whiteSpace: 'nowrap',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    color: active ? 'var(--accent)' : 'var(--dark)',
-                    borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
-                    transition: 'color .15s',
-                  }}
-                >
-                  {item.label}
-                  <span
-                    style={{
-                      fontSize: 9,
-                      opacity: 0.5,
-                      transition: 'transform .2s',
-                      transform: openKey === item.key ? 'rotate(180deg)' : 'none',
-                    }}
-                  >
-                    ▾
-                  </span>
-                </button>
-
-                {openKey === item.key &&
-                  (item.kind === 'services' ? (
-                    <ServicesPanel groups={item.groups} onClose={() => setOpenKey(null)} />
-                  ) : (
-                    <SimpleDropdown items={item.items} onClose={() => setOpenKey(null)} />
-                  ))}
-              </div>
-            )
-          })}
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: 8,
-            alignItems: 'center',
-            flexShrink: 0,
-            position: 'relative',
-          }}
-        >
-          {user ? (
-            <>
-              <Link
-                href="/post-listing"
-                className="btn btn-sm btn-accent"
-                style={{
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                + List Property
-              </Link>
-
-              <div
-                className="nav-avatar"
-                onClick={() => setUserMenuOpen(value => !value)}
-                title={user.fname}
-                style={{
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                }}
-              >
-                {getInitials(`${user.fname} ${user.lname || ''}`)}
-              </div>
-
-              {userMenuOpen && (
                 <div
+                  key={item.key}
                   style={{
-                    position: 'absolute',
-                    top: 50,
-                    right: 0,
-                    background: '#fff',
-                    border: '1px solid var(--border)',
-                    borderRadius: 12,
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                    minWidth: 180,
-                    zIndex: 6000,
-                    padding: '6px 0',
+                    position: 'relative',
+                    height: 62,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    overflow: 'visible',
                   }}
+                  onMouseEnter={() => setOpenKey(item.key)}
+                  onMouseLeave={() => setOpenKey(null)}
                 >
-                  <div
-                    style={{
-                      padding: '10px 16px 8px',
-                      fontSize: 12,
-                      color: 'var(--mid)',
-                      borderBottom: '1px solid var(--border)',
-                    }}
-                  >
-                    {user.fname} {user.lname}
-                  </div>
-
-                  <Link
-                    href="/dashboard"
-                    style={{
-                      display: 'block',
-                      padding: '10px 16px',
-                      fontSize: 14,
-                      color: 'var(--dark)',
-                      textDecoration: 'none',
-                    }}
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-
-                  <Link
-                    href="/post-listing"
-                    style={{
-                      display: 'block',
-                      padding: '10px 16px',
-                      fontSize: 14,
-                      color: 'var(--dark)',
-                      textDecoration: 'none',
-                    }}
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    Post a Listing
-                  </Link>
-
-                  <hr style={{ margin: '4px 0', borderColor: 'var(--border)' }} />
-
                   <button
                     type="button"
-                    onClick={handleSignOut}
+                    onClick={() => setOpenKey(current => (current === item.key ? null : item.key))}
                     style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '10px 16px',
-                      fontSize: 14,
-                      color: 'var(--red)',
+                      padding: '0 10px',
+                      height: 62,
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      color: active ? 'var(--accent)' : 'var(--dark)',
+                      borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
                     }}
                   >
-                    Sign Out
+                    {item.label}
+                    <span
+                      style={{
+                        fontSize: 9,
+                        opacity: 0.5,
+                        transform: openKey === item.key ? 'rotate(180deg)' : 'none',
+                      }}
+                    >
+                      ▾
+                    </span>
                   </button>
+
+                  {openKey === item.key &&
+                    (item.kind === 'services' ? (
+                      <ServicesPanel groups={item.groups} onClose={() => setOpenKey(null)} />
+                    ) : (
+                      <SimpleDropdown items={item.items} onClose={() => setOpenKey(null)} />
+                    ))}
                 </div>
-              )}
-            </>
-          ) : (
-            <>
-              <Link href="/auth/login" className="btn btn-sm" style={{ textDecoration: 'none' }}>
-                Log In
-              </Link>
+              )
+            })}
+          </div>
+        )}
 
-              <Link href="/auth/register" className="btn btn-sm btn-accent" style={{ textDecoration: 'none' }}>
-                Sign Up
-              </Link>
-            </>
-          )}
-        </div>
-
-        <button
-          className="nav-burger"
-          type="button"
-          onClick={() => setMobileOpen(value => !value)}
-          aria-label="Toggle menu"
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 8,
-            marginLeft: 6,
-          }}
-        >
-          <span
+        {!isMobile && (
+          <div
+            className="nav-actions"
             style={{
-              display: 'block',
-              width: 22,
-              height: 2,
-              background: 'var(--dark)',
-              marginBottom: 5,
-              transition: 'transform .2s',
-              transform: mobileOpen ? 'rotate(45deg) translate(5px,5px)' : 'none',
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center',
+              flexShrink: 0,
+              position: 'relative',
             }}
-          />
+          >
+            {user ? (
+              <>
+                <Link
+                  href="/post-listing"
+                  className="btn btn-sm btn-accent"
+                  style={{
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  + List Property
+                </Link>
 
-          <span
-            style={{
-              display: 'block',
-              width: 22,
-              height: 2,
-              background: 'var(--dark)',
-              marginBottom: 5,
-              opacity: mobileOpen ? 0 : 1,
-              transition: 'opacity .2s',
-            }}
-          />
+                <div
+                  className="nav-avatar"
+                  onClick={() => setUserMenuOpen(value => !value)}
+                  title={user.fname}
+                  style={{
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                >
+                  {getInitials(`${user.fname} ${user.lname || ''}`)}
+                </div>
 
-          <span
+                {userMenuOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 50,
+                      right: 0,
+                      background: '#fff',
+                      border: '1px solid var(--border)',
+                      borderRadius: 12,
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                      minWidth: 180,
+                      zIndex: 6000,
+                      padding: '6px 0',
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: '10px 16px 8px',
+                        fontSize: 12,
+                        color: 'var(--mid)',
+                        borderBottom: '1px solid var(--border)',
+                      }}
+                    >
+                      {user.fname} {user.lname}
+                    </div>
+
+                    <Link
+                      href="/dashboard"
+                      style={{
+                        display: 'block',
+                        padding: '10px 16px',
+                        fontSize: 14,
+                        color: 'var(--dark)',
+                        textDecoration: 'none',
+                      }}
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+
+                    <Link
+                      href="/post-listing"
+                      style={{
+                        display: 'block',
+                        padding: '10px 16px',
+                        fontSize: 14,
+                        color: 'var(--dark)',
+                        textDecoration: 'none',
+                      }}
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      Post a Listing
+                    </Link>
+
+                    <hr style={{ margin: '4px 0', borderColor: 'var(--border)' }} />
+
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      style={{
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '10px 16px',
+                        fontSize: 14,
+                        color: 'var(--red)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login" className="btn btn-sm" style={{ textDecoration: 'none' }}>
+                  Log In
+                </Link>
+
+                <Link href="/auth/register" className="btn btn-sm btn-accent" style={{ textDecoration: 'none' }}>
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+        )}
+
+        {isMobile && (
+          <button
+            type="button"
+            onClick={() => setMobileOpen(value => !value)}
+            aria-label="Toggle menu"
             style={{
-              display: 'block',
-              width: 22,
-              height: 2,
-              background: 'var(--dark)',
-              transition: 'transform .2s',
-              transform: mobileOpen ? 'rotate(-45deg) translate(5px,-5px)' : 'none',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 8,
+              marginLeft: 'auto',
+              width: 42,
+              height: 42,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-          />
-        </button>
+          >
+            <span
+              style={{
+                display: 'block',
+                width: 24,
+                height: 2,
+                background: 'var(--dark)',
+                marginBottom: 5,
+                transition: 'transform .2s',
+                transform: mobileOpen ? 'rotate(45deg) translate(5px,5px)' : 'none',
+              }}
+            />
+
+            <span
+              style={{
+                display: 'block',
+                width: 24,
+                height: 2,
+                background: 'var(--dark)',
+                marginBottom: 5,
+                opacity: mobileOpen ? 0 : 1,
+                transition: 'opacity .2s',
+              }}
+            />
+
+            <span
+              style={{
+                display: 'block',
+                width: 24,
+                height: 2,
+                background: 'var(--dark)',
+                transition: 'transform .2s',
+                transform: mobileOpen ? 'rotate(-45deg) translate(5px,-5px)' : 'none',
+              }}
+            />
+          </button>
+        )}
       </div>
 
-      {mobileOpen && (
+      {isMobile && mobileOpen && (
         <div
           style={{
             background: '#fff',
             borderTop: '1px solid rgba(0,0,0,0.07)',
-            maxHeight: '80vh',
+            maxHeight: 'calc(100vh - 58px)',
             overflowY: 'auto',
+            width: '100%',
+            maxWidth: '100vw',
           }}
         >
           <Link
@@ -702,9 +761,9 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
             style={{
               display: 'block',
-              padding: '13px 20px',
+              padding: '14px 18px',
               fontSize: 15,
-              fontWeight: 600,
+              fontWeight: 700,
               color: 'var(--dark)',
               textDecoration: 'none',
               borderBottom: '1px solid rgba(0,0,0,0.07)',
@@ -722,7 +781,7 @@ export default function Navbar() {
                   style={{
                     width: '100%',
                     textAlign: 'left',
-                    padding: '10px 20px 10px 32px',
+                    padding: '11px 18px 11px 30px',
                     background: 'var(--cream)',
                     border: 'none',
                     cursor: 'pointer',
@@ -742,21 +801,13 @@ export default function Navbar() {
 
                 {mobileServicesGroup === group.key &&
                   group.items.map(item => (
-                    <Link
+                    <MobileLink
                       key={item.href}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
-                      style={{
-                        display: 'block',
-                        padding: '10px 20px 10px 48px',
-                        fontSize: 13,
-                        color: 'var(--mid)',
-                        textDecoration: 'none',
-                        borderBottom: '1px solid rgba(0,0,0,0.04)',
-                      }}
                     >
                       {item.label}
-                    </Link>
+                    </MobileLink>
                   ))}
               </div>
             ))}
@@ -765,21 +816,13 @@ export default function Navbar() {
           {dropdownItems.map(item => (
             <MobileAccordion key={item.key} label={item.label}>
               {item.items.map(subItem => (
-                <Link
+                <MobileLink
                   key={subItem.href}
                   href={subItem.href}
                   onClick={() => setMobileOpen(false)}
-                  style={{
-                    display: 'block',
-                    padding: '10px 20px 10px 32px',
-                    fontSize: 14,
-                    color: 'var(--mid)',
-                    textDecoration: 'none',
-                    borderBottom: '1px solid rgba(0,0,0,0.04)',
-                  }}
                 >
                   {subItem.label}
-                </Link>
+                </MobileLink>
               ))}
             </MobileAccordion>
           ))}
@@ -789,7 +832,7 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
             style={{
               display: 'block',
-              padding: '13px 20px',
+              padding: '14px 18px',
               fontSize: 15,
               fontWeight: 600,
               color: 'var(--dark)',
@@ -805,7 +848,7 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
             style={{
               display: 'block',
-              padding: '13px 20px',
+              padding: '14px 18px',
               fontSize: 15,
               fontWeight: 600,
               color: 'var(--dark)',
@@ -816,7 +859,7 @@ export default function Navbar() {
             About Us
           </Link>
 
-          <div style={{ padding: '12px 20px', display: 'flex', gap: 10 }}>
+          <div style={{ padding: '14px 18px', display: 'flex', gap: 10 }}>
             {user ? (
               <>
                 <Link
