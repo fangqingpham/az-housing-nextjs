@@ -58,49 +58,45 @@ export default function ContactPage() {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
 
-    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
-      setErrorMsg('Please fill in your name, email, and message.')
+  if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+    setErrorMsg('Please fill in your name, email, and message.')
+    return
+  }
+
+  setSending(true)
+  setErrorMsg('')
+
+  const messagePayload = {
+    listing_id: null,
+    name: form.name.trim(),
+    email: form.email.trim(),
+    phone: form.phone.trim(),
+    message: form.topic
+      ? `Topic: ${form.topic}\n\n${form.message.trim()}`
+      : form.message.trim(),
+    viewing_date: '',
+  }
+
+  try {
+    const ok = await insertMessage(messagePayload as any)
+
+    if (!ok) {
+      setErrorMsg('Sorry, your message could not be sent. Please try again.')
+      setSending(false)
       return
     }
 
-    setSending(true)
-    setErrorMsg('')
-
-    const messagePayload = {
-      id: 'm' + Date.now(),
-      listingid: '',
-      listingtitle: form.topic || 'Contact Form',
-      listingowner: '',
-      from: form.name.trim(),
-      fromemail: form.email.trim(),
-      phone: form.phone.trim(),
-      text: form.topic
-        ? `Topic: ${form.topic}\n\n${form.message.trim()}`
-        : form.message.trim(),
-      date: new Date().toLocaleString(),
-      type: 'contact',
-    }
-
-    try {
-      const ok = await insertMessage(messagePayload as any)
-
-      if (!ok) {
-        setErrorMsg('Sorry, your message could not be sent. Please try again.')
-        setSending(false)
-        return
-      }
-
-      setSent(true)
-      setSending(false)
-    } catch (error) {
-      console.error('Contact form submit error:', error)
-      setErrorMsg('Sorry, your message could not be sent. Please try again.')
-      setSending(false)
-    }
+    setSent(true)
+    setSending(false)
+  } catch (error) {
+    console.error('Contact form submit error:', error)
+    setErrorMsg('Sorry, your message could not be sent. Please try again.')
+    setSending(false)
   }
+}
 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--cream)' }}>
