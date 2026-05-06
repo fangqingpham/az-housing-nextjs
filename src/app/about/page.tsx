@@ -3,10 +3,10 @@
 import Link from "next/link";
 
 const TEAM = [
-  { name: "Katie Pham",  role: "Founder & Mortgage Agent",             initial: "AZ", bg: "var(--accent)", bio: "Mortgage Agent Ontario Licensed (# M26000130). Strong experience and knowledge in Canadian residential & commercial Mortgages, Business Loans, HLOC, 2nd mortgage, and so on. Built A-Z to make the market work for everyone, not just insiders." },
-  { name: "Bill Ngo",      role: "Property Manager",             initial: "MC", bg: "#4a90d9",       bio: "Certified Property Manager (CPM), long-term experience in managing properties and tenant placement, always standby whenever in need." },
+  { name: "Katie Pham",  role: "Founder & Mortgage Agent",             initial: "KP", bg: "var(--accent)", bio: "Licensed # M26000130. Strong experience and knowledge in Canadian residential & commercial Mortgages, Business Loans, HLOC, 2nd mortgage, and so on. Built A-Z to make the market work for everyone, not just insiders." },
+  { name: "Bill Ngo",      role: "Property Manager",             initial: "BN", bg: "#4a90d9",       bio: "Certified Property Manager (CPM), long-term experience in managing properties and tenant placement, always standby whenever in need." },
   { name: "Priya Nair",       role: "Head of Landlord Services",    initial: "PN", bg: "var(--green)",  bio: "Certified Property Manager (CPM) and former LTB hearing officer. Knows tenant-landlord law inside and out." },
-  { name: "Aimee Zhou",    role: "Head of Buyer/Seller Support", initial: "DO", bg: "#9b59b6",       bio: "Licensed real estate salesperson in Ontario and. Many years experience home buying, selling, renting, as well as investment strategy." },
+  { name: "Aimee Zhou",    role: "Head of Buyer/Seller Support", initial: "AZ", bg: "#9b59b6",       bio: "Licensed # R12345670. Licensed real estate salesperson in Ontario and. Many years experience home buying, selling, renting, as well as investment strategy." },
 ];
 
 const VALUES = [
