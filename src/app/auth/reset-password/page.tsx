@@ -310,7 +310,7 @@ function ResetPasswordInner() {
             }}
           >
             Back to Sign In
-          </Link>
+          </Link>	
         </p>
       </div>
     </main>
