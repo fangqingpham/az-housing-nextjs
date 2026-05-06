@@ -3,10 +3,10 @@
 import Link from "next/link";
 
 const TEAM = [
-  { name: "Alexandra Zoric",  role: "Co-Founder & CEO",             initial: "AZ", bg: "var(--accent)", bio: "Former mortgage broker with 15 years in Canadian residential real estate. Built A-Z to make the market work for everyone, not just insiders." },
-  { name: "Marcus Chen",      role: "Co-Founder & CTO",             initial: "MC", bg: "#4a90d9",       bio: "Full-stack engineer and landlord with properties in Toronto and Vancouver. Obsessed with making property data accessible and useful." },
+  { name: "Katie Pham",  role: "Founder & Mortgage Agent",             initial: "AZ", bg: "var(--accent)", bio: "Mortgage Agent Ontario Licensed (# M26000130). Strong experience and knowledge in Canadian residential & commercial Mortgages, Business Loans, HLOC, 2nd mortgage, and so on. Built A-Z to make the market work for everyone, not just insiders." },
+  { name: "Bill Ngo",      role: "Property Manager",             initial: "MC", bg: "#4a90d9",       bio: "Certified Property Manager (CPM), long-term experience in managing properties and tenant placement, always standby whenever in need." },
   { name: "Priya Nair",       role: "Head of Landlord Services",    initial: "PN", bg: "var(--green)",  bio: "Certified Property Manager (CPM) and former LTB hearing officer. Knows tenant-landlord law inside and out." },
-  { name: "David Okonkwo",    role: "Head of Buyer/Seller Support", initial: "DO", bg: "#9b59b6",       bio: "Licensed real estate salesperson in Ontario and Alberta. Specialises in first-time buyer education and investment strategy." },
+  { name: "Aimee Zhou",    role: "Head of Buyer/Seller Support", initial: "DO", bg: "#9b59b6",       bio: "Licensed real estate salesperson in Ontario and. Many years experience home buying, selling, renting, as well as investment strategy." },
 ];
 
 const VALUES = [
@@ -14,16 +14,6 @@ const VALUES = [
   { icon: "🍁", title: "Canadian-First", body: "Built in Canada, for Canadians. Every guide, tool, and feature reflects the real rules and realities of our market." },
   { icon: "⚖️", title: "Fairness",       body: "We serve landlords, tenants, buyers and sellers equally. Great outcomes come from informed participants on both sides." },
   { icon: "🔒", title: "Privacy",        body: "Your personal information is never sold. We are fully PIPEDA compliant and never share data with third-party advertisers." },
-];
-
-const MILESTONES = [
-  { year: "2018", label: "Founded in Toronto" },
-  { year: "2019", label: "First 1,000 listings" },
-  { year: "2021", label: "Expanded to all provinces" },
-  { year: "2022", label: "Launched landlord screening tools" },
-  { year: "2023", label: "10,000+ active listings" },
-  { year: "2024", label: "Knowledge Hub launched" },
-  { year: "2025", label: "85,000+ monthly visitors" },
 ];
 
 export default function AboutPage() {
@@ -89,23 +79,6 @@ export default function AboutPage() {
                 <div style={{ fontSize: 36, marginBottom: 14 }}>{v.icon}</div>
                 <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.15rem", color: "var(--dark)", marginBottom: 10 }}>{v.title}</h3>
                 <p style={{ color: "var(--mid)", fontSize: 14, lineHeight: 1.7 }}>{v.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline */}
-      <section style={{ background: "#fff", padding: "clamp(60px,8vw,90px) 24px" }}>
-        <div style={{ maxWidth: 760, margin: "0 auto" }}>
-          <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.4rem)", color: "var(--dark)", marginBottom: 40, textAlign: "center" }}>Our Journey</h2>
-          <div style={{ position: "relative", paddingLeft: 32 }}>
-            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 2, background: "var(--accent)", opacity: 0.25 }} />
-            {MILESTONES.map((m, i) => (
-              <div key={i} style={{ position: "relative", paddingBottom: 28, display: "flex", gap: 20, alignItems: "flex-start" }}>
-                <div style={{ position: "absolute", left: -38, top: 4, width: 14, height: 14, borderRadius: "50%", background: "var(--accent)", border: "2px solid #fff", boxShadow: "0 0 0 2px var(--accent)" }} />
-                <div style={{ background: "var(--accent)", color: "#fff", borderRadius: 6, padding: "3px 10px", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{m.year}</div>
-                <div style={{ color: "var(--dark)", fontSize: 15, fontWeight: 500, paddingTop: 2 }}>{m.label}</div>
               </div>
             ))}
           </div>
