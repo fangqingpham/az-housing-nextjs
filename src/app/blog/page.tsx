@@ -1,9 +1,23 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BLOGS } from '@/lib/utils';
+import { getArticles } from '@/lib/api';
+import type { BlogPost } from '@/types';
 
 export default function BlogPage() {
+  const [allPosts, setAllPosts] = useState<BlogPost[]>(BLOGS);
+
+  useEffect(() => {
+    getArticles().then(dbPosts => {
+      if (dbPosts.length > 0) {
+        // DB articles first (newest), then static seed posts
+        setAllPosts([...dbPosts, ...BLOGS]);
+      }
+    });
+  }, []);
+
   return (
     <main style={{ minHeight: '100vh', background: 'var(--cream)', padding: '60px 0' }}>
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
@@ -25,8 +39,8 @@ export default function BlogPage() {
         </div>
 
         {/* Featured post */}
-        {BLOGS.length > 0 && (
-          <Link href={`/blog/${BLOGS[0].id}`} style={{ textDecoration: 'none', display: 'block', marginBottom: 48 }}>
+        {allPosts.length > 0 && (
+          <Link href={`/blog/${allPosts[0].id}`} style={{ textDecoration: 'none', display: 'block', marginBottom: 48 }}>
             <article
               style={{
                 background: '#fff',
@@ -48,7 +62,7 @@ export default function BlogPage() {
             >
               <div
                 style={{
-                  background: `url(${BLOGS[0].image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80'}) center/cover no-repeat`,
+                  background: `url(${allPosts[0].image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80'}) center/cover no-repeat`,
                   minHeight: 260,
                 }}
               />
@@ -79,13 +93,13 @@ export default function BlogPage() {
                     lineHeight: 1.3,
                   }}
                 >
-                  {BLOGS[0].title}
+                  {allPosts[0].title}
                 </h2>
-                <p style={{ color: 'var(--mid)', lineHeight: 1.7, marginBottom: 20 }}>{BLOGS[0].excerpt}</p>
+                <p style={{ color: 'var(--mid)', lineHeight: 1.7, marginBottom: 20 }}>{allPosts[0].excerpt}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: 'var(--mid)' }}>
-                  <span>✍️ {BLOGS[0].author || 'A-Z Housing Team'}</span>
-                  <span>📅 {BLOGS[0].date}</span>
-                  <span>⏱ {BLOGS[0].readTime || BLOGS[0].read}</span>
+                  <span>✍️ {allPosts[0].author || 'A-Z Housing Team'}</span>
+                  <span>📅 {allPosts[0].date}</span>
+                  <span>⏱ {allPosts[0].readTime || allPosts[0].read}</span>
                 </div>
               </div>
             </article>
@@ -100,7 +114,7 @@ export default function BlogPage() {
             gap: 28,
           }}
         >
-          {BLOGS.slice(1).map(post => (
+          {allPosts.slice(1).map(post => (
             <Link key={post.id} href={`/blog/${post.id}`} style={{ textDecoration: 'none' }}>
               <article
                 style={{

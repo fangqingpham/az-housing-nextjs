@@ -1,5 +1,5 @@
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
-import type { Listing, AppUser, Message } from '@/types'
+import type { Listing, AppUser, Message, BlogPost } from '@/types'
 
 const supa = () => getSupabaseBrowserClient()
 
@@ -198,6 +198,52 @@ export async function uploadPhoto(file: File, prefix = 'listings'): Promise<stri
     .from('property-photos')
     .getPublicUrl(path)
   return urlData.publicUrl
+}
+
+// ── Articles ───────────────────────────────────────────────────────────
+export async function getArticles(): Promise<BlogPost[]> {
+  const { data, error } = await supa()
+    .from('articles')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) {
+    console.error('getArticles:', error)
+    return []
+  }
+  return (data || []) as BlogPost[]
+}
+
+export async function getArticleById(id: string): Promise<BlogPost | null> {
+  const { data, error } = await supa()
+    .from('articles')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (error) { console.error('getArticleById:', error); return null }
+  return data as BlogPost
+}
+
+export async function insertArticle(a: BlogPost): Promise<BlogPost | null> {
+  const { data, error } = await supa().from('articles').insert([a]).select()
+  if (error) { console.error('insertArticle:', error); return null }
+  return data[0] as BlogPost
+}
+
+export async function updateArticle(id: string, changes: Partial<BlogPost>): Promise<boolean> {
+  const { error } = await supa().from('articles').update(changes).eq('id', id)
+  return !error
+}
+
+export async function deleteArticle(id: string): Promise<boolean> {
+  const { error } = await supa().from('articles').delete().eq('id', id)
+  return !error
+}
+
+export async function getArticleCount(): Promise<number> {
+  const { count } = await supa()
+    .from('articles')
+    .select('*', { count: 'exact', head: true })
+  return count || 0
 }
 
 // ── Seed data ──────────────────────────────────────────────────────────
