@@ -20,14 +20,37 @@ function ResetPasswordInner() {
   useEffect(() => {
     const prepareRecoverySession = async () => {
       setErrorMsg('')
+      setSuccessMsg('')
 
+      const tokenHash = searchParams.get('token_hash')
+      const type = searchParams.get('type')
       const code = searchParams.get('code')
 
+      // Recommended Supabase recovery flow for SSR/Next.js email templates:
+      // /reset-password?token_hash=...&type=recovery
+      if (tokenHash && type === 'recovery') {
+        const { error } = await supa.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: 'recovery',
+        })
+
+        if (error) {
+          setErrorMsg(error.message)
+          setReady(false)
+          return
+        }
+
+        setReady(true)
+        return
+      }
+
+      // Fallback for old reset links that still contain ?code=...
+      // New reset emails should use token_hash instead.
       if (code) {
         const { error } = await supa.auth.exchangeCodeForSession(code)
 
         if (error) {
-          setErrorMsg(error.message)
+          setErrorMsg('This reset link cannot be used. Please request a new password reset email and use the newest link.')
           setReady(false)
           return
         }
@@ -91,7 +114,7 @@ function ResetPasswordInner() {
       return
     }
 
-    setSuccessMsg('Your password has been updated successfully.')
+    setSuccessMsg('Your password has been updated successfully. Redirecting to sign in...')
 
     setTimeout(() => {
       router.push('/auth/login')
@@ -183,7 +206,7 @@ function ResetPasswordInner() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Enter new password"
-              disabled={!ready}
+              disabled={!ready || loading}
               style={{
                 width: '100%',
                 padding: '18px 16px',
@@ -215,7 +238,7 @@ function ResetPasswordInner() {
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
-              disabled={!ready}
+              disabled={!ready || loading}
               style={{
                 width: '100%',
                 padding: '18px 16px',
