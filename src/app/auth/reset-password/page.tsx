@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
-export default function ResetPasswordPage() {
+function ResetPasswordInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supa = useMemo(() => getSupabaseBrowserClient(), [])
@@ -21,8 +21,6 @@ export default function ResetPasswordPage() {
     const prepareRecoverySession = async () => {
       setErrorMsg('')
 
-      // Supabase may send a code in the URL like:
-      // /auth/reset-password?code=xxxx
       const code = searchParams.get('code')
 
       if (code) {
@@ -38,7 +36,6 @@ export default function ResetPasswordPage() {
         return
       }
 
-      // If session already exists, allow password update.
       const {
         data: { session },
       } = await supa.auth.getSession()
@@ -267,5 +264,13 @@ export default function ResetPasswordPage() {
         </p>
       </div>
     </main>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 40 }}>Loading...</div>}>
+      <ResetPasswordInner />
+    </Suspense>
   )
 }
