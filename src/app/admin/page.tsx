@@ -234,6 +234,20 @@ export default function AdminPage() {
   const setArtField = (field: keyof BlogPost, value: string) =>
     setArtForm(prev => ({ ...prev, [field]: value }))
 
+  const uploadArticleImage = async (file: File) => {
+    setImgUploading(true)
+    const supa = getSupabaseBrowserClient()
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supa.storage.from('article-images').upload(path, file, { upsert: true, contentType: file.type })
+    if (error) { showToast('Upload failed. Check bucket permissions.'); setImgUploading(false); return }
+    const { data: urlData } = supa.storage.from('article-images').getPublicUrl(path)
+    setArtField('image', urlData.publicUrl)
+    showToast('Image uploaded! ✓')
+    setImgUploading(false)
+  }
+
+
   const saveArticle = async () => {
     if (!artForm.title.trim()) { showToast('Title is required.'); return }
     if (!artForm.excerpt.trim()) { showToast('Excerpt is required.'); return }
@@ -418,11 +432,39 @@ export default function AdminPage() {
             </div>
 
             <div className="fg">
-              <label>Cover Image URL</label>
-              <input className="fc" placeholder="https://images.unsplash.com/…" value={artForm.image || ''} onChange={e => setArtField('image', e.target.value)} />
+              <label>Cover Image</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  className="fc"
+                  style={{ marginBottom: 0, flex: 1 }}
+                  placeholder="Paste URL or upload below…"
+                  value={artForm.image || ''}
+                  onChange={e => setArtField('image', e.target.value)}
+                />
+                <label style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: imgUploading ? 'var(--border)' : 'var(--accent)',
+                  color: '#fff', borderRadius: 'var(--r)', padding: '8px 14px',
+                  fontSize: 13, fontWeight: 600, cursor: imgUploading ? 'not-allowed' : 'pointer',
+                  whiteSpace: 'nowrap', flexShrink: 0,
+                }}>
+                  {imgUploading ? '⏳ Uploading…' : '📁 Upload'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    disabled={imgUploading}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) uploadArticleImage(f); e.target.value = '' }}
+                  />
+                </label>
+              </div>
               {artForm.image && (
-                <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', height: 120 }}>
+                <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', height: 120, position: 'relative' }}>
                   <img src={artForm.image} alt="cover preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => ((e.currentTarget as HTMLImageElement).style.display = 'none')} />
+                  <button
+                    onClick={() => setArtField('image', '')}
+                    style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', borderRadius: 6, padding: '3px 8px', cursor: 'pointer', fontSize: 12 }}
+                  >✕ Remove</button>
                 </div>
               )}
             </div>
