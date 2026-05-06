@@ -14,71 +14,39 @@ function ResetPasswordInner() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [checkingSession, setCheckingSession] = useState(true)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
   useEffect(() => {
     const prepareRecoverySession = async () => {
-      setCheckingSession(true)
       setErrorMsg('')
-      setReady(false)
 
       const code = searchParams.get('code')
-      const tokenHash = searchParams.get('token_hash')
-      const type = searchParams.get('type')
 
-      try {
-        // Recommended Supabase recovery flow for Next.js/SSR apps.
-        // This works when your Supabase email template sends:
-        // /reset-password?token_hash={{ .TokenHash }}&type=recovery
-        if (tokenHash && type === 'recovery') {
-          const { error } = await supa.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: 'recovery',
-          })
+      if (code) {
+        const { error } = await supa.auth.exchangeCodeForSession(code)
 
-          if (error) {
-            setErrorMsg(error.message)
-            setReady(false)
-            return
-          }
-
-          setReady(true)
+        if (error) {
+          setErrorMsg(error.message)
+          setReady(false)
           return
         }
 
-        // Fallback for default Supabase PKCE links that contain ?code=...
-        // This only works when the same browser still has the PKCE verifier.
-        if (code) {
-          const { error } = await supa.auth.exchangeCodeForSession(code)
-
-          if (error) {
-            setErrorMsg(
-              'Your reset link opened without the required browser session. Please request a new reset email and open the link in the same browser, or update the Supabase reset email template to use token_hash.'
-            )
-            setReady(false)
-            return
-          }
-
-          setReady(true)
-          return
-        }
-
-        const {
-          data: { session },
-        } = await supa.auth.getSession()
-
-        if (session) {
-          setReady(true)
-          return
-        }
-
-        setErrorMsg('Password reset session is missing or expired. Please request a new reset email.')
-        setReady(false)
-      } finally {
-        setCheckingSession(false)
+        setReady(true)
+        return
       }
+
+      const {
+        data: { session },
+      } = await supa.auth.getSession()
+
+      if (session) {
+        setReady(true)
+        return
+      }
+
+      setErrorMsg('Password reset session is missing or expired. Please request a new reset email.')
+      setReady(false)
     }
 
     prepareRecoverySession()
@@ -123,7 +91,7 @@ function ResetPasswordInner() {
       return
     }
 
-    setSuccessMsg('Your password has been updated successfully. Redirecting to sign in...')
+    setSuccessMsg('Your password has been updated successfully.')
 
     setTimeout(() => {
       router.push('/auth/login')
@@ -163,22 +131,6 @@ function ResetPasswordInner() {
         >
           Enter your new password below.
         </p>
-
-        {checkingSession && (
-          <div
-            style={{
-              background: '#eef4ff',
-              border: '1px solid #b9c9ea',
-              color: '#1f3763',
-              padding: '14px 16px',
-              borderRadius: 12,
-              marginBottom: 18,
-              fontSize: 15,
-            }}
-          >
-            Checking reset link...
-          </div>
-        )}
 
         {errorMsg && (
           <div
@@ -231,8 +183,7 @@ function ResetPasswordInner() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Enter new password"
-              disabled={!ready || checkingSession}
-              autoComplete="new-password"
+              disabled={!ready}
               style={{
                 width: '100%',
                 padding: '18px 16px',
@@ -241,7 +192,7 @@ function ResetPasswordInner() {
                 background: '#fff',
                 fontSize: 18,
                 outline: 'none',
-                opacity: ready && !checkingSession ? 1 : 0.6,
+                opacity: ready ? 1 : 0.6,
               }}
             />
           </div>
@@ -264,8 +215,7 @@ function ResetPasswordInner() {
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
-              disabled={!ready || checkingSession}
-              autoComplete="new-password"
+              disabled={!ready}
               style={{
                 width: '100%',
                 padding: '18px 16px',
@@ -274,14 +224,14 @@ function ResetPasswordInner() {
                 background: '#fff',
                 fontSize: 18,
                 outline: 'none',
-                opacity: ready && !checkingSession ? 1 : 0.6,
+                opacity: ready ? 1 : 0.6,
               }}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading || !ready || checkingSession}
+            disabled={loading || !ready}
             style={{
               width: '100%',
               background: '#1f3763',
@@ -291,9 +241,9 @@ function ResetPasswordInner() {
               padding: '18px 20px',
               fontSize: 22,
               fontWeight: 600,
-              cursor: loading || !ready || checkingSession ? 'not-allowed' : 'pointer',
+              cursor: loading || !ready ? 'not-allowed' : 'pointer',
               marginBottom: 22,
-              opacity: loading || !ready || checkingSession ? 0.65 : 1,
+              opacity: loading || !ready ? 0.65 : 1,
             }}
           >
             {loading ? 'Updating...' : 'Update Password'}
@@ -310,7 +260,7 @@ function ResetPasswordInner() {
             }}
           >
             Back to Sign In
-          </Link>	
+          </Link>
         </p>
       </div>
     </main>
