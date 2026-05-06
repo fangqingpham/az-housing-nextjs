@@ -83,6 +83,7 @@ export default function AdminPage() {
   const [artSearch, setArtSearch] = useState('')
   const [artCatFilter, setArtCatFilter] = useState('')
   const [artBodyMode, setArtBodyMode] = useState<'write' | 'preview'>('write')
+  const [imgUploading, setImgUploading] = useState(false)
 
   // Settings
   const [sitename, setSitename] = useState('A - Z Housing Solutions')
