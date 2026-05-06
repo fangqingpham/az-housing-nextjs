@@ -1,24 +1,70 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supa = useMemo(() => getSupabaseBrowserClient(), [])
 
+  const [ready, setReady] = useState(false)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
+  useEffect(() => {
+    const prepareRecoverySession = async () => {
+      setErrorMsg('')
+
+      // Supabase may send a code in the URL like:
+      // /auth/reset-password?code=xxxx
+      const code = searchParams.get('code')
+
+      if (code) {
+        const { error } = await supa.auth.exchangeCodeForSession(code)
+
+        if (error) {
+          setErrorMsg(error.message)
+          setReady(false)
+          return
+        }
+
+        setReady(true)
+        return
+      }
+
+      // If session already exists, allow password update.
+      const {
+        data: { session },
+      } = await supa.auth.getSession()
+
+      if (session) {
+        setReady(true)
+        return
+      }
+
+      setErrorMsg('Password reset session is missing or expired. Please request a new reset email.')
+      setReady(false)
+    }
+
+    prepareRecoverySession()
+  }, [searchParams, supa])
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
+
     setErrorMsg('')
     setSuccessMsg('')
+
+    if (!ready) {
+      setErrorMsg('Password reset session is missing or expired. Please request a new reset email.')
+      return
+    }
 
     if (!password.trim() || !confirmPassword.trim()) {
       setErrorMsg('Please fill in both password fields.')
@@ -134,11 +180,13 @@ export default function ResetPasswordPage() {
             >
               New password
             </label>
+
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               placeholder="Enter new password"
+              disabled={!ready}
               style={{
                 width: '100%',
                 padding: '18px 16px',
@@ -147,6 +195,7 @@ export default function ResetPasswordPage() {
                 background: '#fff',
                 fontSize: 18,
                 outline: 'none',
+                opacity: ready ? 1 : 0.6,
               }}
             />
           </div>
@@ -163,11 +212,13 @@ export default function ResetPasswordPage() {
             >
               Confirm password
             </label>
+
             <input
               type="password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={e => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
+              disabled={!ready}
               style={{
                 width: '100%',
                 padding: '18px 16px',
@@ -176,13 +227,14 @@ export default function ResetPasswordPage() {
                 background: '#fff',
                 fontSize: 18,
                 outline: 'none',
+                opacity: ready ? 1 : 0.6,
               }}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !ready}
             style={{
               width: '100%',
               background: '#1f3763',
@@ -192,8 +244,9 @@ export default function ResetPasswordPage() {
               padding: '18px 20px',
               fontSize: 22,
               fontWeight: 600,
-              cursor: 'pointer',
+              cursor: loading || !ready ? 'not-allowed' : 'pointer',
               marginBottom: 22,
+              opacity: loading || !ready ? 0.65 : 1,
             }}
           >
             {loading ? 'Updating...' : 'Update Password'}

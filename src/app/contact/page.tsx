@@ -28,16 +28,9 @@ const SUPPORT_CARDS = [
     sub: 'Mon-Fri, 9am-6pm EST',
   },
   {
-    icon: '💬',
-    title: 'Live Chat',
-    detail: 'Available in-app',
-    sub: 'Typical reply: under 5 min',
-  },
-  {
     icon: '🏢',
     title: 'Head Office',
     detail: 'Toronto, Ontario, Canada',
-    sub: 'By appointment only',
   },
 ]
 
