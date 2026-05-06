@@ -187,45 +187,53 @@ export default function GuidesPage() {
                   const desc = isLive ? (g as BlogPost).excerpt : (g as typeof cat.staticGuides[0]).excerpt;
                   const readTime = isLive ? ((g as BlogPost).read || (g as BlogPost).readTime || '5 min read') : (g as typeof cat.staticGuides[0]).read;
 
-                  return (
-                    <Link key={g.id || i} href={href} style={{ textDecoration: 'none', display: 'block' }}>
-                      <article style={{
-                        background: '#fff',
-                        borderRadius: 14,
-                        padding: '24px 22px',
-                        border: `2px solid ${cat.color}22`,
-                        transition: 'transform .18s, box-shadow .18s, border-color .18s',
-                        cursor: 'pointer',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
+                  const cardInner = (
+                    <article style={{
+                      background: '#fff',
+                      borderRadius: 14,
+                      padding: '24px 22px',
+                      border: `2px solid ${cat.color}22`,
+                      transition: 'transform .18s, box-shadow .18s, border-color .18s',
+                      cursor: isLive ? 'pointer' : 'default',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      opacity: isLive ? 1 : 0.72,
+                    }}
+                      onMouseEnter={e => {
+                        if (!isLive) return;
+                        (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.10)';
+                        (e.currentTarget as HTMLElement).style.borderColor = cat.color;
                       }}
-                        onMouseEnter={e => {
-                          (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)';
-                          (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.10)';
-                          (e.currentTarget as HTMLElement).style.borderColor = cat.color;
-                        }}
-                        onMouseLeave={e => {
-                          (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-                          (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                          (e.currentTarget as HTMLElement).style.borderColor = cat.color + '22';
-                        }}
-                      >
-                        {/* Cover image (live articles only) */}
-                        {isLive && (g as BlogPost).image && (
-                          <div style={{ height: 140, borderRadius: 8, overflow: 'hidden', marginBottom: 16, flexShrink: 0 }}>
-                            <img src={(g as BlogPost).image} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          </div>
-                        )}
-                        <h3 style={{ fontFamily: 'var(--serif)', fontSize: '1rem', color: 'var(--dark)', marginBottom: 10, lineHeight: 1.45, flex: 1 }}>{title}</h3>
-                        <p style={{ color: 'var(--mid)', fontSize: 13, lineHeight: 1.6, marginBottom: 16 }}>{desc}</p>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: 12, color: 'var(--mid)' }}>⏱ {readTime}</span>
-                          <span style={{ fontSize: 13, color: cat.color, fontWeight: 700 }}>Read →</span>
+                      onMouseLeave={e => {
+                        if (!isLive) return;
+                        (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+                        (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                        (e.currentTarget as HTMLElement).style.borderColor = cat.color + '22';
+                      }}
+                    >
+                      {/* Cover image (live articles only) */}
+                      {isLive && (g as BlogPost).image && (
+                        <div style={{ height: 140, borderRadius: 8, overflow: 'hidden', marginBottom: 16, flexShrink: 0 }}>
+                          <img src={(g as BlogPost).image} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
-                      </article>
-                    </Link>
+                      )}
+                      <h3 style={{ fontFamily: 'var(--serif)', fontSize: '1rem', color: 'var(--dark)', marginBottom: 10, lineHeight: 1.45, flex: 1 }}>{title}</h3>
+                      <p style={{ color: 'var(--mid)', fontSize: 13, lineHeight: 1.6, marginBottom: 16 }}>{desc}</p>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: 12, color: 'var(--mid)' }}>⏱ {readTime}</span>
+                        {isLive
+                          ? <span style={{ fontSize: 13, color: cat.color, fontWeight: 700 }}>Read →</span>
+                          : <span style={{ fontSize: 11, color: 'var(--mid)', fontStyle: 'italic' }}>Coming soon</span>
+                        }
+                      </div>
+                    </article>
                   );
+
+                  return isLive
+                    ? <Link key={g.id || i} href={href} style={{ textDecoration: 'none', display: 'block' }}>{cardInner}</Link>
+                    : <div key={g.id || i}>{cardInner}</div>;
                 })}
               </div>
             </section>
