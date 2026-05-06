@@ -1,38 +1,43 @@
 'use client'
 
-import { Suspense, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
-function LoginInner() {
+export default function ResetPasswordPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const supa = useMemo(() => getSupabaseBrowserClient(), [])
 
-  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [resetLoading, setResetLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
-  const nextUrl = searchParams.get('next') || '/dashboard'
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg('')
     setSuccessMsg('')
 
-    if (!email.trim() || !password.trim()) {
-      setErrorMsg('Please enter your email and password.')
+    if (!password.trim() || !confirmPassword.trim()) {
+      setErrorMsg('Please fill in both password fields.')
+      return
+    }
+
+    if (password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters.')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMsg('Passwords do not match.')
       return
     }
 
     setLoading(true)
 
-    const { error } = await supa.auth.signInWithPassword({
-      email: email.trim(),
+    const { error } = await supa.auth.updateUser({
       password,
     })
 
@@ -43,33 +48,11 @@ function LoginInner() {
       return
     }
 
-    router.push(nextUrl)
-    router.refresh()
-  }
+    setSuccessMsg('Your password has been updated successfully.')
 
-  const handleResetPassword = async () => {
-    setErrorMsg('')
-    setSuccessMsg('')
-
-    if (!email.trim()) {
-      setErrorMsg('Please enter your email address first, then click Reset password.')
-      return
-    }
-
-    setResetLoading(true)
-
-    const { error } = await supa.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
-    })
-
-    setResetLoading(false)
-
-    if (error) {
-      setErrorMsg(error.message)
-      return
-    }
-
-    setSuccessMsg('Password reset email sent. Please check your inbox.')
+    setTimeout(() => {
+      router.push('/auth/login')
+    }, 1500)
   }
 
   return (
@@ -83,23 +66,17 @@ function LoginInner() {
         padding: '32px 16px',
       }}
     >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: 560,
-          background: 'transparent',
-        }}
-      >
+      <div style={{ width: '100%', maxWidth: 560 }}>
         <h1
           style={{
-            fontSize: 'clamp(40px, 6vw, 64px)',
+            fontSize: 'clamp(38px, 6vw, 60px)',
             lineHeight: 1.05,
             margin: '0 0 20px',
             color: '#1f3763',
             fontWeight: 500,
           }}
         >
-          Welcome Back
+          Reset Password
         </h1>
 
         <p
@@ -109,7 +86,7 @@ function LoginInner() {
             marginBottom: 32,
           }}
         >
-          Sign in to your A - Z Housing account.
+          Enter your new password below.
         </p>
 
         {errorMsg && (
@@ -144,7 +121,7 @@ function LoginInner() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleUpdatePassword}>
           <div style={{ marginBottom: 22 }}>
             <label
               style={{
@@ -155,44 +132,13 @@ function LoginInner() {
                 color: '#102a56',
               }}
             >
-              Email address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              autoComplete="email"
-              style={{
-                width: '100%',
-                padding: '18px 16px',
-                borderRadius: 14,
-                border: '1px solid #ddd6c9',
-                background: '#fff',
-                fontSize: 18,
-                outline: 'none',
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: 10 }}>
-            <label
-              style={{
-                display: 'block',
-                marginBottom: 10,
-                fontSize: 18,
-                fontWeight: 600,
-                color: '#102a56',
-              }}
-            >
-              Password
+              New password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              autoComplete="current-password"
+              placeholder="Enter new password"
               style={{
                 width: '100%',
                 padding: '18px 16px',
@@ -206,22 +152,32 @@ function LoginInner() {
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <button
-              type="button"
-              onClick={handleResetPassword}
-              disabled={resetLoading}
+            <label
               style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#1f3763',
-                fontSize: 16,
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                padding: 0,
+                display: 'block',
+                marginBottom: 10,
+                fontSize: 18,
+                fontWeight: 600,
+                color: '#102a56',
               }}
             >
-              {resetLoading ? 'Sending reset email...' : 'Reset password'}
-            </button>
+              Confirm password
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password"
+              style={{
+                width: '100%',
+                padding: '18px 16px',
+                borderRadius: 14,
+                border: '1px solid #ddd6c9',
+                background: '#fff',
+                fontSize: 18,
+                outline: 'none',
+              }}
+            />
           </div>
 
           <button
@@ -234,45 +190,29 @@ function LoginInner() {
               border: 'none',
               borderRadius: 14,
               padding: '18px 20px',
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: 600,
               cursor: 'pointer',
-              marginBottom: 28,
+              marginBottom: 22,
             }}
           >
-            {loading ? 'Signing In...' : 'Sign In'}
+            {loading ? 'Updating...' : 'Update Password'}
           </button>
         </form>
 
-        <p
-          style={{
-            textAlign: 'center',
-            fontSize: 18,
-            color: '#666',
-            margin: 0,
-          }}
-        >
-          Don&apos;t have an account?{' '}
+        <p style={{ textAlign: 'center', margin: 0 }}>
           <Link
-            href="/auth/register"
+            href="/auth/login"
             style={{
-              color: '#f2a51a',
+              color: '#1f3763',
               textDecoration: 'none',
               fontWeight: 600,
             }}
           >
-            Create one free
+            Back to Sign In
           </Link>
         </p>
       </div>
     </main>
-  )
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div style={{ padding: 40 }}>Loading...</div>}>
-      <LoginInner />
-    </Suspense>
   )
 }
