@@ -233,7 +233,7 @@ export default function GuidesPage() {
 
                   return isLive
                     ? <Link key={g.id || i} href={href} style={{ textDecoration: 'none', display: 'block' }}>{cardInner}</Link>
-                    : <div key={g.id || i}>{cardInner}</div>;
+                    : <div key={String(i)}>{cardInner}</div>;
                 })}
               </div>
             </section>
