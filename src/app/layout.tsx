@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import '@/styles/globals.css'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -16,11 +17,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <GoogleMapsLoader />
         <Navbar />
+
         <main style={{ minHeight: 'calc(100vh - 62px)' }}>
           {children}
         </main>
+
         <Footer />
-        {/* Global toast is rendered per-page via useToast hook */}
+
+        <Script id="tawk-to-live-chat" strategy="afterInteractive">
+          {`
+            var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+            (function(){
+              var s1 = document.createElement("script");
+              var s0 = document.getElementsByTagName("script")[0];
+              s1.async = true;
+              s1.src = 'https://embed.tawk.to/69fa94af18351f1c34e5ce75/1jntd9jtd';
+              s1.charset = 'UTF-8';
+              s1.setAttribute('crossorigin', '*');
+              s0.parentNode.insertBefore(s1, s0);
+            })();
+          `}
+        </Script>
       </body>
     </html>
   )
