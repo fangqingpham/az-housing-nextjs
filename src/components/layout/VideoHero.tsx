@@ -18,7 +18,7 @@ export default function VideoHero({
   userCount = '0',
   videoSrc,
 }: VideoHeroProps) {
-  const [mode, setMode] = useState<'buy' | 'rent'>('buy');
+  const [mode, setMode] = useState<'sale' | 'rent'>('sale');
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Default royalty-free real-estate video (Pexels)
@@ -159,7 +159,7 @@ export default function VideoHero({
               flexShrink: 0,
             }}
           >
-            {(['buy', 'rent'] as const).map((m) => (
+            {(['sale', 'rent'] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
@@ -175,7 +175,7 @@ export default function VideoHero({
                   color: mode === m ? '#fff' : 'var(--mid)',
                 }}
               >
-                {m === 'buy' ? 'Buy' : 'Rent'}
+                {m === 'sale' ? 'Buy' : 'Rent'}
               </button>
             ))}
           </div>
