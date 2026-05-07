@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import SearchBar from '@/components/listings/SearchBar';
 
-const VIDEO_URL = 'https://mdqapinkafuzkxvsmqvs.supabase.co/storage/v1/object/public/media/Video%20Project%20(1).mp4';
+const VIDEO_URL = 'https://mdqapinkafuzkxvsmqvs.supabase.co/storage/v1/object/public/media/az%20housing.mp4';
 
 interface VideoHeroProps {
   heroText?: string;
