@@ -1,99 +1,98 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import PropertyCard from '@/components/listings/PropertyCard'
-import SearchBar from '@/components/listings/SearchBar'
-import Toast from '@/components/ui/Toast'
-import { useToast } from '@/hooks/useToast'
-import { useAuth } from '@/hooks/useAuth'
-import { getListings, getSavedIds, toggleSaved } from '@/lib/api'
-import { SEED_LISTINGS, BLOGS } from '@/lib/utils'
-import { ensureSeedData } from '@/lib/api'
-import type { Listing } from '@/types'
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import VideoHero from '@/components/layout/VideoHero';
+import PropertyCard from '@/components/listings/PropertyCard';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  getSaleListings,
+  getRentListings,
+  getUserCount,
+  getListingCount,
+  getSavedIds,
+  toggleSaved,
+  getAdminSettings,
+} from '@/lib/api';
+import type { Listing } from '@/types';
 
 export default function HomePage() {
-  const [mode, setMode] = useState<'sale' | 'rent'>('sale')
-  const [saleListings, setSaleListings] = useState<Listing[]>([])
-  const [rentListings, setRentListings] = useState<Listing[]>([])
-  const [savedIds, setSavedIds] = useState<string[]>([])
+  const { user } = useAuth();
+  const { message, visible, showToast } = useToast();
 
-  const { user } = useAuth()
-  const { message, visible, showToast } = useToast()
+  const [saleListings, setSaleListings] = useState<Listing[]>([]);
+  const [rentListings, setRentListings] = useState<Listing[]>([]);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [listingCount, setListingCount] = useState('0');
+  const [userCount, setUserCount] = useState('0');
+  const [heroText, setHeroText] = useState('Find Your Perfect Home Across Canada');
+  const [heroSub, setHeroSub] = useState(
+    'Browse thousands of listings from trusted sellers and agents across Canada.'
+  );
+  const [videoSrc, setVideoSrc] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    const load = async () => {
-      await ensureSeedData(SEED_LISTINGS as any)
-
-      const all = await getListings()
-      const published = all.filter(l => l.status === 'published' || l.author === 'seed')
-
-      setSaleListings(published.filter(l => l.type === 'For Sale').slice(0, 3))
-      setRentListings(published.filter(l => l.type === 'For Rent').slice(0, 3))
-
+    async function load() {
+      const [sale, rent, uc, lc, settings] = await Promise.all([
+        getSaleListings(),
+        getRentListings(),
+        getUserCount(),
+        getListingCount(),
+        getAdminSettings(),
+      ]);
+      setSaleListings(sale.slice(0, 4));
+      setRentListings(rent.slice(0, 4));
+      setUserCount(uc ? uc.toLocaleString() : '0');
+      setListingCount(lc ? lc.toLocaleString() : '0');
+      if (settings?.hero) setHeroText(settings.hero);
+      if (settings?.herosub) setHeroSub(settings.herosub);
+      if ((settings as any)?.videoSrc) setVideoSrc((settings as any).videoSrc);
       if (user) {
-        const ids = await getSavedIds(user.id)
-        setSavedIds(ids)
+        const ids = await getSavedIds(user.id);
+        setSavedIds(ids);
       }
     }
-
-    load()
-  }, [user])
+    load();
+  }, [user]);
 
   const handleToggleSave = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
-
+    e.stopPropagation();
     if (!user) {
-      showToast('Sign in to save properties.')
-      return
+      showToast('Sign in to save properties.');
+      return;
     }
-
-    const nowSaved = await toggleSaved(user.id, id)
-
-    setSavedIds(prev =>
-      nowSaved ? [...prev, id] : prev.filter(x => x !== id)
-    )
-
-    showToast(nowSaved ? 'Property saved! ♥' : 'Removed from saved.')
-  }
+    const nowSaved = await toggleSaved(user.id, id);
+    setSavedIds((prev) =>
+      nowSaved ? [...prev, id] : prev.filter((x) => x !== id)
+    );
+    showToast(nowSaved ? 'Property saved! ♥' : 'Removed from saved.');
+  };
 
   return (
     <>
       <Toast message={message} visible={visible} />
 
-      <section className="hero">
-        <span className="eyebrow">From Search to Home, We Make Housing Easier</span>
+      {/* ── Video Hero Banner ── */}
+      <VideoHero
+        heroText={heroText}
+        heroSub={heroSub}
+        listingCount={listingCount}
+        userCount={userCount}
+        videoSrc={videoSrc}
+      />
 
-        <h1>Find Your Next Home Across Canada</h1>
-
-        <p className="hero-sub">
-          Search homes for sale and rent from trusted sellers, landlords, and agents.
-        </p>
-
-        <SearchBar mode={mode} onModeChange={setMode} />
-
-        <div className="adv-filters">
-          {['House', 'Condo', 'Townhouse', 'Apartment', 'New Builds', 'Open Houses'].map(f => (
-            <button key={f} className="adv-chip">
-              {f}
-            </button>
-          ))}
-        </div>
-      </section>
-
+      {/* ── Featured For Sale ── */}
       <section className="sec">
         <div className="container">
           <div className="sec-hdr">
             <h2 className="sec-title">Featured For Sale</h2>
-
-            <Link href="/buy" className="sec-link">
-              View all listings →
-            </Link>
+            <Link href="/buy" className="sec-link">View all listings →</Link>
           </div>
-
           <div className="grid">
             {saleListings.length > 0 ? (
-              saleListings.map(l => (
+              saleListings.map((l) => (
                 <PropertyCard
                   key={l.id}
                   listing={l}
@@ -115,6 +114,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Promo band ── */}
       <div
         style={{
           background: 'var(--dark)',
@@ -131,48 +131,23 @@ export default function HomePage() {
             marginBottom: '1rem',
           }}
         >
-          Ready to list your property? Reach buyers and renters across Canada.
+          Ready to list your property? Reach thousands of buyers and renters across Canada.
         </p>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
-          <Link href="/post-listing" className="btn btn-accent btn-lg">
-            Post a Listing
-          </Link>
-
-          <Link
-            href="/landlord"
-            className="btn btn-lg"
-            style={{
-              background: 'rgba(255,255,255,.12)',
-              color: 'white',
-              borderColor: 'rgba(255,255,255,.25)',
-            }}
-          >
-            Learn More
-          </Link>
-        </div>
+        <Link href="/post-listing" className="btn-accent">
+          Post a Listing →
+        </Link>
       </div>
 
-      <section className="sec" style={{ background: 'white' }}>
+      {/* ── Featured For Rent ── */}
+      <section className="sec">
         <div className="container">
           <div className="sec-hdr">
-            <h2 className="sec-title">Featured Rentals</h2>
-
-            <Link href="/rent" className="sec-link">
-              View all rentals →
-            </Link>
+            <h2 className="sec-title">Featured For Rent</h2>
+            <Link href="/rent" className="sec-link">View all rentals →</Link>
           </div>
-
           <div className="grid">
             {rentListings.length > 0 ? (
-              rentListings.map(l => (
+              rentListings.map((l) => (
                 <PropertyCard
                   key={l.id}
                   listing={l}
@@ -182,80 +157,105 @@ export default function HomePage() {
               ))
             ) : (
               <div className="empty-state" style={{ gridColumn: '1/-1' }}>
-                <p>No rental listings yet.</p>
+                <p>
+                  No rental listings yet.{' '}
+                  <Link href="/post-listing" style={{ color: 'var(--accent)' }}>
+                    Post the first one!
+                  </Link>
+                </p>
               </div>
             )}
           </div>
         </div>
       </section>
 
-      <section className="sec">
-        <div className="container">
-          <div className="sec-hdr">
-            <h2 className="sec-title">Advice & Guides</h2>
-
-            <Link href="/blog" className="sec-link">
-              All articles →
-            </Link>
-          </div>
-
-          <div className="blog-grid">
-            {BLOGS.slice(0, 3).map(b => (
-              <Link href={`/blog/${b.id}`} key={b.id} className="bc">
-                <div className="bc-img" style={{ background: b.color }} />
-
-                <div className="bc-body">
-                  <div className="btag">{b.cat}</div>
-                  <div className="bc-title">{b.title}</div>
-                  <div className="bc-exc">{b.excerpt}</div>
-
-                  <div className="bc-meta">
-                    <span>{b.date}</span>
-                    <span>{b.read}</span>
-                  </div>
+      {/* ── Services band ── */}
+      <section
+        style={{
+          background: '#f7f4ef',
+          padding: 'clamp(48px,7vw,80px) 24px',
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <span
+            style={{
+              fontSize: 11,
+              letterSpacing: 3,
+              textTransform: 'uppercase',
+              color: 'var(--accent)',
+              fontWeight: 600,
+            }}
+          >
+            Our Services
+          </span>
+          <h2
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(1.6rem,3vw,2.4rem)',
+              marginBottom: 12,
+              color: 'var(--dark)',
+            }}
+          >
+            Everything You Need Under One Roof
+          </h2>
+          <p style={{ color: 'var(--mid)', marginBottom: 40, maxWidth: 540, margin: '0 auto 40px' }}>
+            Whether you&apos;re buying, selling, or renting — we have the tools and expertise to help.
+          </p>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
+              gap: 24,
+            }}
+          >
+            {[
+              { icon: '🏠', title: 'Buy a Home',       desc: 'Browse thousands of verified listings across Canada.',   href: '/buy' },
+              { icon: '🔑', title: 'Rent a Property',  desc: 'Find your next rental — apartments, houses & more.',     href: '/rent' },
+              { icon: '📋', title: 'List Your Property', desc: 'Reach serious buyers and renters quickly.',             href: '/post-listing' },
+              { icon: '📚', title: 'Knowledge Hub',    desc: 'Expert guides on buying, selling & renting in Canada.',  href: '/knowledge-hub/guides' },
+            ].map((s) => (
+              <Link
+                key={s.title}
+                href={s.href}
+                style={{ textDecoration: 'none' }}
+              >
+                <div
+                  style={{
+                    background: '#fff',
+                    borderRadius: 14,
+                    padding: '28px 22px',
+                    border: '1px solid rgba(0,0,0,0.07)',
+                    transition: 'transform .18s, box-shadow .18s',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 32px rgba(0,0,0,0.10)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{ fontSize: 32, marginBottom: 14 }}>{s.icon}</div>
+                  <h3
+                    style={{
+                      fontFamily: 'var(--serif)',
+                      fontSize: '1.1rem',
+                      color: 'var(--dark)',
+                      marginBottom: 8,
+                    }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p style={{ color: 'var(--mid)', fontSize: 13, lineHeight: 1.6 }}>{s.desc}</p>
                 </div>
               </Link>
             ))}
           </div>
         </div>
       </section>
-
-      <section className="sec" style={{ background: 'white' }}>
-        <div className="container">
-          <div className="sec-hdr">
-            <h2 className="sec-title">Browse by City</h2>
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))',
-              gap: '1rem',
-            }}
-          >
-            {['Toronto', 'Vancouver', 'Ottawa', 'Montreal', 'Calgary', 'Edmonton'].map(city => (
-              <Link
-                key={city}
-                href={`/buy?search=${city}`}
-                className="city-chip"
-                style={{
-                  background: 'var(--cream)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--r)',
-                  padding: '1.25rem 1rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all .18s',
-                  fontWeight: 500,
-                  fontSize: '14px',
-                }}
-              >
-                📍 {city}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
     </>
-  )
+  );
 }
