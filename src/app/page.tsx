@@ -73,11 +73,8 @@ export default function HomePage() {
 
       {/* ── Video Hero Banner ── */}
       <VideoHero
-        heroText={heroText}
-        heroSub={heroSub}
-        listingCount={listingCount}
-        userCount={userCount}
-        videoSrc={videoSrc}
+  heroText={heroText}
+  heroSub={heroSub}
       />
 
       {/* ── Featured For Sale ── */}
