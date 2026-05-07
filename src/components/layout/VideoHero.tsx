@@ -1,39 +1,20 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import SearchBar from '@/components/listings/SearchBar';
+
+const VIDEO_URL = 'https://mdqapinkafuzkxvsmqvs.supabase.co/storage/v1/object/public/media/Video%20Project%20(1).mp4';
 
 interface VideoHeroProps {
   heroText?: string;
   heroSub?: string;
-  listingCount?: string;
-  userCount?: string;
-  videoSrc?: string; // optional custom video URL
 }
 
 export default function VideoHero({
   heroText = 'Find Your Perfect Home Across Canada',
   heroSub = 'Browse thousands of listings from trusted sellers and agents across Canada.',
-  listingCount = '0',
-  userCount = '0',
-  videoSrc,
 }: VideoHeroProps) {
   const [mode, setMode] = useState<'sale' | 'rent'>('sale');
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Default royalty-free real-estate video (Pexels)
-  const src =
-    videoSrc ||
-    'https://www.pexels.com/video/6869/download/?fps=25.0&h=1080&w=1920';
-
-  useEffect(() => {
-    // Ensure autoplay works even on mobile
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {
-        // Autoplay blocked — video stays as poster
-      });
-    }
-  }, []);
 
   return (
     <section
@@ -43,26 +24,28 @@ export default function VideoHero({
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
-        background: '#0d1b2a', // fallback while video loads
+        background: '#0d1b2a',
       }}
     >
-      {/* ── Background video ── */}
+      {/* ── Supabase video background ── */}
       <video
-        ref={videoRef}
         autoPlay
         muted
         loop
         playsInline
         style={{
           position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
+          top: '50%',
+          left: '50%',
+          width: 'max(100%, calc(100vh * 16/9))',
+          height: 'max(100%, calc(100vw * 9/16))',
+          transform: 'translate(-50%, -50%)',
           zIndex: 0,
+          objectFit: 'cover',
+          pointerEvents: 'none',
         }}
       >
-        <source src={src} type="video/mp4" />
+        <source src={VIDEO_URL} type="video/mp4" />
       </video>
 
       {/* ── Dark overlay ── */}
@@ -70,8 +53,7 @@ export default function VideoHero({
         style={{
           position: 'absolute',
           inset: 0,
-          background:
-            'linear-gradient(135deg, rgba(10,20,40,0.78) 0%, rgba(10,20,40,0.55) 60%, rgba(10,20,40,0.45) 100%)',
+          background: 'linear-gradient(135deg, rgba(10,20,40,0.80) 0%, rgba(10,20,40,0.58) 60%, rgba(10,20,40,0.48) 100%)',
           zIndex: 1,
         }}
       />
@@ -135,7 +117,7 @@ export default function VideoHero({
           {heroSub}
         </p>
 
-        {/* Search bar */}
+        {/* Search bar card */}
         <div
           style={{
             background: 'rgba(255,255,255,0.97)',
@@ -150,15 +132,7 @@ export default function VideoHero({
           }}
         >
           {/* Buy / Rent toggle */}
-          <div
-            style={{
-              display: 'flex',
-              background: '#f1ede8',
-              borderRadius: 8,
-              padding: 3,
-              flexShrink: 0,
-            }}
-          >
+          <div style={{ display: 'flex', background: '#f1ede8', borderRadius: 8, padding: 3, flexShrink: 0 }}>
             {(['sale', 'rent'] as const).map((m) => (
               <button
                 key={m}
@@ -180,118 +154,36 @@ export default function VideoHero({
             ))}
           </div>
 
-          {/* Embedded SearchBar (existing component) */}
+          {/* Search bar */}
           <div style={{ flex: 1, minWidth: 200 }}>
             <SearchBar mode={mode} onModeChange={setMode} />
           </div>
         </div>
 
         {/* Quick-filter chips */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 10,
-            marginTop: 20,
-            flexWrap: 'wrap',
-          }}
-        >
-          {['House', 'Condo', 'Townhouse', 'Apartment', 'New Builds', 'Open Houses'].map(
-            (f) => (
-              <button
-                key={f}
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  color: 'rgba(255,255,255,0.88)',
-                  border: '1px solid rgba(255,255,255,0.22)',
-                  borderRadius: 999,
-                  padding: '6px 16px',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  backdropFilter: 'blur(6px)',
-                  transition: 'background .18s',
-                }}
-                onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLElement).style.background =
-                    'rgba(255,255,255,0.22)')
-                }
-                onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLElement).style.background =
-                    'rgba(255,255,255,0.12)')
-                }
-              >
-                {f}
-              </button>
-            )
-          )}
-        </div>
-
-        {/* Stats */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 'clamp(24px,4vw,48px)',
-            marginTop: 44,
-            flexWrap: 'wrap',
-          }}
-        >
-          {[
-            { n: listingCount, l: 'Active Listings' },
-            { n: 'Canada',     l: 'Nationwide' },
-            { n: userCount,    l: 'Registered Users' },
-          ].map((s) => (
-            <div key={s.l}>
-              <div
-                style={{
-                  fontFamily: 'var(--serif)',
-                  fontSize: 'clamp(1.6rem,3vw,2.2rem)',
-                  fontWeight: 700,
-                  color: '#fff',
-                  lineHeight: 1,
-                }}
-              >
-                {s.n}
-              </div>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: 'rgba(255,255,255,0.6)',
-                  marginTop: 5,
-                  letterSpacing: 0.5,
-                }}
-              >
-                {s.l}
-              </div>
-            </div>
+        <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap' }}>
+          {['House', 'Condo', 'Townhouse', 'Apartment', 'New Builds', 'Open Houses'].map((f) => (
+            <button
+              key={f}
+              style={{
+                background: 'rgba(255,255,255,0.12)',
+                color: 'rgba(255,255,255,0.88)',
+                border: '1px solid rgba(255,255,255,0.22)',
+                borderRadius: 999,
+                padding: '6px 16px',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                backdropFilter: 'blur(6px)',
+                transition: 'background .18s',
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.22)')}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)')}
+            >
+              {f}
+            </button>
           ))}
         </div>
-      </div>
-
-      {/* ── Scroll-down indicator ── */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 28,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 6,
-          opacity: 0.55,
-        }}
-      >
-        <span style={{ color: '#fff', fontSize: 10, letterSpacing: 2, textTransform: 'uppercase' }}>
-          Scroll
-        </span>
-        <div
-          style={{
-            width: 1,
-            height: 36,
-            background: 'linear-gradient(to bottom, #fff, transparent)',
-          }}
-        />
       </div>
     </section>
   );
