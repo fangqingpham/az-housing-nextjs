@@ -82,9 +82,11 @@ export default function PropertyDetailPage() {
 
   const imgs = safeImgs(listing)
   const feats = safeFeats(listing)
-  const addr = [listing.addr, listing.city, listing.province, listing.postal].filter(Boolean).join(', ')
+  const addr = [(listing as any).address || listing.addr, listing.city, listing.province, (listing as any).postal].filter(Boolean).join(', ')
   const isSaved = savedIds.includes(listing.id)
-  const initials = listing.agent ? getInitials(listing.agent) : 'AG'
+  const initials = ((listing as any).agent_name || listing.agent) ? getInitials((listing as any).agent_name || listing.agent || '') : 'AG'
+  const agentPhone = (listing as any).agent_phone || ''
+  const detailUrl = (listing as any).detail_url || ''
 
   return (
     <>
@@ -126,10 +128,10 @@ export default function PropertyDetailPage() {
 
             {/* Specs */}
             <div className="dspecs">
-              {listing.beds ? <div className="spec"><span className="sv">{listing.beds}</span><span className="sl2">Bedrooms</span></div> : null}
-              {listing.baths ? <div className="spec"><span className="sv">{listing.baths}</span><span className="sl2">Bathrooms</span></div> : null}
-              {listing.sqft ? <div className="spec"><span className="sv">{Number(listing.sqft).toLocaleString()}</span><span className="sl2">Sq. Ft.</span></div> : null}
-              {listing.garage !== undefined && listing.garage !== 0 ? <div className="spec"><span className="sv">{listing.garage}</span><span className="sl2">Garage</span></div> : null}
+              {(listing as any).bedrooms || listing.beds ? <div className="spec"><span className="sv">{(listing as any).bedrooms || listing.beds}</span><span className="sl2">Bedrooms</span></div> : null}
+              {(listing as any).bathrooms || listing.baths ? <div className="spec"><span className="sv">{(listing as any).bathrooms || listing.baths}</span><span className="sl2">Bathrooms</span></div> : null}
+              {(listing as any).area || listing.sqft ? <div className="spec"><span className="sv">{Number((listing as any).area || listing.sqft).toLocaleString()}</span><span className="sl2">Sq. Ft.</span></div> : null}
+              {(listing as any).garage ? <div className="spec"><span className="sv">{(listing as any).garage}</span><span className="sl2">Garage</span></div> : null}
             </div>
 
             {/* Description */}
@@ -138,6 +140,30 @@ export default function PropertyDetailPage() {
                 <h3 style={{ fontFamily: 'var(--serif)', fontSize: '18px', fontWeight: 500, marginBottom: '.5rem' }}>About This Property</h3>
                 <p className="ddesc">{listing.description || (listing as any).desc}</p>
               </>
+            )}
+
+            {/* Detail URL link */}
+            {detailUrl && (
+              <a
+                href={detailUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginTop: '1rem',
+                  marginBottom: '1.5rem',
+                  color: 'var(--accent)',
+                  fontWeight: 600,
+                  fontSize: 15,
+                  textDecoration: 'none',
+                  borderBottom: '2px solid var(--accent)',
+                  paddingBottom: 2,
+                }}
+              >
+                🔗 Click here for more detail about the property
+              </a>
             )}
 
             {/* Features */}
@@ -167,14 +193,21 @@ export default function PropertyDetailPage() {
               <div className="agent-row">
                 <div className="aava">{initials}</div>
                 <div>
-                  <div className="aname">{listing.agent || 'A - Z Housing Agent'}</div>
-                  <div className="alabel">Listed {listing.date || 'recently'} · {listing.type}</div>
+                  <div className="aname">{(listing as any).agent_name || listing.agent || 'A - Z Housing Agent'}</div>
+                  <div className="alabel">Listed {(listing as any).created_at ? new Date((listing as any).created_at).toLocaleDateString() : 'recently'} · {listing.type}</div>
                 </div>
               </div>
 
-              {listing.phone && (
-                <a href={`tel:${listing.phone}`} className="btn btn-full" style={{ marginBottom: '.65rem' }}>
-                  📞 {listing.phone}
+              {/* Contact details */}
+              {(listing as any).agent_email && (
+                <div style={{ fontSize: 13, color: 'var(--mid)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  ✉️ <a href={`mailto:${(listing as any).agent_email}`} style={{ color: 'var(--accent)' }}>{(listing as any).agent_email}</a>
+                </div>
+              )}
+
+              {agentPhone && (
+                <a href={`tel:${agentPhone}`} className="btn btn-full" style={{ marginBottom: '.65rem' }}>
+                  📞 {agentPhone}
                 </a>
               )}
 
@@ -198,7 +231,7 @@ export default function PropertyDetailPage() {
               </div>
               <div className="fg">
                 <label>Message</label>
-                <textarea className="fc" value={msg} onChange={e => setMsg(e.target.value)} placeholder="Hi, I\'m interested in this property…" />
+                <textarea className="fc" value={msg} onChange={e => setMsg(e.target.value)} placeholder="Hi, I'm interested in this property…" />
               </div>
               <button className="btn btn-primary btn-full" onClick={() => handleSendMessage('enquiry')} style={{ marginBottom: '.5rem' }}>
                 Send Message
