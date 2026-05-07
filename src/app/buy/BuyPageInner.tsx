@@ -32,7 +32,7 @@ export default function BuyPageInner() {
       await ensureSeedData(SEED_LISTINGS as any)
       const all = await getListings()
       const sale = all.filter(
-        l => (l.status === 'published' || l.author === 'seed') && l.price_type === 'sale'
+        l => (l.status === 'published' || l.author === 'seed') && ((l as any).price_type === 'sale' || l.type === 'For Sale')
       )
       setListings(sale)
       setLoading(false)

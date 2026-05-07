@@ -32,7 +32,7 @@ function RentPageContent() {
       await ensureSeedData(SEED_LISTINGS as any)
       const all = await getListings()
       const rent = all.filter(
-        l => (l.status === 'published' || l.author === 'seed') && l.price_type === 'rent'
+        l => (l.status === 'published' || l.author === 'seed') && ((l as any).price_type === 'rent' || l.type === 'For Rent')
       )
       setListings(rent)
       setLoading(false)
