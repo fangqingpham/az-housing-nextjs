@@ -12,10 +12,10 @@ const STATIC_CATEGORIES = [
     color: 'var(--accent)',
     title: 'Buying & Selling',
     guides: [
-      { id: 'first-time-buyer-guide',     title: "First-Time Buyer's Complete Guide",  read: '12 min read', excerpt: 'Everything from pre-approval to closing day.' },
-      { id: 'price-your-home',            title: 'How to Price Your Home to Sell',     read: '8 min read',  excerpt: 'Data-driven pricing strategies for the Canadian market.' },
-      { id: 'understanding-closing-costs', title: 'Understanding Closing Costs',        read: '6 min read',  excerpt: 'Land transfer tax, legal fees, and what to budget.' },
-      { id: 'buying-sellers-market',      title: "Buying in a Seller's Market",        read: '7 min read',  excerpt: 'Offer strategies, escalation clauses & deposit advice.' },
+      { id: 'art-1778185559744-ovt5x8',     title: "First-Time Buyer's Complete Guide",  read: '12 min read', excerpt: 'Everything from pre-approval to closing day.' },
+      { id: 'art-1778185559745-w7xlna',            title: 'How to Price Your Home to Sell',     read: '8 min read',  excerpt: 'Data-driven pricing strategies for the Canadian market.' },
+      { id: 'art-1778185559746-pw67h7', title: 'Understanding Closing Costs',        read: '6 min read',  excerpt: 'Land transfer tax, legal fees, and what to budget.' },
+      { id: 'art-1778185559747-6ys59p',      title: "Buying in a Seller's Market",        read: '7 min read',  excerpt: 'Offer strategies, escalation clauses & deposit advice.' },
     ],
   },
   {
@@ -34,10 +34,10 @@ const STATIC_CATEGORIES = [
     color: '#27ae60',
     title: 'Renting',
     guides: [
-      { id: 'tenant-rights-canada',       title: 'Tenant Rights in Canada: Province-by-Province', read: '11 min read', excerpt: 'Know your protections before you sign a lease.' },
-      { id: 'negotiate-rent',             title: 'How to Negotiate Your Rent',                    read: '5 min read',  excerpt: 'Practical tactics for new and renewing tenants.' },
-      { id: 'lease-agreement-guide',      title: 'What to Look for in a Lease Agreement',         read: '8 min read',  excerpt: 'Red flags, must-have clauses & common traps.' },
-      { id: 'renting-new-immigrant',      title: 'Renting as a New Canadian Immigrant',           read: '9 min read',  excerpt: 'Building credit history and securing your first rental.' },
+      { id: 'art-1778185559748-g15mze',       title: 'Tenant Rights in Canada: Province-by-Province', read: '11 min read', excerpt: 'Know your protections before you sign a lease.' },
+      { id: 'art-1778185559749-qdzuck',             title: 'How to Negotiate Your Rent',                    read: '5 min read',  excerpt: 'Practical tactics for new and renewing tenants.' },
+      { id: 'art-1778185559751-e8x80u',      title: 'What to Look for in a Lease Agreement',         read: '8 min read',  excerpt: 'Red flags, must-have clauses & common traps.' },
+      { id: 'art-1778185559752-hzzsfj',      title: 'Renting as a New Canadian Immigrant',           read: '9 min read',  excerpt: 'Building credit history and securing your first rental.' },
     ],
   },
   {
@@ -45,10 +45,10 @@ const STATIC_CATEGORIES = [
     color: '#e67e22',
     title: 'Renovation & Maintenance',
     guides: [
-      { id: 'renovations-add-value',      title: 'Top 5 Renovations That Add Real Value',     read: '7 min read',  excerpt: 'Kitchen, bathrooms, and curb appeal ranked by ROI.' },
-      { id: 'seasonal-maintenance',       title: 'Seasonal Home Maintenance Checklist',       read: '6 min read',  excerpt: 'What to do every spring, summer, fall, and winter.' },
-      { id: 'renovation-budget',          title: 'How to Budget a Major Renovation',         read: '8 min read',  excerpt: 'Cost estimates, contingency planning & contractor tips.' },
-      { id: 'diy-vs-contractor',          title: 'DIY vs Hiring a Contractor',               read: '5 min read',  excerpt: 'When to roll up your sleeves and when to call a pro.' },
+      { id: 'art-1778185559753-rzy66u',      title: 'Top 5 Renovations That Add Real Value',     read: '7 min read',  excerpt: 'Kitchen, bathrooms, and curb appeal ranked by ROI.' },
+      { id: 'art-1778185559754-hpd8tu',       title: 'Seasonal Home Maintenance Checklist',       read: '6 min read',  excerpt: 'What to do every spring, summer, fall, and winter.' },
+      { id: 'art-1778185559755-1mrklr',          title: 'How to Budget a Major Renovation',         read: '8 min read',  excerpt: 'Cost estimates, contingency planning & contractor tips.' },
+      { id: 'art-1778185559756-m7p47d',          title: 'DIY vs Hiring a Contractor',               read: '5 min read',  excerpt: 'When to roll up your sleeves and when to call a pro.' },
     ],
   },
   {
@@ -58,8 +58,8 @@ const STATIC_CATEGORIES = [
     guides: [
       { id: 'bc-alberta-tenancy-changes', title: 'Recent Tenancy Law Changes in BC & Alberta', read: '8 min read',  excerpt: 'What landlords and tenants need to know in 2024.' },
       { id: 'foreign-buyer-ban',          title: "Canada's Foreign Buyer Ban Explained",       read: '6 min read',  excerpt: 'Who is affected, exemptions, and what comes next.' },
-      { id: 'condo-act-ontario',          title: "Ontario's Condo Act: Owner Rights",         read: '7 min read',  excerpt: 'Disputes, maintenance fees, and board governance.' },
-      { id: 'anti-flipping-rule',         title: 'Anti-Flipping Tax Rule (Bill C-268)',        read: '5 min read',  excerpt: 'How the 12-month ownership rule affects your sale.' },
+      { id: 'art-1778185559757-nxu481',          title: "Ontario's Condo Act: Owner Rights",         read: '7 min read',  excerpt: 'Disputes, maintenance fees, and board governance.' },
+      { id: 'art-1778185559759-4od8yk',         title: 'Anti-Flipping Tax Rule (Bill C-268)',        read: '5 min read',  excerpt: 'How the 12-month ownership rule affects your sale.' },
     ],
   },
 ];
@@ -233,7 +233,7 @@ export default function GuidesPage() {
 
                   return isLive
                     ? <Link key={g.id || i} href={href} style={{ textDecoration: 'none', display: 'block' }}>{cardInner}</Link>
-                    : <div key={String(i)}>{cardInner}</div>;
+                    : <div key={g.id || i}>{cardInner}</div>;
                 })}
               </div>
             </section>
@@ -257,7 +257,7 @@ export default function GuidesPage() {
               <div style={{ height: 3, background: `linear-gradient(to right, ${meta.color}, transparent)`, borderRadius: 4, marginBottom: 28 }} />
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
                 {articles.map(a => (
-                  <Link key={a.id} href={`/knowledge-hub/guides/${a.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                  <Link key={a.id} href={`/blog/${a.id}`} style={{ textDecoration: 'none', display: 'block' }}>
                     <article style={{ background: '#fff', borderRadius: 14, padding: '24px 22px', border: `2px solid ${meta.color}22`, transition: 'transform .18s, box-shadow .18s, border-color .18s', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.10)'; (e.currentTarget as HTMLElement).style.borderColor = meta.color; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.borderColor = meta.color + '22'; }}
