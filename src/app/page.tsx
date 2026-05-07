@@ -8,13 +8,10 @@ import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  getSaleListings,
-  getRentListings,
+  getListings,
   getUserCount,
-  getListingCount,
   getSavedIds,
   toggleSaved,
-  getAdminSettings,
 } from '@/lib/api';
 import type { Listing } from '@/types';
 
@@ -35,20 +32,20 @@ export default function HomePage() {
 
   useEffect(() => {
     async function load() {
-      const [sale, rent, uc, lc, settings] = await Promise.all([
-        getSaleListings(),
-        getRentListings(),
+      const [allListings, uc, settings] = await Promise.all([
+        getListings(),
         getUserCount(),
-        getListingCount(),
-        getAdminSettings(),
+        fetch('/api/settings').then(r => r.ok ? r.json() : null).catch(() => null),
       ]);
-      setSaleListings(sale.slice(0, 4));
-      setRentListings(rent.slice(0, 4));
+      const sale = allListings.filter((l: any) => l.type === 'For Sale').slice(0, 4);
+      const rent = allListings.filter((l: any) => l.type === 'For Rent').slice(0, 4);
+      setSaleListings(sale);
+      setRentListings(rent);
+      setListingCount(allListings.length ? allListings.length.toLocaleString() : '0');
       setUserCount(uc ? uc.toLocaleString() : '0');
-      setListingCount(lc ? lc.toLocaleString() : '0');
       if (settings?.hero) setHeroText(settings.hero);
       if (settings?.herosub) setHeroSub(settings.herosub);
-      if ((settings as any)?.videoSrc) setVideoSrc((settings as any).videoSrc);
+      if (settings?.videoSrc) setVideoSrc(settings.videoSrc);
       if (user) {
         const ids = await getSavedIds(user.id);
         setSavedIds(ids);
