@@ -37,8 +37,8 @@ export default function HomePage() {
         getUserCount(),
         fetch('/api/settings').then(r => r.ok ? r.json() : null).catch(() => null),
       ]);
-      const sale = allListings.filter((l: any) => l.type === 'For Sale').slice(0, 4);
-      const rent = allListings.filter((l: any) => l.type === 'For Rent').slice(0, 4);
+      const sale = allListings.filter((l: any) => l.type === 'For Sale').slice(0, 3);
+      const rent = allListings.filter((l: any) => l.type === 'For Rent').slice(0, 3);
       setSaleListings(sale);
       setRentListings(rent);
       setListingCount(allListings.length ? allListings.length.toLocaleString() : '0');
@@ -77,8 +77,8 @@ export default function HomePage() {
   heroSub={heroSub}
       />
 
-      {/* ── Featured For Sale ── */}
-      <section className="sec">
+{false && (
+        <section className="sec">
         <div className="container">
           <div className="sec-hdr">
             <h2 className="sec-title">Featured For Sale</h2>
@@ -107,6 +107,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+)}
 
       {/* ── Promo band ── */}
       <div
@@ -132,7 +133,7 @@ export default function HomePage() {
         </Link>
       </div>
 
-      {/* ── Featured For Rent ── */}
+{false && (
       <section className="sec">
         <div className="container">
           <div className="sec-hdr">
