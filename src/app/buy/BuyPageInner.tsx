@@ -56,7 +56,7 @@ export default function BuyPageInner() {
       )
     }
     if (ptype) r = r.filter(l => l.type === ptype)
-    if (beds) r = r.filter(l => (l.bedrooms ?? (l as any).beds ?? 0) >= parseInt(beds))
+    if (beds) r = r.filter(l => ((l as any).bedrooms ?? (l as any).beds ?? 0) >= parseInt(beds))
     if (price === 'u500') r = r.filter(l => parseFloat(String(l.price).replace(/[^0-9.]/g, '')) < 500000)
     if (price === '500-1m') r = r.filter(l => {
       const p = parseFloat(String(l.price).replace(/[^0-9.]/g, ''))

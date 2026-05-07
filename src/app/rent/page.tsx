@@ -55,7 +55,7 @@ function RentPageContent() {
       )
     }
     if (ptype) r = r.filter(l => l.type === ptype)
-    if (beds) r = r.filter(l => (l.bedrooms ?? (l as any).beds ?? 0) >= parseInt(beds))
+    if (beds) r = r.filter(l => ((l as any).bedrooms ?? (l as any).beds ?? 0) >= parseInt(beds))
     if (price === 'u1500') r = r.filter(l => parseFloat(String(l.price).replace(/[^0-9.]/g, '')) < 1500)
     if (price === '1500-2500') r = r.filter(l => { const p = parseFloat(String(l.price).replace(/[^0-9.]/g, '')); return p >= 1500 && p < 2500 })
     if (price === '2500+') r = r.filter(l => parseFloat(String(l.price).replace(/[^0-9.]/g, '')) >= 2500)
