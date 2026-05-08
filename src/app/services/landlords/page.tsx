@@ -13,7 +13,7 @@ const SERVICES = [
       "Screening through A-Z Housing is fully compliant with provincial privacy legislation (PIPEDA / PIPA), meaning you can collect and use applicant information with confidence. Reports are delivered within 24-48 hours, keeping your vacancy period short.",
     ],
     bullets: ["Full credit report & score", "Rental history & landlord references", "Employment & income verification", "Identity & background check", "PIPEDA / PIPA compliant"],
-    cta: { label: "Start Screening Applicants", href: "/post-listing" },
+    cta: { label: "Start Screening Applicants", href: "/contact" },
     accent: "var(--accent)",
   },
   {

@@ -479,6 +479,7 @@ export default function ContactPage() {
               Check the Landlord Portal for FAQs, pricing, and getting started guides.
             </p>
 
+
             <a
               href="/landlord"
               style={{
@@ -512,14 +513,7 @@ export default function ContactPage() {
       >
         <span style={{ fontSize: 28 }}>📍</span>
 
-        <div>
-          <div style={{ fontWeight: 600, color: 'var(--dark)' }}>
-            A-Z Housing Solutions
-          </div>
-
-          <div style={{ fontSize: 13 }}>Toronto, Ontario -- By appointment only</div>
-        </div>
-      </div>
+        
     </main>
   )
 }

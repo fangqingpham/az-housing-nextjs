@@ -120,7 +120,7 @@ export default function TenantsServicesPage() {
       {/* CTA */}
       <section style={{ background: "#4a90d9", padding: "clamp(50px,7vw,80px) 24px", textAlign: "center", color: "#fff" }}>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.6rem,4vw,2.4rem)", marginBottom: 14 }}>Your next home is waiting.</h2>
-        <p style={{ color: "rgba(255,255,255,0.8)", marginBottom: 32, maxWidth: 440, margin: "0 auto 32px" }}>Join thousands of Canadians who found their home through A-Z Housing.</p>
+        <p style={{ color: "rgba(255,255,255,0.8)", marginBottom: 32, maxWidth: 500, margin: "0 auto 32px" }}>Join thousands of Canadians who found their home through A-Z Housing.</p>
         <Link href="/map-search" style={{ background: "#fff", color: "#4a90d9", textDecoration: "none", borderRadius: 10, padding: "14px 36px", fontWeight: 800, fontSize: 16 }}>Start Searching Now</Link>
       </section>
     </main>

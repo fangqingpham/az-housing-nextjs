@@ -29,24 +29,30 @@ const FOOTER_COLS = [
   {
     heading: 'Knowledge Hub',
     links: [
-      { label: 'Blog Articles',   href: '/blog'                  },
+      { label: 'Blog Articles',          href: '/blog'                  },
       { label: 'Buying & Selling Guide', href: '/knowledge-hub/guides#buying---selling' },
-      { label: 'Mortgage Guides', href: '/knowledge-hub/guides#mortgages---finance' },
-      { label: 'Renting Guides',  href: '/knowledge-hub/guides#renting'  },
-      { label: 'Legal Updates',   href: '/knowledge-hub/guides#legal-updates' },
-      { label: 'Renovation Tips', href: '/knowledge-hub/guides#renovation---maintenance' },
+      { label: 'Mortgage Guides',        href: '/knowledge-hub/guides#mortgages---finance' },
+      { label: 'Renting Guides',         href: '/knowledge-hub/guides#renting'  },
+      { label: 'Legal Updates',          href: '/knowledge-hub/guides#legal-updates' },
+      { label: 'Renovation Tips',        href: '/knowledge-hub/guides#renovation---maintenance' },
     ],
   },
   {
     heading: 'Company',
     links: [
-      { label: 'About Us',         href: '/about'              },
-      { label: 'Contact & Support',href: '/contact'            },
-      { label: 'Sign Up',          href: '/auth/register'      },
-      { label: 'Log In',           href: '/auth/login'         },
-      { label: 'Admin Panel',      href: '/admin'              },
+      { label: 'About Us',          href: '/about'         },
+      { label: 'Contact & Support', href: '/contact'       },
+      { label: 'Sign Up',           href: '/auth/register' },
+      { label: 'Log In',            href: '/auth/login'    },
+      { label: 'Admin Panel',       href: '/admin'         },
     ],
   },
+];
+
+const POLICY_LINKS = [
+  { label: 'Privacy Policy',   href: '/privacy' },
+  { label: 'Terms of Service', href: '/terms'   },
+  { label: 'Cookie Policy',    href: '/cookies' },
 ];
 
 export default function Footer() {
@@ -62,7 +68,7 @@ export default function Footer() {
               A - <span>Z</span> Housing
             </Link>
             <p style={{ fontSize: 14, lineHeight: 1.75, maxWidth: 260, marginBottom: 20, color: 'rgba(255,255,255,0.55)' }}>
-              Canada's complete platform for property search, listing, and real estate guidance -- from search to sold.
+              Canada&apos;s complete platform for property search, listing, and real estate guidance — from search to sold.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               {['Facebook', 'Instagram', 'LinkedIn', 'X'].map(s => (
@@ -98,11 +104,11 @@ export default function Footer() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 0', fontSize: 13, gap: 16, flexWrap: 'wrap' }}>
           <span style={{ color: 'rgba(255,255,255,0.4)' }}>© {new Date().getFullYear()} A-Z Housing Solutions. All rights reserved.</span>
           <div style={{ display: 'flex', gap: 20 }}>
-            {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map(l => (
-              <Link key={l} href="/contact" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: 13, transition: 'color .15s' }}
+            {POLICY_LINKS.map(l => (
+              <Link key={l.href} href={l.href} style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: 13, transition: 'color .15s' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.75)')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>
-                {l}
+                {l.label}
               </Link>
             ))}
           </div>

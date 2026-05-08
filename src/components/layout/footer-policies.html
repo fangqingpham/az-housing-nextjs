@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>A-Z Housing Solutions – Footer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0f0; }
+
+  /* ── Footer ── */
+  footer {
+    background: #1b2a3d;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 28px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+  }
+  footer a {
+    color: #9bafc6;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color .15s;
+  }
+  footer a:hover, footer a.active { color: #ffffff; }
+  footer a.active { font-weight: 600; }
+
+  /* ── Modal overlay (normal-flow, not fixed) ── */
+  .overlay {
+    display: none;
+    background: rgba(0,0,0,.55);
+    padding: 40px 16px;
+    min-height: 100vh;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  /* ── Modal panel ── */
+  .modal {
+    background: #ffffff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 760px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,.25);
+  }
+  .modal-header {
+    background: #1b2a3d;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header h2 {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+  .modal-header .close-btn {
+    background: rgba(255,255,255,.12);
+    border: none;
+    color: #fff;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 32px;
+    text-align: center;
+    transition: background .15s;
+  }
+  .modal-header .close-btn:hover { background: rgba(255,255,255,.25); }
+
+  .modal-body {
+    padding: 28px;
+    max-height: 70vh;
+    overflow-y: auto;
+    color: #2c3e50;
+    font-size: 14.5px;
+    line-height: 1.75;
+  }
+  .modal-body h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1b2a3d;
+    margin: 22px 0 6px;
+    border-bottom: 1px solid #e8edf2;
+    padding-bottom: 6px;
+  }
+  .modal-body h2:first-child { margin-top: 0; }
+  .modal-body p { margin-bottom: 12px; }
+  .modal-body .effective {
+    display: inline-block;
+    background: #eef3f8;
+    color: #4a6282;
+    font-size: 12.5px;
+    border-radius: 6px;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+
+  .modal-footer {
+    background: #f8fafc;
+    border-top: 1px solid #e8edf2;
+    padding: 14px 28px;
+    font-size: 12.5px;
+    color: #7a90a8;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Footer ── -->
+<footer>
+  <a id="link-privacy" onclick="openModal('privacy')">Privacy Policy</a>
+  <a id="link-tos"     onclick="openModal('tos')">Terms of Service</a>
+  <a id="link-cookie"  onclick="openModal('cookie')">Cookie Policy</a>
+</footer>
+
+<!-- ── Overlay / Modal container ── -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="modal-title"></h2>
+      <button class="close-btn" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      A-Z Housing Solutions &nbsp;·&nbsp; Toronto, Ontario, Canada &nbsp;·&nbsp; azhousing.solutions@outlook.com &nbsp;·&nbsp; 1-800-AZ-HOUSE
+    </div>
+  </div>
+</div>
+
+<script>
+const policies = {
+  privacy: {
+    title: "Privacy Policy",
+    link: "link-privacy",
+    html: `
+      <span class="effective">Effective Date: [Insert effective date]</span>
+      <h2>1. Introduction</h2>
+      <p>A-Z Housing Solutions ("A-Z Housing", "we", "us", or "our") operates https://az-housing-nextjs.vercel.app/ and provides property search, property listing, real estate guidance, landlord and tenant support, mortgage advice referral, and related online services across Canada. This Privacy Policy explains how we collect, use, disclose, store, and protect personal information when you visit our website, create an account, post or inquire about a listing, contact us, or use our services.</p>
+      <h2>2. Personal Information We Collect</h2>
+      <p>We may collect personal information that you provide directly, including your name, email address, phone number, account login information, listing details, property address or location information, messages submitted through contact forms, tenant or landlord inquiry details, and payment or billing information if paid services are offered. We may also collect technical information such as IP address, browser type, device information, pages visited, referral URLs, cookie identifiers, and website usage data.</p>
+      <h2>3. How We Use Personal Information</h2>
+      <p>We use personal information to provide and improve our website and services; create and manage user accounts; display, review, and manage property listings; respond to questions and support requests; connect users with listing owners, landlords, tenants, service providers, or referral partners when requested; prevent fraud, spam, or misuse of the website; maintain website security; analyze website performance; send service messages; and comply with legal, tax, accounting, or regulatory requirements.</p>
+      <h2>4. Consent</h2>
+      <p>By using our website, submitting information, creating an account, posting a listing, or contacting us, you consent to the collection, use, and disclosure of your personal information as described in this Privacy Policy. You may withdraw consent where legally permitted, but this may limit our ability to provide certain services.</p>
+      <h2>5. Sharing of Personal Information</h2>
+      <p>We may share personal information with service providers that help operate our website, hosting, analytics, communications, security, customer support, payment processing, or business administration. We may also share information with listing parties, landlords, tenants, agents, mortgage or legal referral partners, or other third parties when you request or authorize the connection. We may disclose information if required by law, court order, government request, or to protect our rights, users, property, safety, or website security.</p>
+      <h2>6. Listings and Public Information</h2>
+      <p>Information submitted for public listings, such as property descriptions, prices, addresses, photos, and contact or inquiry information, may be visible to website visitors or other users depending on the listing settings. Do not submit information in a listing that you do not want made public.</p>
+      <h2>7. Third-Party Links and Listings</h2>
+      <p>Our website may link to third-party websites, listing platforms, brokerages, lenders, legal professionals, or other service providers. We are not responsible for the privacy practices, accuracy, security, or content of third-party websites or services. Users should review the privacy policies of those third parties before sharing information with them.</p>
+      <h2>8. Cookies and Analytics</h2>
+      <p>We may use cookies and similar technologies to remember preferences, support account login, measure website traffic, improve user experience, and understand how users interact with our website. More information is provided in our Cookie Policy.</p>
+      <h2>9. Retention and Security</h2>
+      <p>We keep personal information only as long as reasonably necessary for the purposes described in this Privacy Policy or as required by law. We use reasonable administrative, technical, and physical safeguards to protect personal information. However, no website, internet transmission, or electronic storage system is completely secure.</p>
+      <h2>10. Access, Correction, and Questions</h2>
+      <p>You may request access to your personal information, ask for corrections, withdraw consent, or ask privacy questions by contacting us at azhousing.solutions@outlook.com. We may need to verify your identity before processing a request.</p>
+      <h2>11. Children</h2>
+      <p>Our website is intended for general real estate and housing-related use and is not directed to children. Users should not submit personal information about minors unless they have legal authority to do so and the information is necessary for the requested service.</p>
+      <h2>12. Changes to This Privacy Policy</h2>
+      <p>We may update this Privacy Policy from time to time. The updated version will be posted on our website with a revised effective date. Continued use of the website after changes means you accept the updated policy.</p>
+      <h2>13. Contact</h2>
+      <p>A-Z Housing Solutions · Toronto, Ontario, Canada · Email: azhousing.solutions@outlook.com · Phone: 1-800-AZ-HOUSE</p>
+    `
+  },
+  tos: {
+    title: "Terms of Service",
+    link: "link-tos",
+    html: `
+      <span class="effective">Effective Date: [Insert effective date]</span>
+      <h2>1. Agreement to These Terms</h2>
+      <p>These Terms of Service ("Terms") govern your use of https://az-housing-nextjs.vercel.app/, operated by A-Z Housing Solutions. By accessing or using the website, creating an account, posting a listing, submitting an inquiry, or using any service, you agree to these Terms. If you do not agree, do not use the website.</p>
+      <h2>2. Our Services</h2>
+      <p>A-Z Housing Solutions provides an online platform for property search, property listing, rental and sale information, educational housing content, landlord and tenant support, tenant screening information, rental arrangement support, property management information, mortgage advice referrals, legal advice referrals, and related services. We may update, change, suspend, or discontinue any part of the website or services at any time.</p>
+      <h2>3. No Brokerage, Legal, Financial, or Tax Advice</h2>
+      <p>Unless separately agreed in writing, information on the website is for general informational purposes only and does not create a brokerage, agency, legal, mortgage, accounting, tax, or professional advisory relationship. Users should confirm property details, availability, price, legal rights, financing options, and professional advice directly with the appropriate licensed professionals or listing parties.</p>
+      <h2>4. User Accounts</h2>
+      <p>You are responsible for keeping your account login information secure and for all activity under your account. You must provide accurate, current, and complete information. We may suspend or terminate accounts that contain false information, violate these Terms, create risk, or misuse the website.</p>
+      <h2>5. Listings and User Content</h2>
+      <p>If you post a property listing, message, photo, description, price, contact detail, review, or other content, you confirm that you have the right to post it and that it is accurate, lawful, non-misleading, and does not infringe another person's rights. You grant A-Z Housing Solutions a non-exclusive, royalty-free, worldwide licence to host, display, copy, edit, and use your submitted content for operating and promoting the website and services.</p>
+      <h2>6. Listing Accuracy and Availability</h2>
+      <p>We try to provide useful property information, but we do not guarantee that listings, prices, availability, property details, photos, measurements, taxes, fees, zoning, school information, rental rules, or contact details are complete, current, or error-free. Users must independently verify all information before making decisions.</p>
+      <h2>7. Prohibited Use</h2>
+      <p>You must not use the website to post false or misleading listings; impersonate others; upload illegal, offensive, discriminatory, defamatory, or infringing content; scrape or copy website data without permission; interfere with website security; send spam; collect user information without consent; or use the website for unlawful activity.</p>
+      <h2>8. Payments and Fees</h2>
+      <p>Some services may require fees. If fees apply, the price, payment terms, refund terms, and service scope will be shown before purchase or agreed separately in writing. All fees are payable in Canadian dollars unless stated otherwise. Taxes may apply.</p>
+      <h2>9. Third-Party Services and Links</h2>
+      <p>The website may include links or referrals to third-party websites, listing platforms, landlords, tenants, real estate agents, mortgage professionals, legal professionals, contractors, or other service providers. We are not responsible for third-party services, advice, content, availability, pricing, or conduct.</p>
+      <h2>10. Intellectual Property</h2>
+      <p>The website design, brand name, logo, text, graphics, layout, software, and other content owned by A-Z Housing Solutions are protected by intellectual property laws. You may not copy, modify, distribute, sell, or use our intellectual property except as permitted by these Terms or with our written permission.</p>
+      <h2>11. Disclaimer of Warranties</h2>
+      <p>The website and services are provided on an 'as is' and 'as available' basis. We do not guarantee uninterrupted access, error-free operation, complete accuracy, specific results, or that the website will be free of viruses or harmful components.</p>
+      <h2>12. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law, A-Z Housing Solutions will not be liable for indirect, incidental, special, consequential, punitive, or loss-of-profit damages, or for losses arising from listings, third-party services, user conduct, website downtime, reliance on information, or transactions between users.</p>
+      <h2>13. Indemnity</h2>
+      <p>You agree to indemnify and hold harmless A-Z Housing Solutions from claims, losses, liabilities, damages, costs, and expenses arising from your use of the website, your content, your listings, your violation of these Terms, or your violation of any law or third-party right.</p>
+      <h2>14. Termination</h2>
+      <p>We may suspend or terminate access to the website or services at any time if we believe a user has violated these Terms, created risk, misused the website, or acted unlawfully.</p>
+      <h2>15. Governing Law</h2>
+      <p>These Terms are governed by the laws of the Province of Ontario and the applicable laws of Canada. Disputes will be handled in the courts or tribunals with jurisdiction in Ontario, unless another forum is required by law.</p>
+      <h2>16. Contact</h2>
+      <p>A-Z Housing Solutions · Toronto, Ontario, Canada · Email: azhousing.solutions@outlook.com · Phone: 1-800-AZ-HOUSE</p>
+    `
+  },
+  cookie: {
+    title: "Cookie Policy",
+    link: "link-cookie",
+    html: `
+      <span class="effective">Effective Date: [Insert effective date]</span>
+      <h2>1. Introduction</h2>
+      <p>This Cookie Policy explains how A-Z Housing Solutions uses cookies and similar technologies on https://az-housing-nextjs.vercel.app/. This policy should be read together with our Privacy Policy.</p>
+      <h2>2. What Cookies Are</h2>
+      <p>Cookies are small text files placed on your device when you visit a website. They help websites remember information about your visit, such as login status, preferences, pages viewed, and interactions with the website. Similar technologies may include pixels, tags, local storage, and analytics identifiers.</p>
+      <h2>3. How We Use Cookies</h2>
+      <p>We may use cookies to operate the website, keep users logged in, remember user preferences, improve navigation, measure website traffic, understand how users use pages and listings, protect the website from fraud or abuse, test website performance, and support marketing or referral measurement where applicable.</p>
+      <h2>4. Types of Cookies We May Use</h2>
+      <p><strong>Essential cookies</strong> are required for core website functions such as account login, security, forms, and basic navigation. <strong>Preference cookies</strong> remember choices such as settings or saved search preferences. <strong>Analytics cookies</strong> help us understand website traffic and improve the website. <strong>Marketing or referral cookies</strong> may help measure advertisements, referrals, or campaign performance if we use those tools.</p>
+      <h2>5. Third-Party Cookies</h2>
+      <p>Some cookies may be set by third-party providers that support hosting, analytics, maps, communication tools, advertising, embedded content, fraud prevention, or other website functions. Third-party providers may process information according to their own privacy and cookie policies.</p>
+      <h2>6. Consent and Cookie Control</h2>
+      <p>Where required, we will request consent before using non-essential cookies. You can manage cookies through your browser settings, by deleting cookies, blocking cookies, or setting your browser to alert you when cookies are being used. If you block or delete cookies, some website features, account functions, listing tools, or forms may not work properly.</p>
+      <h2>7. Do Not Track and Browser Signals</h2>
+      <p>Some browsers offer privacy signals such as Do Not Track. Because there is not always a consistent industry standard for these signals, our website may not respond to every browser signal. You can still control cookies through your browser settings.</p>
+      <h2>8. Cookie Retention</h2>
+      <p>Cookies may be session cookies, which expire when you close your browser, or persistent cookies, which remain for a set period or until you delete them. The exact retention period depends on the cookie type and provider.</p>
+      <h2>9. Updates to This Cookie Policy</h2>
+      <p>We may update this Cookie Policy if our website features, cookie tools, analytics services, or legal requirements change. The updated version will be posted on our website with a revised effective date.</p>
+      <h2>10. Contact</h2>
+      <p>A-Z Housing Solutions · Toronto, Ontario, Canada · Email: azhousing.solutions@outlook.com · Phone: 1-800-AZ-HOUSE</p>
+    `
+  }
+};
+
+let activeLink = null;
+
+function openModal(key) {
+  const p = policies[key];
+  document.getElementById('modal-title').textContent = p.title;
+  document.getElementById('modal-body').innerHTML = p.html;
+  document.getElementById('overlay').classList.add('open');
+  if (activeLink) document.getElementById(activeLink).classList.remove('active');
+  activeLink = p.link;
+  document.getElementById(activeLink).classList.add('active');
+  document.getElementById('modal-body').scrollTop = 0;
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  if (activeLink) {
+    document.getElementById(activeLink).classList.remove('active');
+    activeLink = null;
+  }
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+</script>
+</body>
+</html>
