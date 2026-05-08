@@ -512,8 +512,8 @@ export default function ContactPage() {
         }}
       >
         <span style={{ fontSize: 28 }}>📍</span>
-
-        
+        <span>Toronto, Ontario, Canada</span>
+      </div>
     </main>
   )
 }
