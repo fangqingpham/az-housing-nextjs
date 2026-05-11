@@ -32,7 +32,8 @@ function RentPageContent() {
       await ensureSeedData(SEED_LISTINGS as any)
       const all = await getListings()
       const rent = all.filter(
-        l => (l.status === 'published' || l.author === 'seed') && ((l as any).price_type === 'rent' || l.type === 'For Rent')
+        l => (l.status === 'published' || l.author === 'seed') &&
+          ((l as any).price_type === 'rent' || l.type === 'For Rent')
       )
       setListings(rent)
       setLoading(false)
@@ -41,7 +42,6 @@ function RentPageContent() {
     load()
   }, [user])
 
-  // Reset to page 1 when filters change
   useEffect(() => { setPage(1) }, [search, ptype, beds, price])
 
   const filtered = useMemo(() => {
@@ -73,24 +73,35 @@ function RentPageContent() {
     showToast(nowSaved ? 'Property saved! ♥' : 'Removed from saved.')
   }
 
+  const goTo = (n: number) => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+
+  const pageNumbers = () => {
+    const range: number[] = []
+    const delta = 2
+    for (let i = Math.max(1, page - delta); i <= Math.min(totalPages, page + delta); i++) {
+      range.push(i)
+    }
+    return range
+  }
+
   return (
     <>
       <Toast message={message} visible={visible} />
-      <div className="container" style={{ paddingTop: '2rem', paddingBottom: '3rem' }}>
-        <h1>For Rent</h1>
+      <div className="container" style={{ paddingTop: '1.5rem', paddingBottom: '3rem' }}>
+        <h1 style={{ marginBottom: '1rem' }}>For Rent</h1>
 
         {/* ── Filters ── */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 24 }}>
-          <input className="fc" placeholder="City or keyword" value={search} onChange={e => setSearch(e.target.value)} style={{ maxWidth: 220 }} />
-          <select className="fc" value={ptype} onChange={e => setPtype(e.target.value)} style={{ maxWidth: 160 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+          <input className="fc" placeholder="City or keyword" value={search} onChange={e => setSearch(e.target.value)} style={{ flex: '1 1 140px', minWidth: 120 }} />
+          <select className="fc" value={ptype} onChange={e => setPtype(e.target.value)} style={{ flex: '1 1 120px', minWidth: 110 }}>
             <option value="">Any type</option>
             <option>House</option><option>Condo</option><option>Apartment</option><option>Townhouse</option>
           </select>
-          <select className="fc" value={beds} onChange={e => setBeds(e.target.value)} style={{ maxWidth: 140 }}>
+          <select className="fc" value={beds} onChange={e => setBeds(e.target.value)} style={{ flex: '1 1 100px', minWidth: 95 }}>
             <option value="">Any beds</option>
             <option value="1">1+ bed</option><option value="2">2+ beds</option><option value="3">3+ beds</option>
           </select>
-          <select className="fc" value={price} onChange={e => setPrice(e.target.value)} style={{ maxWidth: 160 }}>
+          <select className="fc" value={price} onChange={e => setPrice(e.target.value)} style={{ flex: '1 1 120px', minWidth: 110 }}>
             <option value="">Any price</option>
             <option value="u1500">Under $1,500</option>
             <option value="1500-2500">$1,500 – $2,500</option>
@@ -105,10 +116,15 @@ function RentPageContent() {
         ) : (
           <>
             <p style={{ color: 'var(--mid)', fontSize: 13, marginBottom: 16 }}>
-              {filtered.length} rental{filtered.length !== 1 ? 's' : ''} found · Page {page} of {totalPages}
+              {filtered.length} rental{filtered.length !== 1 ? 's' : ''} · Page {page} of {totalPages}
             </p>
 
-            <div className="grid">
+            {/* Grid — 1 col mobile, 2 col tablet, 3 col desktop */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
+              gap: 'clamp(12px, 3vw, 20px)',
+            }}>
               {paginated.map(l => (
                 <PropertyCard key={l.id} listing={l} savedIds={savedIds} onToggleSave={handleToggleSave} />
               ))}
@@ -116,31 +132,43 @@ function RentPageContent() {
 
             {/* ── Pagination ── */}
             {totalPages > 1 && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 40 }}>
-                <button
-                  onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo(0, 0) }}
-                  disabled={page === 1}
-                  style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid #ddd', background: page === 1 ? '#f5f5f5' : '#fff', color: page === 1 ? '#aaa' : 'var(--dark)', cursor: page === 1 ? 'default' : 'pointer', fontWeight: 600, fontSize: 14 }}
-                >
-                  ← Prev
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                marginTop: 36,
+                flexWrap: 'wrap',
+              }}>
+                <button onClick={() => goTo(page - 1)} disabled={page === 1}
+                  style={{ minWidth: 44, minHeight: 44, padding: '0 16px', borderRadius: 10, border: '1px solid #ddd', background: page === 1 ? '#f5f5f5' : '#fff', color: page === 1 ? '#aaa' : 'var(--dark)', cursor: page === 1 ? 'default' : 'pointer', fontWeight: 600, fontSize: 15 }}>
+                  ‹
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                  <button
-                    key={n}
-                    onClick={() => { setPage(n); window.scrollTo(0, 0) }}
-                    style={{ width: 38, height: 38, borderRadius: 8, border: n === page ? 'none' : '1px solid #ddd', background: n === page ? 'var(--accent)' : '#fff', color: n === page ? '#fff' : 'var(--dark)', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}
-                  >
+                {pageNumbers()[0] > 1 && (
+                  <>
+                    <button onClick={() => goTo(1)} style={{ minWidth: 44, minHeight: 44, borderRadius: 10, border: '1px solid #ddd', background: '#fff', color: 'var(--dark)', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>1</button>
+                    {pageNumbers()[0] > 2 && <span style={{ color: 'var(--mid)', padding: '0 4px' }}>…</span>}
+                  </>
+                )}
+
+                {pageNumbers().map(n => (
+                  <button key={n} onClick={() => goTo(n)}
+                    style={{ minWidth: 44, minHeight: 44, borderRadius: 10, border: n === page ? 'none' : '1px solid #ddd', background: n === page ? 'var(--accent)' : '#fff', color: n === page ? '#fff' : 'var(--dark)', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
                     {n}
                   </button>
                 ))}
 
-                <button
-                  onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo(0, 0) }}
-                  disabled={page === totalPages}
-                  style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid #ddd', background: page === totalPages ? '#f5f5f5' : '#fff', color: page === totalPages ? '#aaa' : 'var(--dark)', cursor: page === totalPages ? 'default' : 'pointer', fontWeight: 600, fontSize: 14 }}
-                >
-                  Next →
+                {pageNumbers()[pageNumbers().length - 1] < totalPages && (
+                  <>
+                    {pageNumbers()[pageNumbers().length - 1] < totalPages - 1 && <span style={{ color: 'var(--mid)', padding: '0 4px' }}>…</span>}
+                    <button onClick={() => goTo(totalPages)} style={{ minWidth: 44, minHeight: 44, borderRadius: 10, border: '1px solid #ddd', background: '#fff', color: 'var(--dark)', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>{totalPages}</button>
+                  </>
+                )}
+
+                <button onClick={() => goTo(page + 1)} disabled={page === totalPages}
+                  style={{ minWidth: 44, minHeight: 44, padding: '0 16px', borderRadius: 10, border: '1px solid #ddd', background: page === totalPages ? '#f5f5f5' : '#fff', color: page === totalPages ? '#aaa' : 'var(--dark)', cursor: page === totalPages ? 'default' : 'pointer', fontWeight: 600, fontSize: 15 }}>
+                  ›
                 </button>
               </div>
             )}
