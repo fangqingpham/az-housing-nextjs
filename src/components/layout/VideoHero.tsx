@@ -44,51 +44,62 @@ export default function VideoHero({
       {/* ── Dark overlay ── */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'linear-gradient(135deg, rgba(10,20,40,0.80) 0%, rgba(10,20,40,0.58) 60%, rgba(10,20,40,0.48) 100%)',
+        background: 'linear-gradient(135deg, rgba(10,20,40,0.82) 0%, rgba(10,20,40,0.60) 60%, rgba(10,20,40,0.50) 100%)',
         zIndex: 1,
       }} />
 
       {/* ── Content ── */}
       <div style={{
         position: 'relative', zIndex: 2, width: '100%',
-        maxWidth: 1100,
+        maxWidth: 1000,
         margin: '0 auto',
-        padding: 'clamp(60px,10vw,100px) clamp(20px,5vw,48px)',
+        padding: 'clamp(48px,10vw,100px) clamp(16px,5vw,48px)',
       }}>
-        {/* Eyebrow */}
+
+        {/* Eyebrow — wraps naturally on mobile */}
         <span style={{
-          display: 'inline-block', fontSize: 11, letterSpacing: 3,
-          textTransform: 'uppercase', color: 'var(--accent)', fontWeight: 600,
-          marginBottom: 20, background: 'rgba(255,255,255,0.08)',
-          padding: '5px 14px', borderRadius: 999,
+          display: 'inline-block',
+          fontSize: 'clamp(9px, 1.8vw, 11px)',
+          letterSpacing: 2,
+          textTransform: 'uppercase',
+          color: 'var(--accent)',
+          fontWeight: 600,
+          marginBottom: 16,
+          background: 'rgba(255,255,255,0.08)',
+          padding: '5px 14px',
+          borderRadius: 999,
           border: '1px solid rgba(255,255,255,0.12)',
+          maxWidth: '90vw',
         }}>
           From Search to Sold, We&apos;ve Got You Covered
         </span>
 
-        {/* Headline — single line */}
+        {/* Headline — wraps on mobile */}
         <h1 style={{
           fontFamily: 'var(--serif)',
-          fontSize: 'clamp(1.8rem, 3.8vw, 3.2rem)',
-          fontWeight: 700, color: '#ffffff',
-          lineHeight: 1.15, marginBottom: 16,
+          fontSize: 'clamp(1.6rem, 5vw, 3.2rem)',
+          fontWeight: 700,
+          color: '#ffffff',
+          lineHeight: 1.2,
+          marginBottom: 14,
           textShadow: '0 2px 16px rgba(0,0,0,0.4)',
-          whiteSpace: 'nowrap',
+          maxWidth: 800,
         }}>
           {heroText}
         </h1>
 
-        {/* Subheading — single line */}
+        {/* Subheading — wraps on mobile */}
         <p style={{
-          fontSize: 'clamp(0.95rem, 1.6vw, 1.1rem)',
+          fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)',
           color: 'rgba(255,255,255,0.78)',
-          lineHeight: 1.5, marginBottom: 32,
-          whiteSpace: 'nowrap',
+          lineHeight: 1.65,
+          marginBottom: 28,
+          maxWidth: 620,
         }}>
           {heroSub}
         </p>
 
-        {/* Search bar — full width to match text */}
+        {/* Search bar */}
         <div style={{
           background: 'rgba(255,255,255,0.97)',
           borderRadius: 14,
@@ -96,23 +107,37 @@ export default function VideoHero({
           display: 'flex',
           alignItems: 'center',
           width: '100%',
-          maxWidth: 900,
+          maxWidth: 680,
           boxShadow: '0 8px 40px rgba(0,0,0,0.28)',
+          boxSizing: 'border-box',
         }}>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <SearchBar mode={mode} onModeChange={setMode} />
           </div>
         </div>
 
-        {/* Quick-filter chips */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap' }}>
+        {/* Quick-filter chips — scroll horizontally on mobile */}
+        <div style={{
+          display: 'flex',
+          gap: 8,
+          marginTop: 16,
+          flexWrap: 'wrap',
+          maxWidth: 680,
+        }}>
           {['House', 'Condo', 'Townhouse', 'Apartment', 'New Builds', 'Open Houses'].map((f) => (
             <button key={f}
               style={{
-                background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.88)',
-                border: '1px solid rgba(255,255,255,0.22)', borderRadius: 999,
-                padding: '6px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                backdropFilter: 'blur(6px)', transition: 'background .18s',
+                background: 'rgba(255,255,255,0.12)',
+                color: 'rgba(255,255,255,0.88)',
+                border: '1px solid rgba(255,255,255,0.22)',
+                borderRadius: 999,
+                padding: '5px 14px',
+                fontSize: 'clamp(11px, 2vw, 13px)',
+                fontWeight: 600,
+                cursor: 'pointer',
+                backdropFilter: 'blur(6px)',
+                transition: 'background .18s',
+                whiteSpace: 'nowrap',
               }}
               onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.22)')}
               onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)')}
