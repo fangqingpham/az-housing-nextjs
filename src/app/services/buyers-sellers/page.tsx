@@ -88,7 +88,10 @@ export default function BuyersSellersPage() {
               <p style={{ color: s.color, fontWeight: 600, fontSize: "1.05rem", marginBottom: 18 }}>{s.tagline}</p>
               {s.paras.map((p, j) => <p key={j} style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 14 }}>{p}</p>)}
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
-                <Link href="/buy"     style={{ background: s.color, color: "#fff", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 700, fontSize: 14 }}>Browse Listings</Link>
+                {s.id === 'mortgage'
+                  ? <a href="https://docs.google.com/forms/d/e/1FAIpQLScB8sezPbDQ8uawN-MlFSWfdP7E4ZrHhxlcbpqI4d68vtNlKQ/viewform" target="_blank" rel="noopener noreferrer" style={{ background: s.color, color: "#fff", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 700, fontSize: 14 }}>Get Pre-Approval</a>
+                  : <Link href="/buy" style={{ background: s.color, color: "#fff", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 700, fontSize: 14 }}>Browse Listings</Link>
+                }
                 <Link href="/contact" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 600, fontSize: 14, border: "1px solid rgba(0,0,0,0.12)" }}>Get Advice</Link>
               </div>
             </div>
