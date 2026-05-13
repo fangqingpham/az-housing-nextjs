@@ -71,7 +71,7 @@ export default function BuyersSellersPage() {
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             {SECTIONS.map(s => (
               <a key={s.id} href={`#${s.id}`} style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", textDecoration: "none", borderRadius: 8, padding: "9px 16px", fontSize: 13, fontWeight: 500 }}>
-                {s.icon} {s.title.split(" ")[0]}
+                {s.icon} {s.id === 'mortgage' ? 'Mortgage' : s.title.split(" ")[0]}
               </a>
             ))}
           </div>
