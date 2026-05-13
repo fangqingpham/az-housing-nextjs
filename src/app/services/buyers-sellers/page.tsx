@@ -82,7 +82,7 @@ export default function BuyersSellersPage() {
       {SECTIONS.map((s, i) => (
         <section key={s.id} id={s.id} style={{ padding: "clamp(60px,8vw,100px) 24px", background: i % 2 === 0 ? "var(--cream)" : "#fff", scrollMarginTop: 80 }}>
           <div style={{ maxWidth: 1060, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 52, alignItems: "center" }}>
-            <div style={{ order: i % 2 === 0 ? 0 : 1 }}>
+            <div>
               <div style={{ fontSize: 48, marginBottom: 16 }}>{s.icon}</div>
               <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.6rem,3.5vw,2.3rem)", color: "var(--dark)", marginBottom: 10, lineHeight: 1.25 }}>{s.title}</h2>
               <p style={{ color: s.color, fontWeight: 600, fontSize: "1.05rem", marginBottom: 18 }}>{s.tagline}</p>
@@ -95,7 +95,7 @@ export default function BuyersSellersPage() {
                 <Link href="/contact" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 600, fontSize: 14, border: "1px solid rgba(0,0,0,0.12)" }}>Get Advice</Link>
               </div>
             </div>
-            <div style={{ order: i % 2 === 0 ? 1 : 0 }}>
+            <div>
               <div style={{ background: "#fff", borderRadius: 16, padding: "30px 26px", boxShadow: "0 4px 24px rgba(0,0,0,0.07)", border: `2px solid ${s.color}25` }}>
                 <div style={{ fontWeight: 700, color: "var(--dark)", marginBottom: 16, fontSize: 15 }}>What you get:</div>
                 {s.features.map(f => (
