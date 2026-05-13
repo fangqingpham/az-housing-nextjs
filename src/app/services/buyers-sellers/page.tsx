@@ -3,19 +3,7 @@
 import Link from "next/link";
 
 const SECTIONS = [
-  {
-    id: "selling",
-    icon: "🏷️",
-    color: "var(--accent)",
-    title: "House Selling Guidance",
-    tagline: "Sell faster and for more.",
-    paras: [
-      "Selling a home is one of the largest financial decisions most Canadians will ever make. Our selling guidance service gives you a clear, step-by-step roadmap from understanding your local market to accepting an offer and closing the deal.",
-      "We help you prepare a competitive listing strategy, understand comparable sales, time your listing for maximum exposure, and negotiate with confidence.",
-    ],
-    features: ["Comparative Market Analysis (CMA)", "Listing strategy & timing advice", "Professional photography checklist", "Staging tips & presentation guide", "Negotiation support & offer review"],
-  },
-  {
+    {
     id: "purchasing",
     icon: "🔑",
     color: "#4a90d9",
@@ -31,7 +19,7 @@ const SECTIONS = [
     id: "mortgage",
     icon: "💰",
     color: "var(--green)",
-    title: "Mortgage Advice",
+    title: "1st thing first - Get A Mortgage Pre-Approval",
     tagline: "Rates, terms & lenders -- simplified.",
     paras: [
       "Understanding your mortgage options can save you tens of thousands of dollars over the life of a loan. Our mortgage guidance hub explains the difference between fixed and variable rates, open and closed terms, stress test requirements, and how to compare lenders effectively.",
@@ -50,6 +38,18 @@ const SECTIONS = [
       "Our maintenance calendar helps homeowners stay on top of seasonal upkeep -- preventing costly repairs down the line and keeping the property in top condition for eventual resale.",
     ],
     features: ["ROI-ranked renovation guide (kitchen, bath, curb appeal)", "Seasonal maintenance checklist", "Contractor vetting tips", "Permit & zoning guidance", "Energy efficiency upgrade resources"],
+  },
+  {
+    id: "selling",
+    icon: "🏷️",
+    color: "var(--accent)",
+    title: "House Selling Guidance",
+    tagline: "Sell faster and for more.",
+    paras: [
+      "Selling a home is one of the largest financial decisions most Canadians will ever make. Our selling guidance service gives you a clear, step-by-step roadmap from understanding your local market to accepting an offer and closing the deal.",
+      "We help you prepare a competitive listing strategy, understand comparable sales, time your listing for maximum exposure, and negotiate with confidence.",
+    ],
+    features: ["Comparative Market Analysis (CMA)", "Listing strategy & timing advice", "Professional photography checklist", "Staging tips & presentation guide", "Negotiation support & offer review"],
   },
 ];
 
