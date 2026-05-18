@@ -59,6 +59,15 @@ const NAV: NavItem[] = [
           { label: 'Renovation & Maintenance', href: '/services/buyers-sellers#renovation', desc: 'Improve & maintain your home' },
         ],
       },
+      {
+        label: 'Pricing',
+        key: 'pricing',
+        items: [
+          { label: 'A-Z Private Leasing Package', href: '/services/pricing#az-private-leasing', desc: '$499 flat fee' },
+          { label: 'Realtor MLS Full Leasing Package', href: '/services/pricing#realtor-mls-leasing', desc: "1 Month's Rent" },
+          { label: 'Property Management Service', href: '/services/pricing#property-management', desc: '$120/month' },
+        ],
+      },
     ],
   },
   {
