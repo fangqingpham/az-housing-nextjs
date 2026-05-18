@@ -33,7 +33,7 @@ const FOOTER_COLS = [
       { label: 'Buying & Selling Guide', href: '/knowledge-hub/guides#buying---selling' },
       { label: 'Mortgage Guides',        href: '/knowledge-hub/guides#mortgages---finance' },
       { label: 'Renting Guides',         href: '/knowledge-hub/guides#renting'  },
-      { label: 'Legal Updates',          href: '/knowledge-hub/guides#legal-updates' },
+      { label: 'Legal Resources',          href: '/knowledge-hub/guides#legal-updates' },
       { label: 'Renovation Tips',        href: '/knowledge-hub/guides#renovation---maintenance' },
     ],
   },

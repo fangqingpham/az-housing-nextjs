@@ -35,7 +35,7 @@ const NAV: NavItem[] = [
         label: 'For Landlords',
         key: 'landlords',
         items: [
-          { label: 'Tenant Screening', href: '/services/landlords#tenant-screening', desc: 'Verify prospective tenants' },
+          { label: 'Tenant Placement', href: '/services/landlords#tenant-screening', desc: 'Verify prospective tenants' },
           { label: 'Rental Arrangement', href: '/services/landlords#rental-arrangement', desc: 'Contracts & agreements' },
           { label: 'Property Management', href: '/services/landlords#property-management', desc: 'Day-to-day management support' },
           { label: 'Legal Advice & Eviction Prep', href: '/services/landlords#legal-advice', desc: 'Rights, notices & proceedings' },

@@ -26,7 +26,7 @@ const SERVICES = [
       "We also offer lease review services for custom agreements -- ensuring clauses around pets, parking, utilities, maintenance responsibilities, and notice periods are clear, enforceable, and fair to all parties.",
     ],
     bullets: ["Province-specific lease templates", "Custom lease review & advice", "Addendum creation (pets, parking, etc.)", "Digital signing integration", "Secure cloud storage of agreements"],
-    cta: { label: "Get Lease Templates", href: "/contact" },
+    cta: { label: "Get Lease Templates", href: "/legal-forms" },
     accent: "#4a90d9",
   },
   {

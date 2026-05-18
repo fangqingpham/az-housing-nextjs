@@ -54,7 +54,7 @@ const STATIC_CATEGORIES = [
   {
     icon: '⚖️',
     color: '#8e44ad',
-    title: 'Legal Updates',
+    title: 'Legal Resources',
     guides: [
       { id: 'bc-alberta-tenancy-changes', title: 'Recent Tenancy Law Changes in BC & Alberta', read: '8 min read',  excerpt: 'What landlords and tenants need to know in 2024.' },
       { id: 'foreign-buyer-ban',          title: "Canada's Foreign Buyer Ban Explained",       read: '6 min read',  excerpt: 'Who is affected, exemptions, and what comes next.' },
@@ -70,7 +70,7 @@ const CAT_META: Record<string, { color: string; icon: string }> = {
   'Mortgages & Finance':   { color: '#4a90d9',       icon: '💰' },
   'Renting':               { color: '#27ae60',       icon: '🏘️' },
   'Renovation & Maintenance': { color: '#e67e22',    icon: '🔨' },
-  'Legal Updates':         { color: '#8e44ad',       icon: '⚖️' },
+  'Legal Resources':         { color: '#8e44ad',       icon: '⚖️' },
 };
 
 export default function GuidesPage() {
