@@ -8,10 +8,9 @@ import Link from "next/link";
 const PACKAGES = [
   {
     id: "az-private-leasing",
-    icon: "📦",
     badge: "Pay as you go",
     title: "A-Z Private Leasing Package",
-    price: "$499",
+    price: "$799",
     priceNote: "flat fee",
     accent: "var(--accent)",
     tagline: "Full-service private leasing — from marketing to signed lease.",
@@ -63,7 +62,7 @@ const PACKAGES = [
     ],
     addons: [
       { name: "Professional photography", price: "$149" },
-      { name: "Showing coordination with smart lockbox (max 5 times)", price: "$399" },
+      { name: "In-person showing - face-to-face screening for suitability assessment (max 5 times)", price: "$399/GTA only" },
       { name: "Key handover and move-in orientation", price: "$75" },
       { name: "Move-in inspection report", price: "$99" },
       { name: "Extra applicant screening after first 5 applicants", price: "$29/applicant" },
@@ -72,8 +71,7 @@ const PACKAGES = [
       "This package does not include MLS/Realtor.ca listing, Realtor representation, in-person showings, photography, or key handover unless added separately.",
   },
   {
-    id: "realtor-mls-leasing",
-    icon: "🏷️",
+    id: "realtor-mls-leasing",    
     badge: "Best for max exposure",
     title: "Realtor MLS Full Leasing Package",
     price: "1 Month's Rent",
@@ -128,8 +126,7 @@ const PACKAGES = [
     disclaimer: "",
   },
   {
-    id: "property-management",
-    icon: "🏘️",
+    id: "property-management",    
     badge: "Ongoing service",
     title: "Property Management Service",
     price: "$120/month",
@@ -274,10 +271,10 @@ function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () =>
 
           {/* CTA */}
           <Link
-            href="/contact"
+            href={pkg.id === "az-private-leasing" ? "/tenant-placement" : "/contact"}
             style={{ display: "block", background: "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 700, fontSize: 14, textAlign: "center", marginTop: 8 }}
           >
-            Get Started with This Package →
+            {pkg.id === "az-private-leasing" ? "Order This Package →" : "Get Started with This Package →"}
           </Link>
         </div>
       </div>
@@ -395,7 +392,7 @@ export default function PricingPage() {
                       Details
                     </button>
                     <Link
-                      href="/contact"
+                      href={pkg.id === "az-private-leasing" ? "/tenant-placement" : "/contact"}
                       style={{
                         display: "block",
                         background: "var(--dark)",
@@ -408,7 +405,7 @@ export default function PricingPage() {
                         textAlign: "center",
                       }}
                     >
-                      Get Started →
+                      {pkg.id === "az-private-leasing" ? "ORDER HERE →" : "Get Started →"}
                     </Link>
                   </div>
                 </div>

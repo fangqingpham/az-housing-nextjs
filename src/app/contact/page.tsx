@@ -24,7 +24,7 @@ const SUPPORT_CARDS = [
   {
     icon: '📞',
     title: 'Phone Support',
-    detail: '1-800-AZ-HOUSE',
+    detail: '+1 (647) 948-4428',
     sub: 'Mon-Fri, 9am-6pm EST',
   },
   {
