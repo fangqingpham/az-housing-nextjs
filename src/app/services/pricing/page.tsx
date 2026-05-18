@@ -192,7 +192,7 @@ function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () =>
               <div style={{ display: "inline-block", background: "rgba(196,162,90,0.2)", border: "1px solid rgba(196,162,90,0.4)", color: "var(--accent)", fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", borderRadius: 20, padding: "4px 14px", marginBottom: 10 }}>
                 {pkg.badge}
               </div>
-              <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.3rem,3vw,1.8rem)", marginBottom: 6 }}>{pkg.icon} {pkg.title}</h2>
+              <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.3rem,3vw,1.8rem)", marginBottom: 6 }}>{pkg.title}</h2>
               <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--accent)" }}>
                 {pkg.price} <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "rgba(255,255,255,0.6)" }}>— {pkg.priceNote}</span>
               </div>
@@ -337,7 +337,6 @@ export default function PricingPage() {
                   <div style={{ display: "inline-block", background: "rgba(196,162,90,0.2)", border: "1px solid rgba(196,162,90,0.4)", color: "var(--accent)", fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", borderRadius: 20, padding: "3px 12px", marginBottom: 14 }}>
                     {pkg.badge}
                   </div>
-                  <div style={{ fontSize: 36, marginBottom: 10 }}>{pkg.icon}</div>
                   <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.1rem,2.5vw,1.45rem)", lineHeight: 1.3, marginBottom: 14 }}>
                     {pkg.title}
                   </h2>
