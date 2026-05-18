@@ -6,14 +6,14 @@ const SERVICES = [
   {
     id: "tenant-screening",
     icon: "🔍",
-    title: "Tenant Screening",
+    title: "Tenant Placement",
     tagline: "Find reliable, responsible tenants every time.",
     body: [
       "Our tenant screening service gives landlords a comprehensive view of every applicant before a lease is signed. We combine credit history analysis, employment verification, rental reference checks, and background screening into a single, easy-to-read report.",
       "Screening through A-Z Housing is fully compliant with provincial privacy legislation (PIPEDA / PIPA), meaning you can collect and use applicant information with confidence. Reports are delivered within 24-48 hours, keeping your vacancy period short.",
     ],
     bullets: ["Full credit report & score", "Rental history & landlord references", "Employment & income verification", "Identity & background check", "PIPEDA / PIPA compliant"],
-    cta: { label: "Start Screening Applicants", href: "/contact" },
+    cta: { label: "Start Looking for AAA Tenants", href: "/tenant-placement"},
     accent: "var(--accent)",
   },
   {

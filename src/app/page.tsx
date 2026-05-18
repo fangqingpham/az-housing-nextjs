@@ -123,7 +123,7 @@ export default function HomePage() {
             {[
               { icon: '🏠', title: 'Buy a Home',         desc: 'Browse thousands of verified listings across Canada.',  href: '/buy' },
               { icon: '🔑', title: 'Rent a Property',    desc: 'Find your next rental — apartments, houses & more.',    href: '/rent' },
-              { icon: '📋', title: 'List Your Property', desc: 'Reach serious buyers and renters quickly.',             href: '/post-listing' },
+              { icon: '📋', title: 'List Property & Tenant Placement', desc: 'Reach high quality renters  quickly.',    href: "/tenant-placement" },
               { icon: '📚', title: 'Knowledge Hub',      desc: 'Expert guides on buying, selling & renting in Canada.', href: '/knowledge-hub/guides' },
             ].map(s => (
               <Link key={s.title} href={s.href} style={{ textDecoration: 'none' }}>
