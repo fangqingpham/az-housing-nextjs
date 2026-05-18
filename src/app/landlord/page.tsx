@@ -14,30 +14,51 @@ const FEATURES = [
 
 const PLANS = [
   {
-    name: "Basic",
-    price: "Free",
-    period: "",
-    description: "Perfect for private sellers with one property.",
-    features: ["1 active listing", "Up to 5 photos", "Email enquiries", "30-day listing duration"],
-    cta: "Get Started",
+    name: "A-Z Private Leasing Package",
+    price: "$799",
+    period: " flat fee",
+    description: "Private leasing support for landlords who want help from marketing to signed lease.",
+    features: [
+      "Marketing on A-Z website, Kijiji, Facebook Marketplace, housing groups, and Rentals.ca where applicable",
+      "Applicant inquiries and pre-qualification coordination",
+      "Tenant screening for up to 5 applicants",
+      "Ontario Standard Lease preparation and signing coordination",
+      "Compliance support and landlord resources",
+    ],
+    cta: "Order Here",
+    href: "/tenant-placement",
     highlight: false,
   },
   {
-    name: "Pro",
-    price: "$29",
-    period: "/month",
-    description: "For active landlords managing multiple properties.",
-    features: ["Up to 10 active listings", "Up to 20 photos per listing", "Priority in search results", "Dashboard analytics", "Unlimited duration", "SMS & email enquiries"],
-    cta: "Start Pro Trial",
+    name: "Realtor MLS Full Leasing Package",
+    price: "1 Month's Rent",
+    period: " commission",
+    description: "MLS/Realtor.ca leasing support for landlords who want maximum market exposure.",
+    features: [
+      "MLS listing through licensed Realtor channel",
+      "Realtor.ca exposure",
+      "Showing and inquiry coordination through Realtor channels",
+      "Offer-to-lease review and negotiation support",
+      "Lease signing and document coordination",
+    ],
+    cta: "Contact Us",
+    href: "/contact",
     highlight: true,
   },
   {
-    name: "Agency",
-    price: "$99",
-    period: "/month",
-    description: "Full-service solution for real estate agencies.",
-    features: ["Unlimited listings", "Team member accounts", "White-label enquiry forms", "API access", "Dedicated support", "Featured placement"],
-    cta: "Contact Sales",
+    name: "Landlord Legal Resources",
+    price: "Resources",
+    period: " & guidance",
+    description: "Helpful articles, guides, forms, and resources for Ontario and Canadian landlords.",
+    features: [
+      "Landlord and tenant rights guidance",
+      "Lease, notice, and documentation resources",
+      "Eviction preparation information",
+      "Compliance tips and practical landlord checklists",
+      "Access to Knowledge Hub guides and articles",
+    ],
+    cta: "Explore Resources",
+    href: "/knowledge-hub/guides",
     highlight: false,
   },
 ];
@@ -109,8 +130,8 @@ export default function LandlordPage() {
       <section id="plans" style={{ background: "#fff", padding: "clamp(60px,8vw,100px) 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.6rem)", color: "var(--dark)", marginBottom: 14 }}>Simple, Transparent Pricing</h2>
-            <p style={{ color: "var(--mid)", fontSize: "1.05rem" }}>No hidden fees. Cancel anytime.</p>
+            <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.6rem)", color: "var(--dark)", marginBottom: 14 }}>Landlord Service Packages</h2>
+            <p style={{ color: "var(--mid)", fontSize: "1.05rem" }}>Choose the service option that fits your leasing and landlord support needs.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 28, alignItems: "start" }}>
             {PLANS.map(plan => (
@@ -131,7 +152,7 @@ export default function LandlordPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href={plan.name === "Agency" ? "/contact" : "/post-listing"} style={{ display: "block", textAlign: "center", background: plan.highlight ? "var(--accent)" : "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 0", fontWeight: 700, fontSize: 15 }}>{plan.cta}</Link>
+                <Link href={plan.href} style={{ display: "block", textAlign: "center", background: plan.highlight ? "var(--accent)" : "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 0", fontWeight: 700, fontSize: 15 }}>{plan.cta}</Link>
               </div>
             ))}
           </div>

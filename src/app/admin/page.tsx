@@ -19,7 +19,31 @@ import type { Listing, Message, AppUser, BlogPost } from '@/types'
 const ADMIN_PASS_KEY = 'nf_admin_pass'
 const ADMIN_SESSION_KEY = 'nf_admin_session'
 
-type AdminTab = 'listings' | 'messages' | 'users' | 'articles' | 'settings'
+type AdminTab = 'listings' | 'orders' | 'messages' | 'users' | 'articles' | 'settings'
+
+type TenantPlacementOrder = {
+  id: string
+  created_at: string
+  landlord_name: string
+  company_name: string | null
+  phone: string
+  email: string
+  mailing_address: string
+  property_address: string
+  city: string
+  postal_code: string
+  property_type: string
+  expected_rent: string | null
+  bedrooms: string | null
+  bathrooms: string | null
+  move_in_date: string | null
+  showing_ready: string
+  selected_services: string[]
+  estimated_total: number
+  additional_notes: string | null
+  authorization_confirmed: boolean
+  status: string
+}
 
 const ARTICLE_COLORS = [
   '#E8F4FD', '#FEF3DC', '#E1F5EE', '#F0E8FD', '#FDE8E8', '#E8F0FD',
@@ -47,6 +71,22 @@ function emptyArticle(): BlogPost {
   }
 }
 
+async function getTenantPlacementOrders(): Promise<TenantPlacementOrder[]> {
+  const response = await fetch('/api/admin/tenant-placement-orders', { cache: 'no-store' })
+  if (!response.ok) return []
+  const data = await response.json()
+  return data.orders || []
+}
+
+async function updateTenantPlacementOrderStatus(id: string, status: string): Promise<boolean> {
+  const response = await fetch('/api/admin/tenant-placement-orders', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, status }),
+  })
+  return response.ok
+}
+
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [passInput, setPassInput] = useState('')
@@ -57,7 +97,8 @@ export default function AdminPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [users, setUsers] = useState<AppUser[]>([])
   const [articles, setArticles] = useState<BlogPost[]>([])
-  const [stats, setStats] = useState({ total: 0, published: 0, messages: 0, users: 0, articles: 0 })
+  const [orders, setOrders] = useState<TenantPlacementOrder[]>([])
+  const [stats, setStats] = useState({ total: 0, published: 0, messages: 0, users: 0, articles: 0, orders: 0 })
   const [loading, setLoading] = useState(false)
 
   // Listing edit modal
@@ -99,6 +140,8 @@ export default function AdminPage() {
   const [alType, setAlType] = useState('')
   const [alStatus, setAlStatus] = useState('')
   const [amSearch, setAmSearch] = useState('')
+  const [orderSearch, setOrderSearch] = useState('')
+  const [orderStatusFilter, setOrderStatusFilter] = useState('')
 
   const { message, visible, showToast } = useToast()
   const router = useRouter()
@@ -137,10 +180,11 @@ export default function AdminPage() {
 
   const loadDashboard = async () => {
     setLoading(true)
-    const [ls, uc, mc, ac] = await Promise.all([getListings(), getUserCount(), getMessageCount(), getArticleCount()])
+    const [ls, uc, mc, ac, orderRows] = await Promise.all([getListings(), getUserCount(), getMessageCount(), getArticleCount(), getTenantPlacementOrders()])
     const published = ls.filter(l => l.status === 'published' || l.author === 'seed').length
-    setStats({ total: ls.length, published, messages: mc, users: uc, articles: ac })
+    setStats({ total: ls.length, published, messages: mc, users: uc, articles: ac, orders: orderRows.filter(o => o.status === 'new').length })
     setListings(ls)
+    setOrders(orderRows)
     setLoading(false)
     const s = JSON.parse(localStorage.getItem('nf_admin_settings') || '{}')
     if (s.sitename) setSitename(s.sitename)
@@ -157,6 +201,7 @@ export default function AdminPage() {
     if (t === 'messages') setMessages(await getMessages())
     if (t === 'users') setUsers(await getUsers())
     if (t === 'articles') setArticles(await getArticles())
+    if (t === 'orders') setOrders(await getTenantPlacementOrders())
     setLoading(false)
   }
 
@@ -201,6 +246,21 @@ export default function AdminPage() {
     await deleteMessage(id)
     setMessages(prev => prev.filter(m => m.id !== id))
     showToast('Message deleted.')
+  }
+
+  const changeOrderStatus = async (id: string, status: string) => {
+    const ok = await updateTenantPlacementOrderStatus(id, status)
+    if (!ok) {
+      showToast('Could not update order status.')
+      return
+    }
+
+    setOrders(prev => prev.map(order => order.id === id ? { ...order, status } : order))
+    setStats(prev => ({
+      ...prev,
+      orders: Math.max(0, prev.orders + (status === 'new' ? 1 : 0) - (orders.find(order => order.id === id)?.status === 'new' ? 1 : 0))
+    }))
+    showToast('Order status updated.')
   }
 
   const adminDeleteUser = async (id: string) => {
@@ -305,6 +365,27 @@ export default function AdminPage() {
   const filteredArticles = articles.filter(a => {
     if (artSearch && !a.title.toLowerCase().includes(artSearch.toLowerCase()) && !(a.author || '').toLowerCase().includes(artSearch.toLowerCase())) return false
     if (artCatFilter && a.cat !== artCatFilter) return false
+    return true
+  })
+
+  const filteredOrders = orders.filter(order => {
+    const query = orderSearch.toLowerCase().trim()
+    if (query) {
+      const haystack = [
+        order.landlord_name,
+        order.company_name || '',
+        order.phone,
+        order.email,
+        order.property_address,
+        order.city,
+        order.postal_code,
+        String(order.estimated_total || ''),
+      ].join(' ').toLowerCase()
+
+      if (!haystack.includes(query)) return false
+    }
+
+    if (orderStatusFilter && order.status !== orderStatusFilter) return false
     return true
   })
 
@@ -558,13 +639,14 @@ export default function AdminPage() {
         </div>
 
         {/* Stats — now 5 cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '1rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: '1rem', marginBottom: '2rem' }}>
           {[
             { val: stats.total, label: 'Total Listings' },
             { val: stats.published, label: 'Published' },
             { val: stats.messages, label: 'Messages' },
             { val: stats.users, label: 'Registered Users' },
             { val: stats.articles, label: 'Articles' },
+            { val: stats.orders, label: 'New Orders' },
           ].map(s => (
             <div key={s.label} className="astat">
               <span className="astat-val">{s.val}</span>
@@ -575,9 +657,9 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div style={{ borderBottom: '2px solid var(--border)', marginBottom: '1.75rem', display: 'flex' }}>
-          {(['listings', 'articles', 'messages', 'users', 'settings'] as AdminTab[]).map(t => (
+          {(['listings', 'orders', 'articles', 'messages', 'users', 'settings'] as AdminTab[]).map(t => (
             <button key={t} className={`admin-tab${tab === t ? ' active' : ''}`} onClick={() => loadTab(t)}>
-              {t === 'articles' ? '✍️ Articles' : t.charAt(0).toUpperCase() + t.slice(1)}
+              {t === 'articles' ? '✍️ Articles' : t === 'orders' ? '🧾 Tenant Orders' : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
         </div>
@@ -648,6 +730,104 @@ export default function AdminPage() {
             </div>
           </>
         )}
+
+
+        {/* TENANT ORDERS TAB */}
+        {tab === 'orders' && !loading && (
+          <>
+            <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              <input
+                className="fc"
+                style={{ maxWidth: 260, marginBottom: 0 }}
+                placeholder="Search landlord, email, phone, address…"
+                value={orderSearch}
+                onChange={e => setOrderSearch(e.target.value)}
+              />
+              <select
+                className="fc"
+                style={{ maxWidth: 160, marginBottom: 0 }}
+                value={orderStatusFilter}
+                onChange={e => setOrderStatusFilter(e.target.value)}
+              >
+                <option value="">All status</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <button className="btn btn-sm" onClick={() => loadTab('orders')}>Refresh</button>
+            </div>
+
+            {filteredOrders.length === 0 ? (
+              <div className="empty-state"><p>No tenant placement orders yet.</p></div>
+            ) : (
+              <div style={{ display: 'grid', gap: '1rem' }}>
+                {filteredOrders.map(order => (
+                  <div key={order.id} style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 'var(--r)', padding: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '.75rem' }}>
+                      <div>
+                        <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>
+                          Tenant Placement Order
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: 16, marginTop: 4 }}>
+                          {order.landlord_name}
+                          {order.company_name ? <span style={{ color: 'var(--mid)', fontWeight: 400 }}> · {order.company_name}</span> : null}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--mid)', marginTop: 3 }}>
+                          Submitted: {order.created_at ? new Date(order.created_at).toLocaleString('en-CA') : '--'}
+                        </div>
+                      </div>
+
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontWeight: 800, fontSize: 20, color: 'var(--dark)' }}>
+                          ${Number(order.estimated_total || 0).toLocaleString('en-CA')}
+                        </div>
+                        <select
+                          className="fc"
+                          style={{ marginTop: 8, marginBottom: 0, width: 150 }}
+                          value={order.status || 'new'}
+                          onChange={e => changeOrderStatus(order.id, e.target.value)}
+                        >
+                          <option value="new">New</option>
+                          <option value="contacted">Contacted</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '.75rem', fontSize: 13, color: 'var(--mid)', marginBottom: '.75rem' }}>
+                      <div><strong style={{ color: 'var(--dark)' }}>Phone:</strong> {order.phone}</div>
+                      <div><strong style={{ color: 'var(--dark)' }}>Email:</strong> <a href={`mailto:${order.email}`} style={{ color: 'var(--accent)' }}>{order.email}</a></div>
+                      <div><strong style={{ color: 'var(--dark)' }}>Property:</strong> {order.property_address}, {order.city} {order.postal_code}</div>
+                      <div><strong style={{ color: 'var(--dark)' }}>Type:</strong> {order.property_type}</div>
+                      <div><strong style={{ color: 'var(--dark)' }}>Rent:</strong> {order.expected_rent || '--'}</div>
+                      <div><strong style={{ color: 'var(--dark)' }}>Bedrooms/Bathrooms:</strong> {order.bedrooms || '--'} / {order.bathrooms || '--'}</div>
+                      <div><strong style={{ color: 'var(--dark)' }}>Move-in:</strong> {order.move_in_date || '--'}</div>
+                      <div><strong style={{ color: 'var(--dark)' }}>Ready for showing:</strong> {order.showing_ready || '--'}</div>
+                    </div>
+
+                    <div style={{ background: 'var(--cream)', borderRadius: 10, padding: '.75rem', marginBottom: '.75rem' }}>
+                      <div style={{ fontWeight: 700, marginBottom: 6 }}>Selected Services</div>
+                      <ul style={{ margin: 0, paddingLeft: '1.2rem', color: 'var(--mid)', fontSize: 13, lineHeight: 1.7 }}>
+                        {(Array.isArray(order.selected_services) ? order.selected_services : []).map((service, index) => (
+                          <li key={index}>{service}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {order.additional_notes && (
+                      <div style={{ fontSize: 13, color: 'var(--mid)', lineHeight: 1.6 }}>
+                        <strong style={{ color: 'var(--dark)' }}>Notes:</strong> {order.additional_notes}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
 
         {/* ARTICLES TAB */}
         {tab === 'articles' && !loading && (
