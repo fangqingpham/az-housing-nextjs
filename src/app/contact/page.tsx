@@ -6,11 +6,11 @@ import { insertMessage } from '@/lib/api'
 const TOPICS = [
   'General Enquiry',
   'Listing Support',
-  'Tenant / Landlord Dispute',
-  'Mortgage Advice Referral',
+  'Buy / Sell a property',
+  'Mortgage Inquiry',
   'Legal Advice Referral',
-  'Technical Issue',
-  'Partnership / Media',
+  'Join our team',
+  'Tenant Placement',
   'Other',
 ]
 
@@ -24,12 +24,12 @@ const SUPPORT_CARDS = [
   {
     icon: '📞',
     title: 'Phone Support',
-    detail: '1-800-AZ-HOUSE',
+    detail: '+1 (647) 948-4428',
     sub: 'Mon-Fri, 9am-6pm EST',
   },
   {
     icon: '🏢',
-    title: 'Head Office',
+    title: 'Head Office (By Appointment)',
     detail: 'Toronto, Ontario, Canada',
   },
 ]
