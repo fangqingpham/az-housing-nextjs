@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const money = (amount: number) =>
   new Intl.NumberFormat("en-CA", {
@@ -86,6 +86,14 @@ export default function TenantPlacementApplicationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const updateSize = () => setIsMobile(window.innerWidth <= 900);
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   const total = useMemo(() => {
     const management =
@@ -228,7 +236,7 @@ export default function TenantPlacementApplicationPage() {
       </section>
 
       <form onSubmit={handleSubmit}>
-        <section style={{ maxWidth: 1180, margin: "0 auto", padding: "48px 24px", display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) minmax(300px, .6fr)", gap: 28 }}>
+        <section style={{ maxWidth: 1180, margin: "0 auto", padding: isMobile ? "24px 14px" : "48px 24px", display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "minmax(0, 1.4fr) minmax(300px, .6fr)", gap: isMobile ? 18 : 28, overflowX: "hidden" }}>
           <div style={{ display: "grid", gap: 24 }}>
             <Card title="1. Landlord Information">
               <div style={gridStyle}>
@@ -311,7 +319,7 @@ export default function TenantPlacementApplicationPage() {
             </Card>
           </div>
 
-          <aside style={{ alignSelf: "start", position: "sticky", top: 86 }}>
+          <aside style={{ alignSelf: "start", position: isMobile ? "static" : "sticky", top: isMobile ? "auto" : 86, width: "100%", minWidth: 0 }}>
             <div style={{ background: "#fff", borderRadius: 20, padding: 26, boxShadow: "0 10px 35px rgba(0,0,0,.10)", border: "1px solid rgba(0,0,0,.07)" }}>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", color: "var(--mid, #666)" }}>Estimated Total</div>
               <div style={{ fontSize: 46, fontWeight: 900, margin: "12px 0", color: "var(--dark, #102247)" }}>{money(total)}</div>
@@ -361,7 +369,7 @@ export default function TenantPlacementApplicationPage() {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section style={{ background: "#fff", borderRadius: 20, padding: 26, boxShadow: "0 4px 24px rgba(0,0,0,.07)", border: "1px solid rgba(0,0,0,.07)", overflow: "hidden" }}>
+    <section style={{ background: "#fff", borderRadius: 20, padding: "clamp(18px, 4vw, 26px)", boxShadow: "0 4px 24px rgba(0,0,0,.07)", border: "1px solid rgba(0,0,0,.07)", overflow: "hidden", minWidth: 0 }}>
       <h2 style={{ fontFamily: "var(--serif)", fontSize: "1.45rem", color: "var(--dark, #102247)", marginBottom: 18 }}>{title}</h2>
       {children}
     </section>
