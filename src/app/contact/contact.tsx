@@ -24,7 +24,7 @@ const SUPPORT_CARDS = [
   {
     icon: '📞',
     title: 'Phone Support',
-    detail: '+1 (647) 948-4428',
+    detail: '1-800-AZ-HOUSE',
     sub: 'Mon-Fri, 9am-6pm EST',
   },
   {
@@ -499,20 +499,103 @@ export default function ContactPage() {
         </div>
       </div>
 
+      {/* ── Cities we serve ── */}
       <div
         style={{
-          background: '#e8e4dc',
-          height: 240,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--mid)',
-          fontSize: 15,
-          gap: 10,
+          background: 'var(--dark)',
+          padding: 'clamp(48px,7vw,80px) 24px',
         }}
       >
-        <span style={{ fontSize: 28 }}>📍</span>
-        <span>Toronto, Ontario, Canada</span>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div
+              style={{
+                display: 'inline-block',
+                background: 'rgba(196,162,90,0.18)',
+                border: '1px solid rgba(196,162,90,0.35)',
+                color: 'var(--accent)',
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+                borderRadius: 20,
+                padding: '4px 16px',
+                marginBottom: 14,
+              }}
+            >
+              Areas We Serve
+            </div>
+            <h2
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(1.6rem,3.5vw,2.2rem)',
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              Serving the Greater Toronto Area
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: 16,
+            }}
+          >
+            {[
+              'Toronto',
+              'Mississauga',
+              'Markham',
+              'Richmond Hill',
+              'Pickering',
+              'Oshawa',
+              'Whitby',
+              'Brampton',
+              'Newmarket',
+            ].map(city => (
+              <div
+                key={city}
+                style={{
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 14,
+                  padding: '28px 16px',
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 8,
+                  transition: 'background .18s, transform .18s',
+                  cursor: 'default',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.background = 'rgba(196,162,90,0.12)'
+                  el.style.transform = 'translateY(-4px)'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.background = 'rgba(255,255,255,0.07)'
+                  el.style.transform = 'translateY(0)'
+                }}
+              >
+                <span style={{ fontSize: 22 }}>📍</span>
+                <span
+                  style={{
+                    fontFamily: 'var(--serif)',
+                    fontSize: 'clamp(1rem,2vw,1.2rem)',
+                    fontWeight: 700,
+                    color: 'var(--accent)',
+                  }}
+                >
+                  {city}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </main>
   )

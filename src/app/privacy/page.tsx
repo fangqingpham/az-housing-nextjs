@@ -27,7 +27,7 @@ export default function PrivacyPage() {
 
         <div style={{ background: '#fff', borderRadius: 14, padding: 'clamp(28px,4vw,48px)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "1.15rem", fontWeight: 700, color: "var(--dark)", marginBottom: "0.5rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e5e0d8", marginTop: "1.5rem" }}>Effective Date</h2>
-          <p style={{ lineHeight: 1.8, color: "#444", marginBottom: "0.6rem", fontSize: 15 }}>[Insert effective date]</p>
+          <p style={{ lineHeight: 1.8, color: "#444", marginBottom: "0.6rem", fontSize: 15 }}>[Jan 1, 2026]</p>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "1.15rem", fontWeight: 700, color: "var(--dark)", marginBottom: "0.5rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e5e0d8", marginTop: "1.5rem" }}>1. Introduction</h2>
           <p style={{ lineHeight: 1.8, color: "#444", marginBottom: "0.6rem", fontSize: 15 }}>A-Z Housing Solutions (&quot;A-Z Housing&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates https://az-housing-nextjs.vercel.app/ and provides property search, property listing, real estate guidance, landlord and tenant support, mortgage advice referral, and related online services across Canada. This Privacy Policy explains how we collect, use, disclose, store, and protect personal information when you visit our website, create an account, post or inquire about a listing, contact us, or use our services.</p>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "1.15rem", fontWeight: 700, color: "var(--dark)", marginBottom: "0.5rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e5e0d8", marginTop: "1.5rem" }}>2. Personal Information We Collect</h2>
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
           <p style={{ lineHeight: 1.8, color: "#444", marginBottom: "0.6rem", fontSize: 15 }}>A-Z Housing Solutions</p>
           <p style={{ lineHeight: 1.8, color: "#444", marginBottom: "0.6rem", fontSize: 15 }}>Toronto, Ontario, Canada</p>
           <p style={{ lineHeight: 1.8, color: "#444", marginBottom: "0.6rem", fontSize: 15 }}>Email: azhousing.solutions@outlook.com</p>
-          <p style={{ lineHeight: 1.8, color: "#444", marginBottom: "0.6rem", fontSize: 15 }}>Phone: 1-800-AZ-HOUSE</p>
+          <p style={{ lineHeight: 1.8, color: "#444", marginBottom: "0.6rem", fontSize: 15 }}>Phone: +1 (647) 948-4428</p>
         </div>
 
         <p style={{ textAlign: 'center', color: 'var(--mid)', fontSize: 13, marginTop: 32 }}>
