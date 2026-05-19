@@ -549,6 +549,7 @@ export default function ContactPage() {
               'Mississauga',
               'Markham',
               'Richmond Hill',
+              'Vaughan',
               'Pickering',
               'Oshawa',
               'Whitby',
@@ -581,7 +582,7 @@ export default function ContactPage() {
                   el.style.transform = 'translateY(0)'
                 }}
               >
-                <span style={{ fontSize: 22 }}>📍</span>
+                <span style={{ fontSize: 22 }}></span>
                 <span
                   style={{
                     fontFamily: 'var(--serif)',
