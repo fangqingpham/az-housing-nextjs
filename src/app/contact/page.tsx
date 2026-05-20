@@ -18,7 +18,7 @@ const SUPPORT_CARDS = [
   {
     icon: '📧',
     title: 'Email Support',
-    detail: 'azhousing.solutions@outlook.com',
+    detail: 'info@azhouse.ca',
     sub: 'Response within 24 hours',
   },
   {
@@ -29,7 +29,7 @@ const SUPPORT_CARDS = [
   },
   {
     icon: '🏢',
-    title: 'Head Office (By Appointment)',
+    title: '18 King Street East, Suite 1400',
     detail: 'Toronto, Ontario, Canada',
   },
 ]
