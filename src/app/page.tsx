@@ -11,7 +11,6 @@ import { getListings, getSavedIds, toggleSaved } from '@/lib/api';
 import type { Listing } from '@/types';
 
 const serviceCards = [
- const serviceCards = [
   false && {
     icon: '🏦',
     title: 'Mortgage Application',
