@@ -380,19 +380,27 @@ export default function HomePage() {
           align-items: center;
           justify-content: center;
           text-decoration: none;
-          background: var(--dark);
-          color: #fff;
-          padding: 12px 16px;
-          border-radius: 12px;
-          font-weight: 800;
-          font-size: 14px;
+          background: transparent;
+          color: var(--accent);
+          border: 1.5px solid rgba(245, 166, 35, 0.55);
+          padding: 11px 18px;
+          border-radius: 999px;
+          font-weight: 900;
+          font-size: 13px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
           margin-top: 4px;
-          transition: background 0.2s ease, transform 0.2s ease;
+          box-shadow: inset 0 0 0 0 var(--accent);
+          transition: color 0.22s ease, border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
         }
 
+        .service-cta:hover,
         .service-card:hover .service-cta {
+          color: #fff;
+          border-color: var(--accent);
           background: var(--accent);
-          transform: translateY(-1px);
+          box-shadow: 0 10px 24px rgba(245, 166, 35, 0.25);
+          transform: translateY(-2px);
         }
 
         @media (max-width: 1024px) {
