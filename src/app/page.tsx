@@ -305,8 +305,8 @@ export default function HomePage() {
           align-items: center;
           justify-content: center;
           text-decoration: none;
-          background: #1e2a45;
-          color: var(--accent);
+          background: var(--accent);
+          color: #1e2a45;
           border: none;
           padding: 12px 22px;
           border-radius: 999px;
@@ -321,8 +321,8 @@ export default function HomePage() {
 
         .service-cta:hover,
         .service-card:hover .service-cta {
-          background: var(--accent);
-          color: #1e2a45;
+          background: #1e2a45;
+          color: var(--accent);
           box-shadow: 0 10px 28px rgba(245, 166, 35, 0.35);
           transform: translateY(-2px);
           letter-spacing: 3px;
