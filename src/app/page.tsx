@@ -11,6 +11,7 @@ import { getListings, getSavedIds, toggleSaved } from '@/lib/api';
 import type { Listing } from '@/types';
 
 const serviceCards = [
+ {false && (
   {
     icon: '🏦',
     title: 'Mortgage Application',
@@ -27,6 +28,7 @@ const serviceCards = [
     ctaLabel: 'Contact Agent',
     href: '/contact',
   },
+ )}
   {
     icon: '🏡',
     title: 'Home Buying',

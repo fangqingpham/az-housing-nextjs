@@ -285,12 +285,7 @@ export default function MapView({
     if (initializedRef.current) return
 
     initializedRef.current = true
-
-    if (typeof google !== 'undefined' && google.maps) {
-      initGoogleMap()
-    } else {
       initLeafletMap()
-    }
 
     return () => {
       clearGoogleMarkers()
