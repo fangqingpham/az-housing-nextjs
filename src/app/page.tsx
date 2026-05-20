@@ -11,22 +11,28 @@ import { getListings, getSavedIds, toggleSaved } from '@/lib/api';
 import type { Listing } from '@/types';
 
 const serviceCards = [
-  false && {
-    icon: '🏦',
-    title: 'Mortgage Application',
-    subtitle: 'Get Approved With Confidence — Even for Complex Files',
-    desc: 'Work with a highly experienced Mortgage Agent who partners with 50+ lenders across Canada to secure the best mortgage for your situation.',
-    bullets: [
-      'New home purchases',
-      'Refinancing',
-      'HELOC for renovations or debt consolidation',
-      '20+ years of brokerage experience and 4.8★ client satisfaction',
-    ],
-    footer:
-      'High approval rates, personalized guidance, and a smoother mortgage process from start to finish.',
-    ctaLabel: 'Contact Agent',
-    href: '/contact',
-  },
+  // Mortgage card is hidden for now.
+  // To show it again later, change false to true.
+  ...(false
+    ? [
+        {
+          icon: '🏦',
+          title: 'Mortgage Application',
+          subtitle: 'Get Approved With Confidence — Even for Complex Files',
+          desc: 'Work with a highly experienced Mortgage Agent who partners with 50+ lenders across Canada to secure the best mortgage for your situation.',
+          bullets: [
+            'New home purchases',
+            'Refinancing',
+            'HELOC for renovations or debt consolidation',
+            '20+ years of brokerage experience and 4.8★ client satisfaction',
+          ],
+          footer:
+            'High approval rates, personalized guidance, and a smoother mortgage process from start to finish.',
+          ctaLabel: 'Contact Agent',
+          href: '/contact',
+        },
+      ]
+    : []),
 
   {
     icon: '🏡',
@@ -61,7 +67,7 @@ const serviceCards = [
     ctaLabel: 'Contact Agent',
     href: '/contact',
   },
-].filter(Boolean);
+
   {
     icon: '🔐',
     title: 'Rental & Tenant Placement',
@@ -78,6 +84,7 @@ const serviceCards = [
     ctaLabel: 'Tenant Placement',
     href: '/tenant-placement',
   },
+
   {
     icon: '🛠️',
     title: 'Property Management',
@@ -94,6 +101,7 @@ const serviceCards = [
     ctaLabel: 'Property Management Service',
     href: '/services/pricing#property-management-service',
   },
+
   {
     icon: '🤝',
     title: 'Trusted Professional Referrals',
@@ -111,6 +119,7 @@ const serviceCards = [
     href: '/knowledge-hub/guides',
   },
 ];
+
 
 export default function HomePage() {
   const { user } = useAuth();
