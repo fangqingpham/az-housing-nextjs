@@ -12,7 +12,6 @@ import type { Listing } from '@/types';
 
 const serviceCards = [
  {false && (
-  {
     icon: '🏦',
     title: 'Mortgage Application',
     subtitle: 'Get Approved With Confidence — Even for Complex Files',
@@ -28,7 +27,6 @@ const serviceCards = [
     ctaLabel: 'Contact Agent',
     href: '/contact',
   },
- )}
   {
     icon: '🏡',
     title: 'Home Buying',
@@ -61,6 +59,7 @@ const serviceCards = [
     ctaLabel: 'Contact Agent',
     href: '/contact',
   },
+.filter(Boolean)
   {
     icon: '🔐',
     title: 'Rental & Tenant Placement',
