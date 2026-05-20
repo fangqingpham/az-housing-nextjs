@@ -166,9 +166,21 @@ export default function DashboardPage() {
       <div className="dash-wrap">
         <h2>Welcome, {user.fname}</h2>
 
-        <p style={{ color: 'var(--mid)', fontSize: '14px', marginBottom: '1.5rem' }}>
-          {user.email} · Member since {user.joined || 'recently'}
-        </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+  <p style={{ color: 'var(--mid)', fontSize: '14px', margin: 0 }}>
+    {user.email} · Member since {user.joined || 'recently'}
+  </p>
+
+  <button
+    className="btn btn-sm btn-danger"
+    onClick={async () => {
+      await signOut()
+      router.push('/')
+    }}
+  >
+    Log Out
+  </button>
+</div>
 
         <div className="dash-tabs">
           {tabs.map(item => (
