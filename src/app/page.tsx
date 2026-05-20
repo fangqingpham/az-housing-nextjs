@@ -11,8 +11,9 @@ import { getListings, getSavedIds, toggleSaved } from '@/lib/api';
 import type { Listing } from '@/types';
 
 const serviceCards = [
-  // Mortgage card is hidden for now.
-  // To show it again later, change false to true.
+  // Hidden for now: Mortgage Application, Home Buying, Home Selling
+  // To show any card again later, change false to true.
+
   ...(false
     ? [
         {
@@ -34,39 +35,47 @@ const serviceCards = [
       ]
     : []),
 
-  {
-    icon: '🏡',
-    title: 'Home Buying',
-    subtitle: 'Patient Guidance. Honest Advice. Smart Protection.',
-    desc: 'Buying a home takes time — and our dedicated Realtors are with you every step of the way, including repeat property visits when needed.',
-    bullets: [
-      'Spot visible issues, especially in older homes',
-      'Understand structural pros and cons',
-      'Identify potential legal concerns',
-      'Evaluate risks before making an offer',
-    ],
-    footer:
-      'We help protect your interests so you can buy the right home with confidence and peace of mind.',
-    ctaLabel: 'Contact Agent',
-    href: '/contact',
-  },
+  ...(false
+    ? [
+        {
+          icon: '🏡',
+          title: 'Home Buying',
+          subtitle: 'Patient Guidance. Honest Advice. Smart Protection.',
+          desc: 'Buying a home takes time — and our dedicated Realtors are with you every step of the way, including repeat property visits when needed.',
+          bullets: [
+            'Spot visible issues, especially in older homes',
+            'Understand structural pros and cons',
+            'Identify potential legal concerns',
+            'Evaluate risks before making an offer',
+          ],
+          footer:
+            'We help protect your interests so you can buy the right home with confidence and peace of mind.',
+          ctaLabel: 'Contact Agent',
+          href: '/contact',
+        },
+      ]
+    : []),
 
-  {
-    icon: '📈',
-    title: 'Home Selling',
-    subtitle: 'Sell Faster. Negotiate Smarter. Keep More of Your Equity.',
-    desc: 'Our Realtors combine market expertise with strong negotiation skills to help you price right and sell without leaving money on the table.',
-    bullets: [
-      'Strategic pricing for a faster sale',
-      'Strong negotiation support',
-      '1% flat-fee listing option',
-      'Potential savings of $5,000–$10,000 vs. traditional commission packages',
-    ],
-    footer:
-      'Professional service, transparent pricing, and maximum value — with payment only when your home sells.',
-    ctaLabel: 'Contact Agent',
-    href: '/contact',
-  },
+  ...(false
+    ? [
+        {
+          icon: '📈',
+          title: 'Home Selling',
+          subtitle: 'Sell Faster. Negotiate Smarter. Keep More of Your Equity.',
+          desc: 'Our Realtors combine market expertise with strong negotiation skills to help you price right and sell without leaving money on the table.',
+          bullets: [
+            'Strategic pricing for a faster sale',
+            'Strong negotiation support',
+            '1% flat-fee listing option',
+            'Potential savings of $5,000–$10,000 vs. traditional commission packages',
+          ],
+          footer:
+            'Professional service, transparent pricing, and maximum value — with payment only when your home sells.',
+          ctaLabel: 'Contact Agent',
+          href: '/contact',
+        },
+      ]
+    : []),
 
   {
     icon: '🔐',
