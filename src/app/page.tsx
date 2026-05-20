@@ -305,26 +305,27 @@ export default function HomePage() {
           align-items: center;
           justify-content: center;
           text-decoration: none;
-          background: transparent;
+          background: #1e2a45;
           color: var(--accent);
-          border: 1.5px solid rgba(245, 166, 35, 0.55);
-          padding: 11px 18px;
+          border: none;
+          padding: 12px 22px;
           border-radius: 999px;
-          font-weight: 900;
-          font-size: 13px;
-          letter-spacing: 2px;
+          font-weight: 700;
+          font-size: 12px;
+          letter-spacing: 2.5px;
           text-transform: uppercase;
           margin-top: auto;
-          transition: color 0.22s ease, border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+          transition: background 0.22s ease, color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease, letter-spacing 0.22s ease;
         }
 
         .service-cta:hover,
         .service-card:hover .service-cta {
-          color: #fff;
-          border-color: var(--accent);
           background: var(--accent);
-          box-shadow: 0 10px 24px rgba(245, 166, 35, 0.25);
+          color: #1e2a45;
+          box-shadow: 0 10px 28px rgba(245, 166, 35, 0.35);
           transform: translateY(-2px);
+          letter-spacing: 3px;
         }
 
         @media (max-width: 1024px) {
