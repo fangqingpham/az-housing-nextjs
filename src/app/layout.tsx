@@ -9,6 +9,9 @@ const SITE_URL = 'https://www.azhouse.ca' //
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  verification: {
+    google: 'EuVQfSEi54LNhWchuUpNJfIjB9Bp9QZ6GEpZi3yKVZE',
+  },
   title: {
     default: 'A-Z Housing Solutions | Real Estate & Property Management in Canada',
     template: '%s | A-Z Housing Solutions',
