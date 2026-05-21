@@ -7,4 +7,4 @@ Disallow: /admin/
 Disallow: /_next/
 
 # Sitemap location
-Sitemap: https://www.azhousing.ca/sitemap.xml
+Sitemap: https://www.azhouse.ca/sitemap.xml
