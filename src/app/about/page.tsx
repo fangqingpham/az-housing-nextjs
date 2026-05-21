@@ -43,11 +43,9 @@ export default function AboutPage() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {[
-              { val: "12K+",  lab: "Active Listings" },
-              { val: "85K+",  lab: "Monthly Visitors" },
-              { val: "10",    lab: "Provinces Covered" },
-              { val: "4.8★",  lab: "User Rating" },
-              { val: "2018",  lab: "Founded" },
+              { val: "1K+",  lab: "Active Listings" },
+              { val: "85K+",  lab: "Monthly Visitors" },              
+              { val: "4.8★",  lab: "User Rating" },              
               { val: "Free",  lab: "Basic Listing Tier" },
             ].map(s => (
               <div key={s.lab} style={{ background: "rgba(255,255,255,0.07)", borderRadius: 12, padding: "20px 16px", textAlign: "center", border: "1px solid rgba(255,255,255,0.1)" }}>
