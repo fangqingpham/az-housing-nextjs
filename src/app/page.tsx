@@ -201,7 +201,7 @@ export default function HomePage() {
         <p style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(18px,3vw,26px)', fontWeight: 500, marginBottom: '1rem' }}>
           Ready to list your property? Reach thousands of buyers and renters across Canada.
         </p>
-        <Link href="/post-listing" className="btn-accent">Post a Listing </Link>
+        <Link href="/post-listing" className="btn-accent">  Post a Listing   </Link>
       </div>
 
       {false && (

@@ -75,7 +75,7 @@ export default function Footer() {
                 <div key={s} title={s} style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer', transition: 'background .2s' }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.16)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}>
-                  {s === 'Facebook' ? '𝐟' : s === 'Instagram' ? '📷' : s === 'LinkedIn' ? 'in' : '𝕏'}
+                  
                 </div>
               ))}
             </div>

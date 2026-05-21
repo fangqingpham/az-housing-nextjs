@@ -99,7 +99,7 @@ const jsonLd = {
   },
   sameAs: [
     // Add your social media URLs here when you have them:
-    // 'https://www.facebook.com/azhousing',
+    // 'https://www.facebook.com/azhousingsoluntions',
     // 'https://www.instagram.com/azhousing',
     // 'https://www.linkedin.com/company/azhousing',
   ],
