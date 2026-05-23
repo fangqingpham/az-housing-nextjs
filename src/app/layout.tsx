@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import '@/styles/globals.css'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 import GoogleMapsLoader from '@/components/map/GoogleMapsLoader'
+import PublicChrome from '@/components/layout/PublicChrome'
 
-const SITE_URL = 'https://www.azhouse.ca' //
+const SITE_URL = 'https://www.azhouse.ca'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -53,7 +52,7 @@ export const metadata: Metadata = {
       'Find homes for sale, rentals, tenant placement, and property management services across Canada. Trusted real estate professionals with 20+ years of experience.',
     images: [
       {
-        url: '/og-image.jpg', // ← add a 1200x630 image to your /public folder
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'A-Z Housing Solutions — From Search to Sold',
@@ -73,13 +72,12 @@ export const metadata: Metadata = {
   icons: { icon: '/favicon.ico' },
 }
 
-// JSON-LD Structured Data — helps Google show rich results
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'RealEstateAgent',
   name: 'A-Z Housing Solutions',
   url: SITE_URL,
-  logo: `${SITE_URL}/logo.png`, // ← add your logo to /public
+  logo: `${SITE_URL}/logo.png`,
   description:
     'Full-service real estate company offering home buying, selling, rentals, tenant placement, and property management across Canada.',
   areaServed: {
@@ -97,12 +95,7 @@ const jsonLd = {
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Mortgage Application' } },
     ],
   },
-  sameAs: [
-    // Add your social media URLs here when you have them:
-    // 'https://www.facebook.com/azhousingsoluntions',
-    // 'https://www.instagram.com/azhousing',
-    // 'https://www.linkedin.com/company/azhousing',
-  ],
+  sameAs: [],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -116,13 +109,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
 
         <GoogleMapsLoader />
-        <Navbar />
 
-        <main style={{ minHeight: 'calc(100vh - 62px)' }}>
+        {/*
+          PublicChrome conditionally renders Navbar + main + Footer.
+          For /admin/* routes it renders children only, so the admin
+          layout gets a clean full-screen canvas with no public chrome.
+        */}
+        <PublicChrome>
           {children}
-        </main>
-
-        <Footer />
+        </PublicChrome>
 
         <Script id="tawk-to-live-chat" strategy="afterInteractive">
           {`

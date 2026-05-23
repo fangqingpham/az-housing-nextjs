@@ -32,7 +32,7 @@ export interface AppUser {
   lname: string
   email: string
   phone?: string
-  role: 'buyer' | 'landlord' | 'agent'
+  role: 'buyer' | 'landlord' | 'agent' | 'admin'  // ← 'admin' added for CRM access
   joined?: string
   created_at?: string
 }
