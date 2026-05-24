@@ -411,8 +411,25 @@ export default function ContactPage() {
                   window.location.href = card.href
                 } else {
                   // Open Tawk.to live chat
-                  if (typeof window !== 'undefined' && (window as any).Tawk_API) {
-                    (window as any).Tawk_API.toggle()
+                  if (typeof window !== 'undefined') {
+                    const openChat = () => {
+                      const tawk = (window as any).Tawk_API
+                      if (tawk && typeof tawk.maximize === 'function') {
+                        tawk.maximize()
+                      }
+                    }
+                    if ((window as any)._tawkReady) {
+                      openChat()
+                    } else {
+                      // Poll until ready (max 5s)
+                      const interval = setInterval(() => {
+                        if ((window as any)._tawkReady) {
+                          openChat()
+                          clearInterval(interval)
+                        }
+                      }, 150)
+                      setTimeout(() => clearInterval(interval), 5000)
+                    }
                   }
                 }
               }}
