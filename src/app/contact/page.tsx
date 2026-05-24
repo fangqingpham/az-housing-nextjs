@@ -32,9 +32,9 @@ const SUPPORT_CARDS = [
   {
     icon: '💬',
     title: 'Live Support',
-    detail: 'Chat with us on WhatsApp',
-    sub: 'Quick responses during business hours',
-    href: 'https://wa.me/16479484428',
+    detail: 'Chat with our team for quick assistance',
+    sub: 'Usually replies instantly',
+    href: null,
   },
 ]
 
@@ -409,6 +409,8 @@ export default function ContactPage() {
               onClick={() => {
                 if (card.href) {
                   window.open(card.href, '_blank')
+                } else {
+                  window.dispatchEvent(new Event('az:openchat'))
                 }
               }}
               style={{

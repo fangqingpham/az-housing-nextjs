@@ -372,6 +372,13 @@ export default function LiveChatWidget() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLInputElement>(null)
 
+  // Allow external triggers (e.g. contact page "Live Support" card)
+  useEffect(() => {
+    const handler = () => setOpen(true)
+    window.addEventListener('az:openchat', handler)
+    return () => window.removeEventListener('az:openchat', handler)
+  }, [])
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
