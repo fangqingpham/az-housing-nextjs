@@ -104,6 +104,9 @@ export default function Footer() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 0', fontSize: 13, gap: 16, flexWrap: 'wrap' }}>
           <span style={{ color: 'rgba(255,255,255,0.4)' }}>© {new Date().getFullYear()} A-Z Housing Solutions. All rights reserved.</span>
           <div style={{ display: 'flex', gap: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 0', fontSize: 13, gap: 16, flexWrap: 'wrap' }}>
+          <span style={{ color: 'rgba(255,255,255,0.4)' }}>© {new Date().getFullYear()} Add: 18 King Street East, Suite 1400. Toronto, Ontario, Canada.</span>
+          <div style={{ display: 'flex', gap: 20 }}>
             {POLICY_LINKS.map(l => (
               <Link key={l.href} href={l.href} style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: 13, transition: 'color .15s' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.75)')}

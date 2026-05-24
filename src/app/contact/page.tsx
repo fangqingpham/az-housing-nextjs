@@ -28,9 +28,9 @@ const SUPPORT_CARDS = [
     sub: 'Mon-Fri, 9am-6pm EST',
   },
   {
-    icon: '🏢',
-    title: '18 King Street East, Suite 1400',
-    detail: 'Toronto, Ontario, Canada',
+    icon: '💬',
+  title: 'Live Support',
+  detail: 'Chat with our team for quick assistance',
   },
 ]
 
