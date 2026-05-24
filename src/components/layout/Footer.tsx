@@ -101,9 +101,10 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 0', fontSize: 13, gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ padding: '18px 0', fontSize: 13, display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', textAlign: 'center' }}>
           <span style={{ color: 'rgba(255,255,255,0.4)' }}>© {new Date().getFullYear()} A-Z Housing Solutions. All rights reserved.</span>
-          <div style={{ display: 'flex', gap: 20 }}>
+          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>18 King Street East, Suite 1400, Toronto, ON</span>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
             {POLICY_LINKS.map(l => (
               <Link key={l.href} href={l.href} style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: 13, transition: 'color .15s' }}
                 onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.75)')}

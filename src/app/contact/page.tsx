@@ -20,17 +20,21 @@ const SUPPORT_CARDS = [
     title: 'Email Support',
     detail: 'info@azhouse.ca',
     sub: 'Response within 24 hours',
+    href: 'mailto:info@azhouse.ca',
   },
   {
     icon: '📞',
     title: 'Phone Support',
     detail: '+1 (647) 948-4428',
     sub: 'Mon-Fri, 9am-6pm EST',
+    href: 'tel:+16479484428',
   },
   {
     icon: '💬',
     title: 'Live Support',
     detail: 'Chat with our team for quick assistance',
+    sub: '',
+    href: null, // triggers Tawk.to chat
   },
 ]
 
@@ -402,6 +406,16 @@ export default function ContactPage() {
           {SUPPORT_CARDS.map(card => (
             <div
               key={card.title}
+              onClick={() => {
+                if (card.href) {
+                  window.location.href = card.href
+                } else {
+                  // Open Tawk.to live chat
+                  if (typeof window !== 'undefined' && (window as any).Tawk_API) {
+                    (window as any).Tawk_API.toggle()
+                  }
+                }
+              }}
               style={{
                 background: '#fff',
                 borderRadius: 14,
@@ -410,6 +424,19 @@ export default function ContactPage() {
                 display: 'flex',
                 gap: 16,
                 alignItems: 'center',
+                cursor: 'pointer',
+                transition: 'transform 0.18s, box-shadow 0.18s',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.transform = 'translateY(-3px)'
+                el.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.transform = 'translateY(0)'
+                el.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)'
               }}
             >
               <div
