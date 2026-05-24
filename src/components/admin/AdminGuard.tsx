@@ -26,6 +26,11 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         .eq('id', session.user.id)
         .single()
 
+      if (userRow?.role === 'agent') {
+        router.replace('/agent')
+        return
+      }
+
       if (userRow?.role !== 'admin') {
         router.replace('/admin/login')
         return
