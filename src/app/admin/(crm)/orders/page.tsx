@@ -81,7 +81,7 @@ export default function AdminOrdersPage() {
       <div className="page-shell">
         <div className="page-header">
           <div>
-            <h1 className="page-title">Tenant Orders</h1>
+            <h1 className="page-title">Orders</h1>
             <p className="page-sub">{orders.length} total · {orders.filter(o => o.status === 'new').length} new</p>
           </div>
           <button className="btn-refresh" onClick={load}>↻ Refresh</button>

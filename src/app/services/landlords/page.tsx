@@ -39,7 +39,7 @@ const SERVICES = [
       "Our dashboard lets you track rent payments, maintenance tickets, and tenancy status in real time -- even when you are managing from out of province or overseas.",
     ],
     bullets: ["Rent collection & arrears management", "Maintenance coordination & contractor network", "Regular property inspections with photo reports", "Month-end financial statements", "Portfolio dashboard (single & multi-unit)"],
-    cta: { label: "Connect with a Manager", href: "/contact" },
+    cta: { label: "Get Property Management Service", href: "/tenant-placement" },
     accent: "var(--green)",
   },
   {
@@ -52,7 +52,7 @@ const SERVICES = [
       "We do not replace formal legal counsel -- we help you understand the process so you arrive prepared. Most initial consultations are offered at a flat rate through our platform.",
     ],
     bullets: ["Notice preparation (N4, N5, N12, N13 & equivalents)", "LTB application guidance", "Hearing preparation & documentation checklist", "Referrals to licensed paralegals & real estate lawyers", "Dispute resolution support"],
-    cta: { label: "Book a Consultation", href: "/contact" },
+    cta: { label: "Get Free Consultation", href: "/contact" },
     accent: "#9b59b6",
   },
 ];

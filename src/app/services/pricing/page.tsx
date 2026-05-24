@@ -8,7 +8,7 @@ import Link from "next/link";
 const PACKAGES = [
   {
     id: "az-private-leasing",
-    badge: "Pay as you go",
+    badge: "STRESS-FREE RENTING",
     title: "A-Z Private Leasing Package",
     price: "$995",
     priceNote: "flat fee",
@@ -279,10 +279,10 @@ function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () =>
 
           {/* CTA */}
           <Link
-            href={pkg.id === "az-private-leasing" ? "/tenant-placement" : "/contact"}
+            href={pkg.id === "realtor-mls-leasing" ? "/contact" : "/contact"}
             style={{ display: "block", background: "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 700, fontSize: 14, textAlign: "center", marginTop: 8 }}
           >
-            {pkg.id === "az-private-leasing" ? "Order This Package →" : "Get Started with This Package →"}
+            {pkg.id === "az-private-leasing" ? "Contact for more details →" : "Contact for more details→"}
           </Link>
         </div>
       </div>
@@ -301,8 +301,8 @@ export default function PricingPage() {
       {/* ── Hero ── */}
       <section style={{ background: "linear-gradient(135deg, var(--dark) 0%, #1a2a4a 100%)", color: "#fff", padding: "clamp(60px,10vw,110px) 24px", textAlign: "center" }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <div style={{ display: "inline-block", background: "rgba(196,162,90,0.18)", border: "1px solid rgba(196,162,90,0.35)", color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", borderRadius: 20, padding: "5px 16px", marginBottom: 24 }}>
-            Pricing
+          <div style={{ display: "inline-block", background: "rgba(196,162,90,0.18)", border: "1px solid rgba(196,162,90,0.35)", color: "var(--accent)", fontSize: 16, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", borderRadius: 20, padding: "5px 16px", marginBottom: 24 }}>
+            Full Refund if Tenant Default 
           </div>
           <h1 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2rem,5vw,3.2rem)", lineHeight: 1.2, marginBottom: 18 }}>
             Transparent Pricing,{" "}
@@ -399,7 +399,7 @@ export default function PricingPage() {
                       Details
                     </button>
                     <Link
-                      href={pkg.id === "az-private-leasing" ? "/tenant-placement" : "/contact"}
+                      href={pkg.id === "realtor-mls-leasing" ? "/contact" : "/tenant-placement"}
                       style={{
                         display: "block",
                         background: "var(--dark)",
@@ -412,7 +412,7 @@ export default function PricingPage() {
                         textAlign: "center",
                       }}
                     >
-                      {pkg.id === "az-private-leasing" ? "ORDER HERE →" : "Get Started →"}
+                      {pkg.id === "az-private-leasing" ? "Order Here →" : "Get Started →"}
                     </Link>
                   </div>
                 </div>
