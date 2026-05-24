@@ -122,9 +122,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="tawk-to-live-chat" strategy="afterInteractive">
           {`
             var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-            Tawk_API.onLoad = function() {
-              window._tawkReady = true;
-            };
             (function(){
               var s1 = document.createElement("script");
               var s0 = document.getElementsByTagName("script")[0];

@@ -32,9 +32,9 @@ const SUPPORT_CARDS = [
   {
     icon: '💬',
     title: 'Live Support',
-    detail: 'Chat with our team for quick assistance',
-    sub: '',
-    href: null, // triggers Tawk.to chat
+    detail: 'Chat with us on WhatsApp',
+    sub: 'Quick responses during business hours',
+    href: 'https://wa.me/16479484428',
   },
 ]
 
@@ -408,29 +408,7 @@ export default function ContactPage() {
               key={card.title}
               onClick={() => {
                 if (card.href) {
-                  window.location.href = card.href
-                } else {
-                  // Open Tawk.to live chat
-                  if (typeof window !== 'undefined') {
-                    const openChat = () => {
-                      const tawk = (window as any).Tawk_API
-                      if (tawk && typeof tawk.maximize === 'function') {
-                        tawk.maximize()
-                      }
-                    }
-                    if ((window as any)._tawkReady) {
-                      openChat()
-                    } else {
-                      // Poll until ready (max 5s)
-                      const interval = setInterval(() => {
-                        if ((window as any)._tawkReady) {
-                          openChat()
-                          clearInterval(interval)
-                        }
-                      }, 150)
-                      setTimeout(() => clearInterval(interval), 5000)
-                    }
-                  }
+                  window.open(card.href, '_blank')
                 }
               }}
               style={{
