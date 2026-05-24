@@ -29,8 +29,8 @@ const SUPPORT_CARDS = [
   },
   {
     icon: '💬',
-  title: 'Live Support',
-  detail: 'Chat with our team for quick assistance',
+    title: 'Live Support',
+    detail: 'Chat with our team for quick assistance',
   },
 ]
 
