@@ -15,7 +15,7 @@ const FEATURES = [
 const PLANS = [
   {
     name: "A-Z Private Leasing Package",
-    price: "$799",
+    price: "$995",
     period: " flat fee",
     description: "Private leasing support for landlords who want help from marketing to signed lease.",
     features: [
@@ -24,6 +24,8 @@ const PLANS = [
       "Tenant screening for up to 5 applicants",
       "Ontario Standard Lease preparation and signing coordination",
       "Compliance support and landlord resources",
+      "90-Day Rent Administration and Payment Monitoring",
+      "Full Refund if Tenant Default Payment **",
     ],
     cta: "Order Here",
     href: "/tenant-placement",
@@ -148,10 +150,20 @@ export default function LandlordPage() {
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px" }}>
                   {plan.features.map(feat => (
                     <li key={feat} style={{ color: plan.highlight ? "rgba(255,255,255,0.8)" : "var(--mid)", fontSize: 14, padding: "6px 0", borderBottom: `1px solid ${plan.highlight ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}`, display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ color: plan.highlight ? "var(--accent)" : "var(--green)", fontWeight: 700 }}>✓</span>{feat}
+                      <span style={{ color: plan.highlight ? "var(--accent)" : "var(--green)", fontWeight: 700 }}>✓</span>
+                      {feat.includes("**") ? (
+                        <span style={{ fontWeight: 700, color: plan.highlight ? "rgba(255,255,255,0.9)" : "var(--dark)" }}>
+                          {feat.replace(" **", "")} <span style={{ color: "var(--accent)", fontWeight: 900 }}>**</span>
+                        </span>
+                      ) : feat}
                     </li>
                   ))}
                 </ul>
+                {plan.name === "A-Z Private Leasing Package" && (
+                  <p style={{ fontSize: 11.5, color: plan.highlight ? "rgba(255,255,255,0.55)" : "var(--mid)", lineHeight: 1.65, marginBottom: 20 }}>
+                    <span style={{ color: "var(--accent)", fontWeight: 700 }}>**</span> Conditions apply: if an A-Z-approved tenant remains in rent default for 45 or more consecutive calendar days within the first 90 calendar days of the lease start date, the Client may be eligible for a full refund. For more details, please contact Leasing Agent.
+                  </p>
+                )}
                 <Link href={plan.href} style={{ display: "block", textAlign: "center", background: plan.highlight ? "var(--accent)" : "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 0", fontWeight: 700, fontSize: 15 }}>{plan.cta}</Link>
               </div>
             ))}

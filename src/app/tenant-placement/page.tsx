@@ -102,7 +102,7 @@ export default function TenantPlacementApplicationPage() {
       managementPlan === "yearly" ? 1200 : 0;
 
     return (
-      (privateLeasing ? 799 : 0) +
+      (privateLeasing ? 995 : 0) +
       (photography ? 149 : 0) +
       (showings ? 399 : 0) +
       (keyHandover ? 75 : 0) +
@@ -114,7 +114,7 @@ export default function TenantPlacementApplicationPage() {
   }, [privateLeasing, photography, showings, keyHandover, moveInInspection, extraApplicants, managementPlan, urgentInspections]);
 
   const selectedServices = useMemo(() => [
-    privateLeasing ? `A-Z Private Leasing Package - ${money(799)}` : null,
+    privateLeasing ? `A-Z Private Leasing Package - ${money(995)}` : null,
     photography ? `Professional Photography - ${money(149)}` : null,
     showings ? `In-Person Showings, max 5 - ${money(399)}` : null,
     keyHandover ? `Key Handover and Move-In Orientation - ${money(75)}` : null,
@@ -277,7 +277,7 @@ export default function TenantPlacementApplicationPage() {
             </Card>
 
             <Card title="3. A-Z Private Leasing Package">
-              <ServiceCheck checked={privateLeasing} onChange={setPrivateLeasing} title="A-Z Private Leasing Package" price="$799 flat fee" note="Marketing, applicant communication, tenant screening for up to 5 applicants, lease preparation, and compliance support." />
+              <ServiceCheck checked={privateLeasing} onChange={setPrivateLeasing} title="A-Z Private Leasing Package" price="$995 flat fee" note="Marketing, applicant communication, tenant screening for up to 5 applicants, lease preparation, and compliance support." />
               <ul style={{ margin: "18px 0 0", paddingLeft: 18, color: "var(--mid, #666)", lineHeight: 1.75, fontSize: 14 }}>
                 <li>Listing on A-Z Housing Solutions website, Kijiji, Facebook Marketplace, selected Facebook housing groups, and Rentals.ca where applicable</li>
                 <li>Applicant inquiries, pre-qualification, and scheduling coordination</li>
@@ -285,7 +285,15 @@ export default function TenantPlacementApplicationPage() {
                 <li>Previous landlord and reference checks; Openroom and public filing search where available</li>
                 <li>Ontario Standard Lease preparation and signing coordination</li>
                 <li>30-minute complimentary consultation with an independent licensed paralegal</li>
+                <li>90-Day Rent Administration and Payment Monitoring</li>
               </ul>
+              <p style={{ margin: "14px 0 0", color: "var(--dark, #102247)", fontWeight: 700, fontSize: 14 }}>
+                Full Refund if Tenant Default Payment{" "}
+                <span style={{ color: "var(--accent, #f5a623)" }}>**</span>
+              </p>
+              <p style={{ margin: "6px 0 0", color: "var(--mid, #666)", fontSize: 12.5, lineHeight: 1.65 }}>
+                <span style={{ color: "var(--accent, #f5a623)", fontWeight: 700 }}>**</span>{" "}Conditions apply: if an A-Z-approved tenant remains in rent default for 45 or more consecutive calendar days within the first 90 calendar days of the lease start date, the Client may be eligible for a full refund of the A-Z Private Leasing Package. For more details, please contact Leasing Agent.
+              </p>
             </Card>
 
             <Card title="4. Optional Add-On Services">

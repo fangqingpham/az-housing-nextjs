@@ -10,12 +10,13 @@ const PACKAGES = [
     id: "az-private-leasing",
     badge: "Pay as you go",
     title: "A-Z Private Leasing Package",
-    price: "$799",
+    price: "$995",
     priceNote: "flat fee",
     accent: "var(--accent)",
     tagline: "Full-service private leasing — from marketing to signed lease.",
     summary: [
       "Our most popular package for landlords who want to stay off-MLS while still getting professional-grade leasing support. We handle everything from advertising to lease execution.",
+      "Full Refund if Tenant Default Payment **",
     ],
     sections: [
       {
@@ -57,6 +58,7 @@ const PACKAGES = [
           "30-minute complimentary consultation with an independent licensed paralegal",
           "Access to landlord forms and templates through landlord portal",
           "Referral to experienced licensed paralegal when needed",
+          "90-Day Rent Administration and Payment Monitoring",
         ],
       },
     ],
@@ -68,7 +70,7 @@ const PACKAGES = [
       { name: "Extra applicant screening after first 5 applicants", price: "$29/applicant" },
     ],
     disclaimer:
-      "This package does not include MLS/Realtor.ca listing, Realtor representation, in-person showings, photography, or key handover unless added separately.",
+      "This package does not include MLS/Realtor.ca listing, Realtor representation, in-person showings, photography, or key handover unless added separately. ** Conditions apply: if an A-Z-approved tenant remains in rent default for 45 or more consecutive calendar days within the first 90 calendar days of the lease start date, the Client may be eligible for a full refund of the A-Z Private Leasing Package. For more details, please contact Leasing Agent.",
   },
   {
     id: "realtor-mls-leasing",    
@@ -208,7 +210,13 @@ function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () =>
         {/* Modal body */}
         <div style={{ padding: "28px 32px" }}>
           {pkg.summary.map((p, i) => (
-            <p key={i} style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 16, fontSize: 14 }}>{p}</p>
+            i === 1 && pkg.id === "az-private-leasing" ? (
+              <p key={i} style={{ color: "var(--dark)", fontWeight: 700, lineHeight: 1.8, marginBottom: 16, fontSize: 14 }}>
+                {p.replace(" **", "")} <span style={{ color: "var(--accent)", fontWeight: 900 }}>**</span>
+              </p>
+            ) : (
+              <p key={i} style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 16, fontSize: 14 }}>{p}</p>
+            )
           ))}
 
           {/* Pricing table (Property Management) */}

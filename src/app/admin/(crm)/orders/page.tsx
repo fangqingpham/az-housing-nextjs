@@ -13,20 +13,15 @@ type Order = {
   showing_ready: string; selected_services: string[]; estimated_total: number
   additional_notes: string | null; authorization_confirmed: boolean; status: string
   assigned_agent_id: string | null; commission: number; commission_paid: boolean
+  linked_case_number: string | null; linked_case_id: string | null
 }
 type Agent = { id: string; fname: string; lname: string; email: string }
-type Log   = { id: string; created_at: string; action: string; old_value: string | null; new_value: string | null; role: string }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
   new:       { label: 'New',       bg: '#fef3dc', color: '#a86d1a', border: '#f5d38a' },
   contacted: { label: 'Contacted', bg: '#e3f2fd', color: '#1a5ea8', border: '#90caf9' },
   completed: { label: 'Completed', bg: '#e1f5ee', color: '#2d7a4f', border: '#9fe1cb' },
   cancelled: { label: 'Cancelled', bg: '#fcebeb', color: '#a32d2d', border: '#e8a5a5' },
-}
-
-const ACTION_LABEL: Record<string, string> = {
-  status_change: '🔄 Status changed', agent_assigned: '👤 Agent assigned',
-  commission_set: '💵 Commission set', commission_paid: '✅ Commission paid',
 }
 
 export default function AdminOrdersPage() {
@@ -38,7 +33,6 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [saving, setSaving]   = useState<string | null>(null)
-  const [logs, setLogs]       = useState<Record<string, Log[]>>({})
 
   useEffect(() => { load() }, [])
 
@@ -53,17 +47,6 @@ export default function AdminOrdersPage() {
     setLoading(false)
   }
 
-  const toggleExpand = async (orderId: string) => {
-    if (expanded === orderId) { setExpanded(null); return }
-    setExpanded(orderId)
-    if (!logs[orderId]) {
-      const { data } = await createClient()
-        .from('order_activity_log').select('*')
-        .eq('order_id', orderId).order('created_at', { ascending: false }).limit(30)
-      setLogs(prev => ({ ...prev, [orderId]: data || [] }))
-    }
-  }
-
   const patch = async (orderId: string, fields: Record<string, any>) => {
     setSaving(orderId)
     const r = await fetch('/api/admin/tenant-placement-orders', {
@@ -73,11 +56,6 @@ export default function AdminOrdersPage() {
     if (!r.ok) { showToast('Failed to save.'); setSaving(null); return }
     const json = await r.json()
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...json.order } : o))
-    // Refresh logs
-    const { data } = await createClient()
-      .from('order_activity_log').select('*')
-      .eq('order_id', orderId).order('created_at', { ascending: false }).limit(30)
-    setLogs(prev => ({ ...prev, [orderId]: data || [] }))
     showToast('Saved ✓')
     setSaving(null)
   }
@@ -122,20 +100,20 @@ export default function AdminOrdersPage() {
           : (
           <div className="orders-list">
             {filtered.map(o => {
-              const sc   = STATUS_CONFIG[o.status] || STATUS_CONFIG.new
+              const sc     = STATUS_CONFIG[o.status] || STATUS_CONFIG.new
               const isOpen = expanded === o.id
               const name   = agentName(o.assigned_agent_id)
-              const orderLogs = logs[o.id] || []
 
               return (
                 <div key={o.id} className="order-card">
-                  <div className="order-card-top" onClick={() => toggleExpand(o.id)}>
+                  <div className="order-card-top" onClick={() => setExpanded(isOpen ? null : o.id)}>
                     <div className="order-meta">
                       <div className="order-name">{o.landlord_name}{o.company_name && <span className="order-company"> · {o.company_name}</span>}</div>
                       <div className="order-addr">{o.property_address}, {o.city} {o.postal_code}</div>
                       <div className="order-date">
                         {o.created_at ? new Date(o.created_at).toLocaleDateString('en-CA') : '--'}
                         {name && <span style={{ marginLeft: 10, color: '#f5a623', fontWeight: 600 }}>· 👤 {name}</span>}
+                        {o.linked_case_number && <span style={{ marginLeft: 10, fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: '#2d7a4f', background: '#E1F5EE', padding: '1px 7px', borderRadius: 4 }}>🗂️ {o.linked_case_number}</span>}
                       </div>
                     </div>
                     <div className="order-right">
@@ -168,6 +146,18 @@ export default function AdminOrdersPage() {
                       {o.additional_notes && (
                         <div className="notes-block"><strong>Notes</strong><p>{o.additional_notes}</p></div>
                       )}
+
+                      {/* Linked Client Case */}
+                      <div style={{ margin: '16px 0 0', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: o.linked_case_number ? '#E1F5EE' : '#f7f4ef', borderRadius: 10, border: `1px solid ${o.linked_case_number ? '#9fe1cb' : '#e4e1d8'}` }}>
+                        <span style={{ fontSize: 16 }}>{o.linked_case_number ? '🗂️' : '📋'}</span>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: o.linked_case_number ? '#2d7a4f' : '#a8a8a4', marginBottom: 2 }}>Linked Case</div>
+                          {o.linked_case_number
+                            ? <span style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: '#1b2a4a' }}>{o.linked_case_number}</span>
+                            : <span style={{ fontSize: 13, color: '#a8a8a4', fontStyle: 'italic' }}>No case yet — assign an agent to auto-create one</span>
+                          }
+                        </div>
+                      </div>
 
                       {/* Manager controls */}
                       <div className="manager-section">
@@ -202,34 +192,6 @@ export default function AdminOrdersPage() {
                           </div>
                         </div>
                       </div>
-
-                      {/* Activity log */}
-                      <div className="activity-log">
-                        <div className="activity-title">Activity Log</div>
-                        {orderLogs.length === 0 ? (
-                          <p style={{ fontSize: 12, color: '#a8a8a4', margin: 0 }}>No activity recorded yet.</p>
-                        ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                            {orderLogs.map(log => (
-                              <div key={log.id} style={{ display: 'flex', gap: 10, fontSize: 12, alignItems: 'flex-start' }}>
-                                <span style={{ color: '#a8a8a4', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                                  {new Date(log.created_at).toLocaleString('en-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                                <span>
-                                  <span style={{ fontWeight: 600, color: '#1b2a4a' }}>{ACTION_LABEL[log.action] || log.action}</span>
-                                  {log.old_value && log.new_value && (
-                                    <span style={{ color: '#6b6b67' }}> — <span style={{ textDecoration: 'line-through', color: '#a8a8a4' }}>{log.old_value}</span> → <span style={{ fontWeight: 600, color: '#1b2a4a' }}>{log.new_value}</span></span>
-                                  )}
-                                  <span style={{ marginLeft: 6, fontSize: 10, padding: '1px 6px', borderRadius: 4, fontWeight: 700, textTransform: 'uppercase', background: log.role === 'agent' ? '#E3F2FD' : '#FEF3DC', color: log.role === 'agent' ? '#1a5ea8' : '#a86d1a' }}>
-                                    {log.role}
-                                  </span>
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
                     </div>
                   )}
                 </div>
@@ -279,8 +241,6 @@ export default function AdminOrdersPage() {
         .manager-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
         .ctrl-group{display:flex;flex-direction:column;gap:5px}
         .ctrl-group label{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b6b67}
-        .activity-log{margin-top:20px;padding-top:16px;border-top:1px solid #f0ede6}
-        .activity-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#a8a8a4;margin-bottom:10px}
         .fc{border:1px solid #e4e1d8;border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;outline:none;width:100%;transition:border-color 0.18s;background:#fff}
         .fc:focus{border-color:#f5a623}
       `}</style>
