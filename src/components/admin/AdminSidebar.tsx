@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 const NAV = [
   {
     label: 'Overview',
-    href: '/admin',
+    href: '/admin/overview',
     icon: (
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
         <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
@@ -89,7 +89,7 @@ export default function AdminSidebar() {
   const router = useRouter()
 
   const isActive = (href: string) => {
-    if (href === '/admin') return pathname === '/admin'
+    if (href === '/admin/overview') return pathname === '/admin/overview' || pathname === '/admin'
     return pathname.startsWith(href)
   }
 
