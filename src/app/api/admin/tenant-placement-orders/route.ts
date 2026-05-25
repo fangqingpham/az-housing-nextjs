@@ -15,6 +15,13 @@ function deriveServiceType(selectedServices: string[]): string {
   return 'Tenant Placement';
 }
 
+function deriveTransactionType(selectedServices: string[]): string {
+  if (!Array.isArray(selectedServices)) return 'tenant_placement';
+  const joined = selectedServices.join(' ').toLowerCase();
+  if (joined.includes('property management')) return 'property_management';
+  return 'tenant_placement';
+}
+
 // ── GET /api/admin/tenant-placement-orders ──────────────────────────────────
 export async function GET() {
   try {
@@ -80,7 +87,8 @@ export async function PATCH(request: Request) {
     const logs: any[] = [];
 
     // ── Status ────────────────────────────────────────────────────────────
-    if (status !== undefined && status !== current.status) {
+    const statusChanging = status !== undefined && status !== current.status;
+    if (statusChanging) {
       const allowed = ['new', 'contacted', 'completed', 'cancelled'];
       if (!allowed.includes(status))
         return NextResponse.json({ error: 'Invalid status.' }, { status: 400 });
@@ -92,9 +100,7 @@ export async function PATCH(request: Request) {
     }
 
     // ── Agent assignment — explicit null-safe handling ────────────────────
-    // The key is present in the body (even if its value is null/empty string)
     const agentKeyInBody = 'assigned_agent_id' in body;
-    // Normalise: empty string '' → null (matches the <select> option value="")
     const newAgentId: string | null =
       body.assigned_agent_id === '' || body.assigned_agent_id == null
         ? null
@@ -103,7 +109,6 @@ export async function PATCH(request: Request) {
     const agentChanged = agentKeyInBody && newAgentId !== current.assigned_agent_id;
 
     if (agentChanged) {
-      // Explicitly set the column — null means NULL in the DB (unassign)
       updates.assigned_agent_id = newAgentId;
       logs.push({
         order_id: id, changed_by: changed_by || null, role: changed_by_role || 'admin',
@@ -150,11 +155,48 @@ export async function PATCH(request: Request) {
 
     if (logs.length > 0) await supabase.from('order_activity_log').insert(logs);
 
+    // ── Auto-create commission record when order → completed ──────────────
+    if (statusChanging && status === 'completed') {
+      // Only create once per order — check if one already exists
+      const { data: existingComm } = await supabase
+        .from('commission_records')
+        .select('id')
+        .eq('source_order_id', id)
+        .limit(1);
+
+      if (!existingComm || existingComm.length === 0) {
+        const agentId  = agentChanged ? newAgentId : current.assigned_agent_id;
+        const fee      = Number(current.estimated_total || 0);
+        const txType   = deriveTransactionType(current.selected_services || []);
+        const svcType  = deriveServiceType(current.selected_services || []);
+
+        await supabase.from('commission_records').insert({
+          source_order_id:  id,
+          agent_id:         agentId || null,
+          client_name:      current.landlord_name   || '',
+          client_type:      'landlord',
+          property_address: current.property_address || null,
+          transaction_type: txType,
+          service_type:     svcType,
+          deal_status:      'closed',
+          total_service_fee: fee,
+          commission_type:  'percentage',
+          commission_rate:  0,
+          flat_commission:  0,
+          adjustment_amount: 0,
+          total_commission: 0,
+          final_amount:     0,
+          payment_status:   'in_progress',
+          deal_order_number: null,
+          notes: `Auto-generated from Order #${id.slice(0, 8).toUpperCase()} on completion.`,
+        });
+      }
+    }
+
     // ── Sync client case when agent changes ───────────────────────────────
     let linkedCase: { case_number: string; case_id: string } | null = null;
 
     if (agentChanged) {
-      // Look up existing linked case for this order
       const { data: existingCases } = await supabase
         .from('client_cases')
         .select('id, case_number')
@@ -163,14 +205,12 @@ export async function PATCH(request: Request) {
       const existingCase = existingCases?.[0] ?? null;
 
       if (existingCase) {
-        // Case exists — update its assigned agent to match the order
         await supabase
           .from('client_cases')
           .update({ assigned_agent_id: newAgentId })
           .eq('id', existingCase.id);
         linkedCase = { case_number: existingCase.case_number, case_id: existingCase.id };
       } else if (newAgentId) {
-        // No case yet and we have a new agent — create one
         const serviceType = deriveServiceType(current.selected_services || []);
         const rentRaw = String(current.expected_rent || '').replace(/[^0-9.]/g, '');
         const rentAmount = rentRaw ? Number(rentRaw) : null;
@@ -202,7 +242,6 @@ export async function PATCH(request: Request) {
         if (newCase) linkedCase = { case_number: newCase.case_number, case_id: newCase.id };
       }
     } else {
-      // No agent change — return existing linked case number if any
       const { data: existingCases } = await supabase
         .from('client_cases')
         .select('id, case_number')

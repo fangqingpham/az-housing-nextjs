@@ -75,7 +75,7 @@ const PACKAGES = [
   {
     id: "realtor-mls-leasing",    
     badge: "Best for max exposure",
-    title: "Realtor MLS Full Leasing Package",
+    title: "MLS Listing Full Package",
     price: "1 Month's Rent",
     priceNote: "commission",
     accent: "#4a90d9",
