@@ -17,6 +17,7 @@ type Order = {
 
 type CommissionRecord = {
   id: string
+  source_order_id: string | null  // links back to tenant_placement_orders.id
   client_name: string; client_type: string
   related_file_id: string | null; property_address: string | null
   transaction_type: string; deal_status: string
@@ -133,7 +134,15 @@ function Dashboard({ agent }: { agent: AgentUser }) {
     .sort((a, b) => (a.expected_payment_date! > b.expected_payment_date! ? 1 : -1))[0]
 
   const activeOrders = orders.filter(o => !['completed','cancelled'].includes(o.status)).length
-  const orderEarned  = orders.filter(o => o.status === 'completed' && o.commission_paid).reduce((s, o) => s + (o.commission || 0), 0)
+  // Build a map: order_id → commission record (for Orders tab display)
+  const commByOrderId = commissions.reduce((map, cr) => {
+    if (cr.source_order_id) map[cr.source_order_id] = cr
+    return map
+  }, {} as Record<string, CommissionRecord>)
+  // Income earned = sum of final_amount for paid commission records linked to this agent's orders
+  const orderEarned = commissions
+    .filter(cr => cr.source_order_id && cr.payment_status === 'paid')
+    .reduce((s, cr) => s + (cr.final_amount || 0), 0)
 
   const handleSignOut = async () => { await createClient().auth.signOut(); router.push('/admin/login') }
 
@@ -247,16 +256,33 @@ function Dashboard({ agent }: { agent: AgentUser }) {
                             </div>
                           )}
 
-                          <div style={{ display:'flex', gap:12, marginBottom:20, flexWrap:'wrap' }}>
-                            <div style={{ background:'#E1F5EE', borderRadius:10, padding:'10px 16px', fontSize:13 }}>
-                              <span style={{ color:'#6b6b67' }}>Commission: </span>
-                              <span style={{ fontWeight:700, color:'#2d7a4f' }}>{fmtMoney(o.commission)}</span>
-                            </div>
-                            <div style={{ background: o.commission_paid ? '#E1F5EE' : '#FEF3DC', borderRadius:10, padding:'10px 16px', fontSize:13 }}>
-                              <span style={{ color:'#6b6b67' }}>Payout: </span>
-                              <span style={{ fontWeight:700, color: o.commission_paid ? '#2d7a4f' : '#a86d1a' }}>{o.commission_paid ? '✓ Paid' : '⏳ Pending'}</span>
-                            </div>
-                          </div>
+                          {(() => {
+                            const cr = commByOrderId[o.id]
+                            const commAmt  = cr ? (cr.final_amount || 0)        : (o.commission || 0)
+                            const isPaid   = cr ? cr.payment_status === 'paid'  : o.commission_paid
+                            const payLabel = cr
+                              ? (PAYMENT_LABELS[cr.payment_status]?.label || cr.payment_status)
+                              : (o.commission_paid ? 'Paid' : 'Pending')
+                            const payColor = isPaid ? '#2d7a4f' : '#a86d1a'
+                            const payBg    = isPaid ? '#E1F5EE' : '#FEF3DC'
+                            return (
+                              <div style={{ display:'flex', gap:12, marginBottom:20, flexWrap:'wrap' }}>
+                                <div style={{ background:'#E1F5EE', borderRadius:10, padding:'10px 16px', fontSize:13 }}>
+                                  <span style={{ color:'#6b6b67' }}>Commission (Final): </span>
+                                  <span style={{ fontWeight:700, color:'#2d7a4f' }}>{fmtMoney(commAmt)}</span>
+                                  {cr && cr.commission_rate > 0 && (
+                                    <span style={{ marginLeft:6, fontSize:11, color:'#6b6b67' }}>({cr.commission_rate}%)</span>
+                                  )}
+                                </div>
+                                <div style={{ background: payBg, borderRadius:10, padding:'10px 16px', fontSize:13 }}>
+                                  <span style={{ color:'#6b6b67' }}>Payout: </span>
+                                  <span style={{ fontWeight:700, color: payColor }}>
+                                    {isPaid ? '✓ ' : '⏳ '}{payLabel}
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          })()}
 
                           <div style={{ background:'#f7f4ef', borderRadius:12, padding:'16px 18px' }}>
                             <div style={{ fontSize:12, fontWeight:700, color:'#1b2a4a', marginBottom:12, letterSpacing:0.5 }}>UPDATE ORDER STATUS</div>
