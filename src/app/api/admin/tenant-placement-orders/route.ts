@@ -170,25 +170,24 @@ export async function PATCH(request: Request) {
         const txType   = deriveTransactionType(current.selected_services || []);
         const svcType  = deriveServiceType(current.selected_services || []);
 
+        // total_commission and final_amount are generated columns — do NOT insert them
+        const city = current.city ? `, ${current.city}` : '';
         await supabase.from('commission_records').insert({
-          source_order_id:  id,
-          agent_id:         agentId || null,
-          client_name:      current.landlord_name   || '',
-          client_type:      'landlord',
-          property_address: current.property_address || null,
-          transaction_type: txType,
-          service_type:     svcType,
-          deal_status:      'closed',
+          source_order_id:   id,
+          agent_id:          agentId || null,
+          client_name:       current.landlord_name || '',
+          client_type:       'landlord',
+          property_address:  `${current.property_address || ''}${city}`,
+          transaction_type:  txType,
+          service_type:      svcType,
+          deal_status:       'closed',
           total_service_fee: fee,
-          commission_type:  'percentage',
-          commission_rate:  0,
-          flat_commission:  0,
+          commission_type:   'percentage',
+          commission_rate:   0,
+          flat_commission:   0,
           adjustment_amount: 0,
-          total_commission: 0,
-          final_amount:     0,
-          payment_status:   'in_progress',
-          deal_order_number: null,
-          notes: `Auto-generated from Order #${id.slice(0, 8).toUpperCase()} on completion.`,
+          payment_status:    'in_progress',
+          notes: `Auto-generated from completed order on ${new Date().toISOString().slice(0, 10)}`,
         });
       }
     }
