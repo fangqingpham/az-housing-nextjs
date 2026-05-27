@@ -3,7 +3,7 @@ import Script from 'next/script'
 import '@/styles/globals.css'
 import PublicChrome from '@/components/layout/PublicChrome'
 import LanguagePicker from '@/components/ui/LanguagePicker'
-import { LanguageProvider } from '@/hooks/useLanguage'
+import { LanguageProvider } from '@/hooks/LanguageProvider'
 
 const SITE_URL = 'https://www.azhouse.ca'
 
