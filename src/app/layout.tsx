@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import '@/styles/globals.css'
-import GoogleMapsLoader from '@/components/map/GoogleMapsLoader'
 import PublicChrome from '@/components/layout/PublicChrome'
+import LanguagePicker from '@/components/ui/LanguagePicker'
+import { LanguageProvider } from '@/hooks/useLanguage'
 
 const SITE_URL = 'https://www.azhouse.ca'
 
@@ -108,17 +109,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        <GoogleMapsLoader />
-
         {/*
-          PublicChrome conditionally renders Navbar + main + Footer.
-          For /admin/* routes it renders children only, so the admin
-          layout gets a clean full-screen canvas with no public chrome.
+          LanguageProvider must wrap everything so Navbar, Footer, and all
+          pages can call useLanguage(). LanguagePicker shows the first-visit
+          modal. PublicChrome conditionally renders Navbar + Footer + LiveChat
+          (skipped on /admin/* routes so the admin gets a clean canvas).
         */}
-        <PublicChrome>
-          {children}
-        </PublicChrome>
+        <LanguageProvider>
+          <LanguagePicker />
+          <PublicChrome>
+            {children}
+          </PublicChrome>
+        </LanguageProvider>
 
+        {/* Tawk.to live chat loader */}
         <Script id="tawk-to-live-chat" strategy="afterInteractive">
           {`
             var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
