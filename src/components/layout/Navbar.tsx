@@ -234,7 +234,6 @@ export default function Navbar() {
       label: t.nav.listings,
       key: 'listings',
       items: [
-        { label: t.nav.searchProperties, href: '/map-search', desc: t.nav.searchPropertiesDesc },
         { label: t.nav.forSale, href: '/buy', desc: t.nav.forSaleDesc },
         { label: t.nav.forRent, href: '/rent', desc: t.nav.forRentDesc },
         { label: t.nav.postProperty, href: '/post-listing', desc: t.nav.postPropertyDesc },
