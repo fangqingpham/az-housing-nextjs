@@ -1,21 +1,19 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext } from 'react'
 import { translations, type Lang } from '@/lib/translations'
 
-const STORAGE_KEY = 'az-lang'
+export const STORAGE_KEY = 'az-lang'
 
 export interface LanguageContextValue {
   lang: Lang
   setLang: (lang: Lang) => void
-  t: typeof translations['en']
+  t: typeof translations[Lang]
   showPicker: boolean
   dismissPicker: () => void
 }
 
 export const LanguageContext = createContext<LanguageContextValue | null>(null)
-
-export { STORAGE_KEY }
 
 export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext)
