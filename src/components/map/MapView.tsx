@@ -4,12 +4,6 @@ import { useEffect, useRef, useCallback } from 'react'
 import type { Listing } from '@/types'
 import { getCityCoords } from '@/lib/utils'
 
-declare global {
-  interface Window {
-    _gmMarkers?: google.maps.Marker[]
-  }
-}
-
 interface MapViewProps {
   listings: Listing[]
   onMarkerClick?: (id: string) => void
@@ -18,9 +12,20 @@ interface MapViewProps {
   zoom?: number
 }
 
+// ─── Geocoding ────────────────────────────────────────────────────────────────
+
 const geocodeCache = new Map<string, [number, number]>()
 
-function getAddressText(listing: any) {
+function getSavedCoords(listing: any): [number, number] | null {
+  const lat = Number(listing.lat)
+  const lng = Number(listing.lng)
+  if (!Number.isNaN(lat) && !Number.isNaN(lng) && lat !== 0 && lng !== 0) {
+    return [lat, lng]
+  }
+  return null
+}
+
+function getAddressText(listing: any): string {
   return [
     listing.address || listing.addr || '',
     listing.city || '',
@@ -32,27 +37,12 @@ function getAddressText(listing: any) {
     .join(', ')
 }
 
-function getSavedCoords(listing: any): [number, number] | null {
-  const lat = Number(listing.lat)
-  const lng = Number(listing.lng)
-
-  if (!Number.isNaN(lat) && !Number.isNaN(lng) && lat !== 0 && lng !== 0) {
-    return [lat, lng]
-  }
-
-  return null
-}
-
 async function geocodeListing(listing: any): Promise<[number, number]> {
   const saved = getSavedCoords(listing)
-
   if (saved) return saved
 
   const address = getAddressText(listing)
-
-  if (geocodeCache.has(address)) {
-    return geocodeCache.get(address)!
-  }
+  if (geocodeCache.has(address)) return geocodeCache.get(address)!
 
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`
@@ -62,7 +52,6 @@ async function geocodeListing(listing: any): Promise<[number, number]> {
     if (Array.isArray(data) && data.length > 0) {
       const lat = Number(data[0].lat)
       const lng = Number(data[0].lon)
-
       if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
         const coords: [number, number] = [lat, lng]
         geocodeCache.set(address, coords)
@@ -76,6 +65,8 @@ async function geocodeListing(listing: any): Promise<[number, number]> {
   return getCityCoords(listing)
 }
 
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function MapView({
   listings,
   onMarkerClick,
@@ -84,97 +75,26 @@ export default function MapView({
   zoom = 10,
 }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null)
-
-  const googleMapRef = useRef<google.maps.Map | null>(null)
-  const googleMarkersRef = useRef<google.maps.Marker[]>([])
-
-  const leafletMapRef = useRef<import('leaflet').Map | null>(null)
-  const leafletMarkersRef = useRef<import('leaflet').Marker[]>([])
-  const leafletLibRef = useRef<typeof import('leaflet') | null>(null)
-
+  const mapInstanceRef = useRef<import('leaflet').Map | null>(null)
+  const markersRef = useRef<import('leaflet').Marker[]>([])
+  const leafletRef = useRef<typeof import('leaflet') | null>(null)
   const initializedRef = useRef(false)
 
-  const clearGoogleMarkers = useCallback(() => {
-    googleMarkersRef.current.forEach(marker => marker.setMap(null))
-    googleMarkersRef.current = []
-    window._gmMarkers = []
-  }, [])
+  // ── Marker helpers ──────────────────────────────────────────────────────────
 
-  const clearLeafletMarkers = useCallback(() => {
-    leafletMarkersRef.current.forEach(marker => {
-      try {
-        marker.remove()
-      } catch {}
+  const clearMarkers = useCallback(() => {
+    markersRef.current.forEach(m => {
+      try { m.remove() } catch {}
     })
-
-    leafletMarkersRef.current = []
+    markersRef.current = []
   }, [])
 
-  const placeGoogleMarkers = useCallback(async () => {
-    const map = googleMapRef.current
-
-    if (!map || typeof google === 'undefined') return
-
-    clearGoogleMarkers()
-
-    for (const listing of listings as any[]) {
-      const [lat, lng] = await geocodeListing(listing)
-      const isRent = listing.type === 'For Rent'
-      const color = isRent ? '#2D7A4F' : '#1B2A4A'
-
-      const marker = new google.maps.Marker({
-        position: { lat, lng },
-        map,
-        title: listing.title,
-        label: {
-          text: String(listing.price || '$'),
-          color: '#ffffff',
-          fontSize: '12px',
-          fontWeight: '700',
-        },
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: highlightedId === listing.id ? 14 : 11,
-          fillColor: highlightedId === listing.id ? '#F5A623' : color,
-          fillOpacity: 1,
-          strokeColor: '#ffffff',
-          strokeWeight: 3,
-        },
-      })
-
-      const infoWindow = new google.maps.InfoWindow({
-        content: `
-          <div style="font-family:sans-serif;min-width:200px;padding:4px">
-            <div style="font-weight:700;font-size:14px;margin-bottom:4px">${listing.price || ''}</div>
-            <div style="font-size:13px;margin-bottom:3px">${listing.title || ''}</div>
-            <div style="font-size:11px;color:#666;margin-bottom:8px">📍 ${listing.city || ''}, ${listing.province || ''}</div>
-            <a href="/property/${listing.id}" style="display:block;background:#1B2A4A;color:white;text-align:center;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">View Property →</a>
-          </div>
-        `,
-      })
-
-      marker.addListener('click', () => {
-        googleMarkersRef.current.forEach(m => {
-          const existingWindow = (m as any)._infoWindow
-          if (existingWindow) existingWindow.close()
-        })
-
-        infoWindow.open(map, marker)
-        onMarkerClick?.(listing.id)
-      })
-
-      ;(marker as any)._infoWindow = infoWindow
-      googleMarkersRef.current.push(marker)
-    }
-  }, [listings, highlightedId, onMarkerClick, clearGoogleMarkers])
-
-  const placeLeafletMarkers = useCallback(async () => {
-    const map = leafletMapRef.current
-    const L = leafletLibRef.current
-
+  const placeMarkers = useCallback(async () => {
+    const map = mapInstanceRef.current
+    const L = leafletRef.current
     if (!map || !L) return
 
-    clearLeafletMarkers()
+    clearMarkers()
 
     const bounds: [number, number][] = []
 
@@ -182,24 +102,25 @@ export default function MapView({
       const [lat, lng] = await geocodeListing(listing)
       bounds.push([lat, lng])
 
-      const isRent = listing.type === 'For Rent'
-      const color = isRent ? '#2D7A4F' : '#1B2A4A'
       const isHighlighted = highlightedId === listing.id
+      const isRent = listing.type === 'For Rent'
+      const bg = isHighlighted ? '#F5A623' : isRent ? '#2D7A4F' : '#1B2A4A'
 
       const icon = L.divIcon({
         html: `
           <div style="
-            background:${isHighlighted ? '#F5A623' : color};
-            color:white;
-            padding:5px 10px;
-            border-radius:16px;
-            font-size:12px;
-            font-weight:700;
-            white-space:nowrap;
-            box-shadow:0 3px 10px rgba(0,0,0,.3);
-            border:2px solid white;
-            cursor:pointer;
-            transform:${isHighlighted ? 'scale(1.15)' : 'scale(1)'};
+            background: ${bg};
+            color: white;
+            padding: 5px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            box-shadow: 0 3px 10px rgba(0,0,0,.3);
+            border: 2px solid white;
+            cursor: pointer;
+            transform: ${isHighlighted ? 'scale(1.15)' : 'scale(1)'};
+            transition: transform 0.15s ease, background 0.15s ease;
           ">
             ${listing.price || '--'}
           </div>
@@ -211,11 +132,20 @@ export default function MapView({
       const marker = L.marker([lat, lng], { icon }).addTo(map)
 
       marker.bindPopup(`
-        <div style="min-width:180px;font-family:sans-serif;padding:4px">
-          <div style="font-weight:700;font-size:14px">${listing.price || ''}</div>
-          <div style="font-size:13px">${listing.title || ''}</div>
-          <div style="font-size:11px;color:#666;margin:4px 0">📍 ${listing.city || ''}, ${listing.province || ''}</div>
-          <a href="/property/${listing.id}" style="display:block;background:#1B2A4A;color:white;text-align:center;padding:6px 12px;border-radius:5px;font-size:12px;margin-top:4px;text-decoration:none">View →</a>
+        <div style="min-width: 190px; font-family: sans-serif; padding: 4px;">
+          <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">${listing.price || ''}</div>
+          <div style="font-size: 13px; margin-bottom: 4px;">${listing.title || ''}</div>
+          <div style="font-size: 11px; color: #666; margin-bottom: 8px;">
+            📍 ${listing.city || ''}${listing.province ? ', ' + listing.province : ''}
+          </div>
+          ${listing.beds ? `<span style="font-size:11px;color:#555;margin-right:8px;">🛏 ${listing.beds}bd</span>` : ''}
+          ${listing.baths ? `<span style="font-size:11px;color:#555;margin-right:8px;">🚿 ${listing.baths}ba</span>` : ''}
+          <a
+            href="/property/${listing.id}"
+            style="display:block;background:#1B2A4A;color:white;text-align:center;padding:7px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;margin-top:8px;"
+          >
+            View Property →
+          </a>
         </div>
       `)
 
@@ -223,49 +153,26 @@ export default function MapView({
         onMarkerClick?.(listing.id)
       })
 
-      leafletMarkersRef.current.push(marker)
+      markersRef.current.push(marker)
     }
 
     if (bounds.length > 0) {
-      map.fitBounds(bounds, {
-        padding: [60, 60],
-        maxZoom: 13,
-      })
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 })
     }
-  }, [listings, highlightedId, onMarkerClick, clearLeafletMarkers])
+  }, [listings, highlightedId, onMarkerClick, clearMarkers])
 
-  const initGoogleMap = useCallback(() => {
-    if (!mapRef.current || googleMapRef.current) return
+  // ── Init map (once) ─────────────────────────────────────────────────────────
 
-    googleMapRef.current = new google.maps.Map(mapRef.current, {
-      center: { lat: center[0], lng: center[1] },
-      zoom,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: false,
-      styles: [
-        {
-          featureType: 'poi',
-          elementType: 'labels',
-          stylers: [{ visibility: 'off' }],
-        },
-      ],
-    })
-
-    placeGoogleMarkers()
-  }, [center, zoom, placeGoogleMarkers])
-
-  const initLeafletMap = useCallback(async () => {
-    if (!mapRef.current || leafletMapRef.current) return
+  const initMap = useCallback(async () => {
+    if (!mapRef.current || mapInstanceRef.current) return
 
     const L = (await import('leaflet')).default
-
-    // @ts-ignore
+    // @ts-ignore — Leaflet CSS has no types
     await import('leaflet/dist/leaflet.css')
 
-    leafletLibRef.current = L
+    leafletRef.current = L
 
-    leafletMapRef.current = L.map(mapRef.current, {
+    mapInstanceRef.current = L.map(mapRef.current, {
       zoomControl: true,
       scrollWheelZoom: true,
     }).setView(center, zoom)
@@ -273,68 +180,49 @@ export default function MapView({
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxZoom: 19,
-    }).addTo(leafletMapRef.current)
+    }).addTo(mapInstanceRef.current)
 
+    // Give the container time to paint before placing markers
     setTimeout(() => {
-      leafletMapRef.current?.invalidateSize()
-      placeLeafletMarkers()
+      mapInstanceRef.current?.invalidateSize()
+      placeMarkers()
     }, 200)
-  }, [center, zoom, placeLeafletMarkers])
+  }, [center, zoom, placeMarkers])
+
+  // ── Mount / unmount ─────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (initializedRef.current) return
-
     initializedRef.current = true
-      initLeafletMap()
+    initMap()
 
     return () => {
-      clearGoogleMarkers()
-      clearLeafletMarkers()
-
-      if (leafletMapRef.current) {
-        try {
-          leafletMapRef.current.remove()
-        } catch {}
-
-        leafletMapRef.current = null
-      }
-
-      googleMapRef.current = null
+      clearMarkers()
+      try { mapInstanceRef.current?.remove() } catch {}
+      mapInstanceRef.current = null
+      leafletRef.current = null
       initializedRef.current = false
     }
-  }, [initGoogleMap, initLeafletMap, clearGoogleMarkers, clearLeafletMarkers])
+  }, [initMap, clearMarkers])
+
+  // ── Re-place markers when listings or highlight changes ─────────────────────
 
   useEffect(() => {
-    if (!initializedRef.current) return
+    if (!initializedRef.current || !mapInstanceRef.current) return
+    placeMarkers()
+  }, [listings, highlightedId, placeMarkers])
 
-    if (googleMapRef.current) {
-      placeGoogleMarkers()
-    }
-
-    if (leafletMapRef.current) {
-      placeLeafletMarkers()
-    }
-  }, [listings, highlightedId, placeGoogleMarkers, placeLeafletMarkers])
+  // ── Pan when center prop changes (e.g. city search) ─────────────────────────
 
   useEffect(() => {
-    if (googleMapRef.current) {
-      googleMapRef.current.panTo({ lat: center[0], lng: center[1] })
-    }
-
-    if (leafletMapRef.current) {
-      leafletMapRef.current.panTo(center)
-    }
+    mapInstanceRef.current?.panTo(center)
   }, [center])
 
   return (
     <div
       ref={mapRef}
       id="search-map"
-      style={{
-        width: '100%',
-        height: '100%',
-        minHeight: 300,
-      }}
+      style={{ width: '100%', height: '100%', minHeight: 300 }}
     />
   )
 }
