@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useLanguage } from '@/hooks/useLanguage'
 
 export default function LoginInner() {
   const [email, setEmail] = useState('')
@@ -12,8 +13,10 @@ export default function LoginInner() {
   const [loading, setLoading] = useState(false)
 
   const { signIn } = useAuth()
+  const { t, lang } = useLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const a = t.auth
 
   const redirect = searchParams.get('redirect') || '/dashboard'
 
@@ -21,7 +24,7 @@ export default function LoginInner() {
     e.preventDefault()
 
     if (!email || !password) {
-      setError('Please enter your email and password.')
+      setError(a.enterEmailPassword)
       return
     }
 
@@ -42,14 +45,14 @@ export default function LoginInner() {
 
   return (
     <div className="auth-wrap">
-      <h2>Welcome Back</h2>
-      <p className="auth-sub">Sign in to your A - Z Housing account.</p>
+      <h2>{a.welcomeBack}</h2>
+      <p className="auth-sub">{a.signInSub}</p>
 
       {error && <div className="auth-err">{error}</div>}
 
       <form onSubmit={handleLogin}>
         <div className="fg">
-          <label>Email address</label>
+          <label>{a.emailAddress}</label>
           <input
             className="fc"
             type="email"
@@ -60,7 +63,7 @@ export default function LoginInner() {
         </div>
 
         <div className="fg">
-          <label>Password</label>
+          <label>{a.password}</label>
           <input
             className="fc"
             type="password"
@@ -71,13 +74,13 @@ export default function LoginInner() {
         </div>
 
         <button type="submit" disabled={loading}>
-          {loading ? 'Signing in…' : 'Sign In'}
+          {loading ? a.signingIn : a.signIn}
         </button>
       </form>
 
       <div className="auth-sw">
-        Don't have an account? <Link href="/auth/register">Create one free</Link>
+        {a.noAccount} <Link href="/auth/register">{a.createOneFree}</Link>
       </div>
     </div>
   )
-}	
+}

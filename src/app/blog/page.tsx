@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/hooks/useLanguage';
 import { BLOGS } from '@/lib/utils';
 import { getArticles } from '@/lib/api';
 import type { BlogPost } from '@/types';
@@ -9,6 +10,8 @@ import type { BlogPost } from '@/types';
 const PER_PAGE = 3;
 
 export default function BlogPage() {
+  const { t } = useLanguage();
+  const bl = t.blog;
   const [allPosts, setAllPosts] = useState<BlogPost[]>(BLOGS);
   const [page, setPage] = useState(1);
 
@@ -40,10 +43,10 @@ export default function BlogPage() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'var(--dark)', marginBottom: 16 }}>
-            Real Estate Insights
+            {bl.pageTitle}
           </h1>
           <p style={{ color: 'var(--mid)', fontSize: 18, maxWidth: 560, margin: '0 auto' }}>
-            Expert advice, market trends, and tips to help you make smarter property decisions.
+            {bl.pageSubtitle}
           </p>
         </div>
 
@@ -57,7 +60,7 @@ export default function BlogPage() {
             >
               <div style={{ background: `url(${allPosts[0].image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80'}) center/cover no-repeat`, minHeight: 260 }} />
               <div style={{ padding: '36px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <span style={{ display: 'inline-block', background: 'var(--accent)', color: '#fff', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', borderRadius: 20, padding: '4px 14px', marginBottom: 16, width: 'fit-content' }}>Featured</span>
+                <span style={{ display: 'inline-block', background: 'var(--accent)', color: '#fff', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', borderRadius: 20, padding: '4px 14px', marginBottom: 16, width: 'fit-content' }}>{bl.featured}</span>
                 <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(1.4rem, 3vw, 2rem)', color: 'var(--dark)', marginBottom: 12, lineHeight: 1.3 }}>{allPosts[0].title}</h2>
                 <p style={{ color: 'var(--mid)', lineHeight: 1.7, marginBottom: 20 }}>{allPosts[0].excerpt}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: 'var(--mid)', flexWrap: 'wrap' }}>
@@ -72,7 +75,7 @@ export default function BlogPage() {
 
         {/* Counter */}
         <p style={{ color: 'var(--mid)', fontSize: 13, marginBottom: 20 }}>
-          {rest.length} article{rest.length !== 1 ? 's' : ''} · Page {page} of {totalPages}
+          {rest.length} {rest.length !== 1 ? bl.articles : bl.article} · {bl.page} {page} {bl.of} {totalPages}
         </p>
 
         {/* Grid — 1 col mobile, up to 3 col desktop */}
@@ -140,13 +143,13 @@ export default function BlogPage() {
 
         {/* Newsletter CTA */}
         <div style={{ marginTop: 72, background: 'var(--dark)', borderRadius: 16, padding: 'clamp(32px,5vw,48px) clamp(24px,5vw,40px)', textAlign: 'center', color: '#fff' }}>
-          <h2 style={{ fontFamily: 'var(--serif)', fontSize: '1.8rem', marginBottom: 12 }}>Stay Ahead of the Market</h2>
+          <h2 style={{ fontFamily: 'var(--serif)', fontSize: '1.8rem', marginBottom: 12 }}>{bl.stayAhead}</h2>
           <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
-            Get weekly insights on Canadian real estate trends delivered straight to your inbox.
+            {bl.stayAheadSub}
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <input type="email" placeholder="your@email.com" style={{ padding: '12px 20px', borderRadius: 8, border: 'none', fontSize: 15, width: 'min(280px, 100%)', outline: 'none' }} />
-            <button style={{ background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 28px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>Subscribe</button>
+            <input type="email" placeholder={bl.emailPlaceholder} style={{ padding: '12px 20px', borderRadius: 8, border: 'none', fontSize: 15, width: 'min(280px, 100%)', outline: 'none' }} />
+            <button style={{ background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 28px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>{bl.subscribe}</button>
           </div>
         </div>
 

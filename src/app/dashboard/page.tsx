@@ -8,6 +8,7 @@ import Toast from '@/components/ui/Toast'
 import HouseSVG from '@/components/ui/HouseSVG'
 import { useToast } from '@/hooks/useToast'
 import { useAuth } from '@/hooks/useAuth'
+import { useLanguage } from '@/hooks/useLanguage'
 import {
   getListings,
   getMessages,
@@ -24,6 +25,8 @@ type DashTab = 'listings' | 'saved' | 'messages' | 'profile'
 
 export default function DashboardPage() {
   const { user, loading: authLoading, signOut, reload } = useAuth()
+  const { t } = useLanguage()
+  const d = t.dashboard
   const [tab, setTab] = useState<DashTab>('listings')
   const [myListings, setMyListings] = useState<Listing[]>([])
   const [savedListings, setSavedListings] = useState<Listing[]>([])
@@ -79,32 +82,28 @@ export default function DashboardPage() {
 
       if (selectedTab === 'messages') {
         const all = await getMessages()
-
-        // Your current messages table is general-contact style:
-        // listing_id, name, email, phone, message, viewing_date, created_at.
-        // So we show all messages for now.
         setMessages(all)
       }
     } catch (error) {
       console.error('Dashboard load error:', error)
-      showToast('Could not load dashboard data.')
+      showToast(d.couldNotLoad)
     }
 
     setDataLoading(false)
   }
 
   const handleDeleteListing = async (id: string) => {
-    if (!confirm('Delete this listing? This cannot be undone.')) return
+    if (!confirm(d.deleteListingConfirm)) return
 
     const ok = await deleteListing(id)
 
     if (!ok) {
-      showToast('Could not delete listing.')
+      showToast(d.couldNotDelete)
       return
     }
 
     setMyListings(prev => prev.filter(listing => listing.id !== id))
-    showToast('Listing deleted.')
+    showToast(d.listingDeleted)
   }
 
   const handleSaveProfile = async () => {
@@ -118,16 +117,16 @@ export default function DashboardPage() {
     })
 
     if (!ok) {
-      showToast('Could not update profile.')
+      showToast(d.couldNotUpdate)
       return
     }
 
     await reload()
-    showToast('Profile updated!')
+    showToast(d.profileUpdated)
   }
 
   const handleDeleteAccount = async () => {
-    if (!confirm('Delete your account? All your listings and data will be removed. This cannot be undone.')) return
+    if (!confirm(d.deleteAccountConfirm)) return
     if (!user) return
 
     const supa = getSupabaseBrowserClient()
@@ -138,14 +137,14 @@ export default function DashboardPage() {
 
     await signOut()
 
-    showToast('Account deleted.')
+    showToast(d.accountDeleted)
     router.push('/')
   }
 
   if (authLoading) {
     return (
       <div className="empty-state" style={{ padding: '4rem' }}>
-        <p>Loading…</p>
+        <p>{d.loading}</p>
       </div>
     )
   }
@@ -153,10 +152,10 @@ export default function DashboardPage() {
   if (!user) return null
 
   const tabs: { id: DashTab; label: string }[] = [
-    { id: 'listings', label: 'My Listings' },
-    { id: 'saved', label: 'Saved' },
-    { id: 'messages', label: 'Messages' },
-    { id: 'profile', label: 'Profile' },
+    { id: 'listings',  label: d.myListings },
+    { id: 'saved',     label: d.saved      },
+    { id: 'messages',  label: d.messages   },
+    { id: 'profile',   label: d.profile    },
   ]
 
   return (
@@ -164,23 +163,23 @@ export default function DashboardPage() {
       <Toast message={message} visible={visible} />
 
       <div className="dash-wrap">
-        <h2>Welcome, {user.fname}</h2>
+        <h2>{d.welcome}, {user.fname}</h2>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-  <p style={{ color: 'var(--mid)', fontSize: '14px', margin: 0 }}>
-    {user.email} · Member since {user.joined || 'recently'}
-  </p>
+          <p style={{ color: 'var(--mid)', fontSize: '14px', margin: 0 }}>
+            {user.email} · {d.memberSince} {user.joined || d.recently}
+          </p>
 
-  <button
-    className="btn btn-sm btn-danger"
-    onClick={async () => {
-      await signOut()
-      router.push('/')
-    }}
-  >
-    Log Out
-  </button>
-</div>
+          <button
+            className="btn btn-sm btn-danger"
+            onClick={async () => {
+              await signOut()
+              router.push('/')
+            }}
+          >
+            {d.logOut}
+          </button>
+        </div>
 
         <div className="dash-tabs">
           {tabs.map(item => (
@@ -196,7 +195,7 @@ export default function DashboardPage() {
 
         {dataLoading && (
           <div className="empty-state">
-            <p>Loading…</p>
+            <p>{d.loading}</p>
           </div>
         )}
 
@@ -204,19 +203,19 @@ export default function DashboardPage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <span style={{ fontSize: '14px', color: 'var(--mid)' }}>
-                {myListings.length} listing{myListings.length !== 1 ? 's' : ''}
+                {myListings.length} {myListings.length !== 1 ? d.listingsPlural : d.listings}
               </span>
 
               <Link href="/post-listing" className="btn btn-sm btn-accent">
-                + Post New Listing
+                + {d.postNewListing}
               </Link>
             </div>
 
             {myListings.length === 0 ? (
               <p style={{ color: 'var(--mid)', fontSize: '14px' }}>
-                You haven&apos;t posted any listings yet.{' '}
+                {d.noListingsYet}{' '}
                 <Link href="/post-listing" style={{ color: 'var(--accent)' }}>
-                  Post your first!
+                  {d.postFirst}
                 </Link>
               </p>
             ) : (
@@ -244,18 +243,18 @@ export default function DashboardPage() {
 
                     <div className="listing-row-actions">
                       <Link href={`/property/${listing.id}`} className="btn btn-sm">
-                        View
+                        {d.view}
                       </Link>
 
                       <Link href={`/edit-listing/${listing.id}`} className="btn btn-sm btn-primary">
-                        Edit
+                        {d.edit}
                       </Link>
 
                       <button
                         className="btn btn-sm btn-danger"
                         onClick={() => handleDeleteListing(listing.id)}
                       >
-                        Delete
+                        {d.delete}
                       </button>
                     </div>
                   </div>
@@ -269,7 +268,7 @@ export default function DashboardPage() {
           <div>
             {savedListings.length === 0 ? (
               <p style={{ color: 'var(--mid)', fontSize: '14px' }}>
-                You haven&apos;t saved any properties yet. Browse listings and tap ♡ to save.
+                {d.noSavedYet}
               </p>
             ) : (
               <div className="saved-grid">
@@ -285,20 +284,20 @@ export default function DashboardPage() {
           <div>
             {messages.length === 0 ? (
               <p style={{ color: 'var(--mid)', fontSize: '14px' }}>
-                No messages yet. When someone contacts you, it will appear here.
+                {d.noMessages}
               </p>
             ) : (
               messages.map((msg: any) => (
                 <div key={msg.id} className="msg-item">
                   <div className="msg-prop">
-                    {msg.listing_id ? `Listing enquiry: ${msg.listing_id}` : 'Contact form message'} ·{' '}
+                    {msg.listing_id ? `${d.listingEnquiry}: ${msg.listing_id}` : d.contactFormMessage} ·{' '}
                     <span style={{ color: 'var(--mid)' }}>
-                      {msg.viewing_date ? `Viewing date: ${msg.viewing_date}` : 'General Message'}
+                      {msg.viewing_date ? `${d.viewingDate}: ${msg.viewing_date}` : d.generalMessage}
                     </span>
                   </div>
 
                   <div className="msg-from">
-                    {msg.name || 'Unknown'} --{' '}
+                    {msg.name || d.unknown} --{' '}
                     <a href={`mailto:${msg.email}`} style={{ color: 'var(--accent)' }}>
                       {msg.email}
                     </a>
@@ -318,23 +317,23 @@ export default function DashboardPage() {
           <div>
             <div className="fr">
               <div className="fg">
-                <label>First Name</label>
+                <label>{d.firstName}</label>
                 <input className="fc" value={pFname} onChange={e => setPFname(e.target.value)} />
               </div>
 
               <div className="fg">
-                <label>Last Name</label>
+                <label>{d.lastName}</label>
                 <input className="fc" value={pLname} onChange={e => setPLname(e.target.value)} />
               </div>
             </div>
 
             <div className="fg">
-              <label>Email</label>
+              <label>{d.email}</label>
               <input className="fc" value={user.email} disabled style={{ opacity: 0.6 }} />
             </div>
 
             <div className="fg">
-              <label>Phone</label>
+              <label>{d.phone}</label>
               <input
                 className="fc"
                 value={pPhone}
@@ -344,30 +343,30 @@ export default function DashboardPage() {
             </div>
 
             <div className="fg">
-              <label>Role</label>
+              <label>{d.role}</label>
               <select className="fc" value={pRole} onChange={e => setPRole(e.target.value)}>
-                <option value="buyer">Buyer / Renter</option>
-                <option value="landlord">Landlord / Seller</option>
-                <option value="agent">Real Estate Agent</option>
+                <option value="buyer">{d.buyerRenter}</option>
+                <option value="landlord">{d.landlordSeller}</option>
+                <option value="agent">{d.realEstateAgent}</option>
               </select>
             </div>
 
             <button className="btn btn-primary" onClick={handleSaveProfile} style={{ marginBottom: '2rem' }}>
-              Save Profile
+              {d.saveProfile}
             </button>
 
             <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '1.5rem 0' }} />
 
             <h3 style={{ fontFamily: 'var(--serif)', fontSize: '18px', marginBottom: '.5rem' }}>
-              Danger Zone
+              {d.dangerZone}
             </h3>
 
             <p style={{ fontSize: '13px', color: 'var(--mid)', marginBottom: '1rem' }}>
-              Deleting your account is permanent and cannot be undone. All your listings and data will be removed.
+              {d.dangerDesc}
             </p>
 
             <button className="btn btn-danger" onClick={handleDeleteAccount}>
-              Delete My Account
+              {d.deleteAccount}
             </button>
           </div>
         )}

@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/hooks/useLanguage";
 
 /* ─── Package data ─────────────────────────────────────────── */
 
-const PACKAGES = [
+const PACKAGES_EN = [
   {
     id: "az-private-leasing",
     badge: "STRESS-FREE RENTING",
@@ -73,7 +74,7 @@ const PACKAGES = [
       "This package does not include MLS/Realtor.ca listing, Realtor representation, in-person showings, photography, or key handover unless added separately. ** Conditions apply: if an A-Z-approved tenant remains in rent default for 45 or more consecutive calendar days within the first 90 calendar days of the lease start date, the Client may be eligible for a full refund of the A-Z Private Leasing Package. For more details, please contact Leasing Agent.",
   },
   {
-    id: "realtor-mls-leasing",    
+    id: "realtor-mls-leasing",
     badge: "Best for max exposure",
     title: "MLS Listing Full Package",
     price: "1 Month's Rent",
@@ -128,7 +129,7 @@ const PACKAGES = [
     disclaimer: "",
   },
   {
-    id: "property-management",    
+    id: "property-management",
     badge: "Ongoing service",
     title: "Property Management Service",
     price: "$120/month",
@@ -169,9 +170,173 @@ const PACKAGES = [
   },
 ];
 
+const PACKAGES_ZH = [
+  {
+    id: "az-private-leasing",
+    badge: "无忧租赁",
+    title: "A-Z私人租赁套餐",
+    price: "$995",
+    priceNote: "统一收费",
+    accent: "var(--accent)",
+    tagline: "全套私人租赁服务——从营销到签署租约。",
+    summary: [
+      "我们最受欢迎的套餐，适合想要在MLS平台以外同时获得专业租赁支持的房东。我们处理从广告宣传到租约执行的一切。",
+      "租户违约全额退款 **",
+    ],
+    sections: [
+      {
+        heading: "营销与广告",
+        items: [
+          "在A-Z Housing Solutions网站上挂牌",
+          "在Kijiji上挂牌",
+          "在Facebook Marketplace上挂牌",
+          "在精选Facebook租房群组中发布",
+          "在Rentals.ca上挂牌（适用时）",
+          "申请人咨询和沟通",
+          "预资格审查和排期协调",
+        ],
+      },
+      {
+        heading: "租户筛查（最多5名申请人）",
+        subNote: "额外申请人筛查：每人$29",
+        items: [
+          "信用查询",
+          "身份验证",
+          "银行账户验证",
+          "欺诈风险筛查",
+          "收入和就业核实",
+          "前房东和推荐人查核",
+          "Openroom和公共记录查询（如适用）",
+        ],
+      },
+      {
+        heading: "租约准备",
+        items: [
+          "安省标准租约准备",
+          "符合RTA的租约执行支持",
+          "租赁协议审查和签署协调",
+        ],
+      },
+      {
+        heading: "合规支持",
+        items: [
+          "与独立持牌辅助法律师30分钟免费咨询",
+          "通过房东门户获取房东表格和模板",
+          "需要时转介经验丰富的持牌辅助法律师",
+          "90天租金管理和付款监控",
+        ],
+      },
+    ],
+    addons: [
+      { name: "专业摄影", price: "$149" },
+      { name: "现场看房——面对面适合性评估（最多5次，仅限GTA）", price: "$399" },
+      { name: "交钥匙和入住说明", price: "$75" },
+      { name: "入住检查报告", price: "$99" },
+      { name: "前5名申请人后的额外筛查", price: "$29/人" },
+    ],
+    disclaimer:
+      "本套餐不包括MLS/Realtor.ca挂牌、经纪人代理、现场看房、摄影或交钥匙服务（除非单独添加）。** 条件适用：如果经A-Z批准的租户在租约开始后前90个日历日内连续45个或以上日历日拖欠租金，客户可能有资格获得A-Z私人租赁套餐的全额退款。详情请联系租赁代理。",
+  },
+  {
+    id: "realtor-mls-leasing",
+    badge: "最大曝光度",
+    title: "MLS全套挂牌套餐",
+    price: "一个月租金",
+    priceNote: "佣金",
+    accent: "#4a90d9",
+    tagline: "通过MLS/Realtor.ca获得最大曝光，并有持牌经纪人支持。",
+    summary: [
+      "适合希望通过MLS/Realtor.ca获得最大曝光度和持牌经纪人支持的房东。与多伦多/GTA常见租赁模式一致，房东支付相当于一个月租金的佣金，通常在挂牌代理和合作租客代理之间分配。",
+    ],
+    sections: [
+      {
+        heading: "经纪人/MLS营销",
+        items: [
+          "通过持牌经纪人进行MLS挂牌",
+          "Realtor.ca曝光",
+          "与买家/租客代理合作",
+          "经纪人询问处理",
+          "挂牌更新和状态变更",
+          "市场租金指导",
+        ],
+      },
+      {
+        heading: "租赁支持",
+        items: [
+          "租客和代理询问管理",
+          "通过经纪人渠道协调看房",
+          "报价转租约审查和谈判支持",
+          "与合作代理的沟通",
+          "申请人资料审查",
+          "租约签署协调",
+        ],
+      },
+      {
+        heading: "租户筛查协调",
+        items: [
+          "租赁申请的收集和审查",
+          "信用、收入、就业、身份和推荐人审查",
+          "供房东决策的申请人摘要",
+        ],
+      },
+      {
+        heading: "租约和成交",
+        items: [
+          "安省标准租约准备或协调",
+          "首月租金和合法最后一个月租金押金协调",
+          "最终挂牌状态更新",
+          "签署的租约和文件交付给房东",
+        ],
+      },
+    ],
+    addons: [],
+    disclaimer: "",
+  },
+  {
+    id: "property-management",
+    badge: "持续服务",
+    title: "物业管理服务",
+    price: "$120/月",
+    priceNote: "每套房产（最多3间）",
+    accent: "var(--green, #2e7d52)",
+    tagline: "放手式拥有——我们每月处理一切。",
+    summary: [
+      "适用于1套最多3间房的房产。每增加1间+$30/月。订阅节省：季度$360 · 半年$600 · 年度$1,200。",
+    ],
+    sections: [
+      {
+        heading: "每月管理包含",
+        items: [
+          "每月租金收取",
+          "房东付款",
+          "日常事务租客沟通",
+          "24/7紧急电话协调",
+          "维修和修缮协调及技术人员推荐",
+          "租住变更时的入住和退租检查",
+          "每年一次中期检查",
+          "维护记录和检查报告",
+          "租赁文件存储",
+          "合规记录",
+          "首月租金和合法最后一个月租金押金支持（如适用）",
+        ],
+      },
+    ],
+    addons: [
+      { name: "紧急或当日检查", price: "$149/次" },
+    ],
+    disclaimer: "",
+    pricingTable: [
+      { label: "月付", price: "$120/月" },
+      { label: "季度", price: "$360" },
+      { label: "半年", price: "$600" },
+      { label: "年度", price: "$1,200" },
+    ],
+  },
+];
+
 /* ─── Modal component ──────────────────────────────────────── */
 
-function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () => void }) {
+function DetailModal({ pkg, onClose, px }: { pkg: typeof PACKAGES_EN[0]; onClose: () => void; px: any }) {
   return (
     <div
       onClick={onClose}
@@ -222,7 +387,7 @@ function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () =>
           {/* Pricing table (Property Management) */}
           {"pricingTable" in pkg && pkg.pricingTable && (
             <div style={{ marginBottom: 28 }}>
-              <div style={{ fontWeight: 700, color: "var(--dark)", marginBottom: 12, fontSize: 14 }}>Subscription Options</div>
+              <div style={{ fontWeight: 700, color: "var(--dark)", marginBottom: 12, fontSize: 14 }}>{px.subscriptionOptions}</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 10 }}>
                 {pkg.pricingTable.map(row => (
                   <div key={row.label} style={{ background: "#f7f4ef", borderRadius: 10, padding: "12px 14px", textAlign: "center", border: "1px solid rgba(0,0,0,0.07)" }}>
@@ -257,7 +422,7 @@ function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () =>
           {pkg.addons.length > 0 && (
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontWeight: 700, color: "var(--dark)", marginBottom: 10, fontSize: 14, borderBottom: "1px solid rgba(0,0,0,0.08)", paddingBottom: 6 }}>
-                Optional Add-ons
+                {px.optionalAddons}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {pkg.addons.map(a => (
@@ -279,10 +444,10 @@ function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () =>
 
           {/* CTA */}
           <Link
-            href={pkg.id === "realtor-mls-leasing" ? "/contact" : "/contact"}
+            href="/contact"
             style={{ display: "block", background: "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 700, fontSize: 14, textAlign: "center", marginTop: 8 }}
           >
-            {pkg.id === "az-private-leasing" ? "Contact for more details →" : "Contact for more details→"}
+            {px.contactForDetails}
           </Link>
         </div>
       </div>
@@ -293,7 +458,10 @@ function DetailModal({ pkg, onClose }: { pkg: typeof PACKAGES[0]; onClose: () =>
 /* ─── Main page ────────────────────────────────────────────── */
 
 export default function PricingPage() {
-  const [openPkg, setOpenPkg] = useState<typeof PACKAGES[0] | null>(null);
+  const [openPkg, setOpenPkg] = useState<typeof PACKAGES_EN[0] | null>(null);
+  const { t, lang } = useLanguage();
+  const px = t.pricing;
+  const PACKAGES = lang === 'zh' ? PACKAGES_ZH : PACKAGES_EN;
 
   return (
     <main style={{ minHeight: "100vh", background: "var(--cream)" }}>
@@ -302,14 +470,14 @@ export default function PricingPage() {
       <section style={{ background: "linear-gradient(135deg, var(--dark) 0%, #1a2a4a 100%)", color: "#fff", padding: "clamp(60px,10vw,110px) 24px", textAlign: "center" }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
           <div style={{ display: "inline-block", background: "rgba(196,162,90,0.18)", border: "1px solid rgba(196,162,90,0.35)", color: "var(--accent)", fontSize: 16, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", borderRadius: 20, padding: "5px 16px", marginBottom: 24 }}>
-            Full Refund if Tenant Default 
+            {px.heroBadge}
           </div>
           <h1 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2rem,5vw,3.2rem)", lineHeight: 1.2, marginBottom: 18 }}>
-            Transparent Pricing,{" "}
-            <span style={{ color: "var(--accent)" }}>No Surprises</span>
+            {px.heroTitle}{" "}
+            <span style={{ color: "var(--accent)" }}>{px.heroTitleAccent}</span>
           </h1>
           <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.1rem", lineHeight: 1.7, maxWidth: 540, margin: "0 auto" }}>
-            Pay as you go. Choose the package that fits your needs — from a one-time leasing service to ongoing property management.
+            {px.heroSub}
           </p>
         </div>
       </section>
@@ -396,7 +564,7 @@ export default function PricingPage() {
                         (e.currentTarget as HTMLElement).style.color = "var(--dark)";
                       }}
                     >
-                      Details
+                      {px.details}
                     </button>
                     <Link
                       href={pkg.id === "realtor-mls-leasing" ? "/contact" : "/tenant-placement"}
@@ -412,7 +580,7 @@ export default function PricingPage() {
                         textAlign: "center",
                       }}
                     >
-                      {pkg.id === "az-private-leasing" ? "Order Here →" : "Get Started →"}
+                      {pkg.id === "az-private-leasing" ? px.orderHere : px.getStarted}
                     </Link>
                   </div>
                 </div>
@@ -426,16 +594,16 @@ export default function PricingPage() {
       <section style={{ background: "#fff", padding: "clamp(48px,7vw,80px) 24px", textAlign: "center" }}>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.4rem,3vw,2rem)", color: "var(--dark)", marginBottom: 14 }}>
-            Not sure which package is right for you?
+            {px.faqTitle}
           </h2>
           <p style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 28, fontSize: "1rem" }}>
-            Our team is happy to walk you through the options based on your property type, timeline, and goals. Reach out for a free, no-obligation consultation.
+            {px.faqSub}
           </p>
           <Link
             href="/contact"
             style={{ display: "inline-block", background: "var(--accent)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 36px", fontWeight: 800, fontSize: 15 }}
           >
-            Book a Free Consultation →
+            {px.bookFreeConsultation}
           </Link>
         </div>
       </section>
@@ -443,19 +611,19 @@ export default function PricingPage() {
       {/* ── CTA band ── */}
       <section style={{ background: "var(--accent)", padding: "clamp(50px,7vw,80px) 24px", textAlign: "center", color: "#fff" }}>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.6rem,4vw,2.4rem)", marginBottom: 14 }}>
-          Ready to get started?
+          {px.ctaTitle}
         </h2>
         <p style={{ color: "rgba(255,255,255,0.82)", marginBottom: 32, maxWidth: 480, margin: "0 auto 32px", fontSize: "1.05rem" }}>
-          List your property or sign up for property management — all from your landlord portal.
+          {px.ctaSub}
         </p>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/post-listing" style={{ background: "#fff", color: "var(--accent)", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 800, fontSize: 15 }}>Post a Property</Link>
-          <Link href="/contact" style={{ background: "rgba(255,255,255,0.18)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.4)" }}>Contact Us</Link>
+          <Link href="/post-listing" style={{ background: "#fff", color: "var(--accent)", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 800, fontSize: 15 }}>{px.postProperty}</Link>
+          <Link href="/contact" style={{ background: "rgba(255,255,255,0.18)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.4)" }}>{px.contactUs}</Link>
         </div>
       </section>
 
       {/* ── Detail modal ── */}
-      {openPkg && <DetailModal pkg={openPkg} onClose={() => setOpenPkg(null)} />}
+      {openPkg && <DetailModal pkg={openPkg} onClose={() => setOpenPkg(null)} px={px} />}
     </main>
   );
 }

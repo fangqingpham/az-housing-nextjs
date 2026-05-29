@@ -6,6 +6,7 @@ import PropertyCard from '@/components/listings/PropertyCard'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
 import { useAuth } from '@/hooks/useAuth'
+import { useLanguage } from '@/hooks/useLanguage'
 import { getListings, getSavedIds, toggleSaved, ensureSeedData } from '@/lib/api'
 import { SEED_LISTINGS } from '@/lib/utils'
 import type { Listing } from '@/types'
@@ -25,6 +26,8 @@ export default function BuyPageInner() {
   const [page, setPage] = useState(1)
   const { user } = useAuth()
   const { message, visible, showToast } = useToast()
+  const { t } = useLanguage()
+  const bx = t.buy
 
   useEffect(() => {
     const load = async () => {
@@ -70,10 +73,10 @@ export default function BuyPageInner() {
 
   const handleToggleSave = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
-    if (!user) { showToast('Sign in to save properties.'); return }
+    if (!user) { showToast(bx.signInToSave); return }
     const nowSaved = await toggleSaved(user.id, id)
     setSavedIds(prev => nowSaved ? [...prev, id] : prev.filter(x => x !== id))
-    showToast(nowSaved ? 'Property saved! ♥' : 'Removed from saved.')
+    showToast(nowSaved ? bx.propertySaved : bx.removedFromSaved)
   }
 
   const goTo = (n: number) => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
@@ -92,40 +95,40 @@ export default function BuyPageInner() {
     <>
       <Toast message={message} visible={visible} />
       <div className="container" style={{ paddingTop: '1.5rem', paddingBottom: '3rem' }}>
-        <h1 style={{ marginBottom: '1rem' }}>For Sale</h1>
+        <h1 style={{ marginBottom: '1rem' }}>{bx.title}</h1>
 
         {/* ── Filters ── */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-          <input className="fc" placeholder="City or keyword" value={search} onChange={e => setSearch(e.target.value)} style={{ flex: '1 1 140px', minWidth: 120 }} />
+          <input className="fc" placeholder={bx.cityKeyword} value={search} onChange={e => setSearch(e.target.value)} style={{ flex: '1 1 140px', minWidth: 120 }} />
           <select className="fc" value={ptype} onChange={e => setPtype(e.target.value)} style={{ flex: '1 1 120px', minWidth: 110 }}>
-            <option value="">Any type</option>
+            <option value="">{bx.anyType}</option>
             <option>House</option><option>Condo</option><option>Apartment</option><option>Townhouse</option>
           </select>
           <select className="fc" value={beds} onChange={e => setBeds(e.target.value)} style={{ flex: '1 1 100px', minWidth: 95 }}>
-            <option value="">Any beds</option>
-            <option value="1">1+ bed</option><option value="2">2+ beds</option><option value="3">3+ beds</option>
+            <option value="">{bx.anyBeds}</option>
+            <option value="1">{bx.bed1}</option><option value="2">{bx.bed2}</option><option value="3">{bx.bed3}</option>
           </select>
           <select className="fc" value={price} onChange={e => setPrice(e.target.value)} style={{ flex: '1 1 120px', minWidth: 110 }}>
-            <option value="">Any price</option>
-            <option value="u500">Under $500K</option>
-            <option value="500-1m">$500K – $1M</option>
-            <option value="1m+">$1M+</option>
+            <option value="">{bx.anyPrice}</option>
+            <option value="u500">{bx.under500k}</option>
+            <option value="500-1m">{bx.from500kTo1m}</option>
+            <option value="1m+">{bx.over1m}</option>
           </select>
           <select className="fc" value={sort} onChange={e => setSort(e.target.value)} style={{ flex: '1 1 130px', minWidth: 120 }}>
-            <option value="newest">Newest first</option>
-            <option value="price-asc">Price ↑</option>
-            <option value="price-desc">Price ↓</option>
+            <option value="newest">{bx.newestFirst}</option>
+            <option value="price-asc">{bx.priceAsc}</option>
+            <option value="price-desc">{bx.priceDesc}</option>
           </select>
         </div>
 
         {loading ? (
-          <div className="empty-state"><p>Loading listings…</p></div>
+          <div className="empty-state"><p>{bx.loading}</p></div>
         ) : filtered.length === 0 ? (
-          <div className="empty-state"><p>No properties match your filters.</p></div>
+          <div className="empty-state"><p>{bx.noMatch}</p></div>
         ) : (
           <>
             <p style={{ color: 'var(--mid)', fontSize: 13, marginBottom: 16 }}>
-              {filtered.length} propert{filtered.length !== 1 ? 'ies' : 'y'} · Page {page} of {totalPages}
+              {filtered.length} {filtered.length !== 1 ? bx.properties : bx.property} · Page {page} of {totalPages}
             </p>
 
             {/* Grid — 1 col mobile, 2 col tablet, 3 col desktop */}

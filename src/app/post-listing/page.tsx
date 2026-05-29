@@ -5,11 +5,14 @@ import { useRouter } from 'next/navigation'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
 import { useAuth } from '@/hooks/useAuth'
+import { useLanguage } from '@/hooks/useLanguage'
 import { insertListing, uploadPhoto } from '@/lib/api'
 import { invalidateCache } from '@/hooks/useListings'
 
 export default function PostListingPage() {
   const { user, loading: authLoading } = useAuth()
+  const { t } = useLanguage()
+  const pl = t.postListing
   const router = useRouter()
   const { message, visible, showToast } = useToast()
 
@@ -59,8 +62,8 @@ export default function PostListingPage() {
     }
     setUploadedPhotos(prev => [...prev, ...urls])
     setUploading(false)
-    if (errors > 0) showToast(`⚠️ ${errors} photo(s) failed. Check Storage bucket exists.`)
-    else if (urls.length > 0) showToast(`${urls.length} photo(s) uploaded! ✓`)
+    if (errors > 0) showToast(`⚠️ ${errors} ${pl.photoFailed}`)
+    else if (urls.length > 0) showToast(`${urls.length} ${pl.photosUploaded} ✓`)
   }
 
   const removePhoto = (i: number) => {
@@ -69,9 +72,9 @@ export default function PostListingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) { showToast('Please log in before publishing.'); return }
+    if (!user) { showToast(pl.loginFirst); return }
     if (!title || !price || !addr || !city) {
-      setAlertMsg('Please fill in all required fields (Title, Price, Address, City).')
+      setAlertMsg(pl.fillRequired)
       return
     }
     setAlertMsg('')
@@ -103,18 +106,18 @@ export default function PostListingPage() {
     try {
       const result = await insertListing(listing as any)
       setSubmitting(false)
-      if (!result) { showToast('Error publishing. Please try again.'); return }
+      if (!result) { showToast(pl.publishError); return }
       invalidateCache()
-      showToast('Your listing is live! 🎉')
+      showToast(pl.listingLive + ' 🎉')
       setTimeout(() => { router.push(listingType === 'For Rent' ? '/rent' : '/buy') }, 1200)
     } catch (error) {
       console.error('Publish listing failed:', error)
       setSubmitting(false)
-      showToast('Error publishing. Please try again.')
+      showToast(pl.publishError)
     }
   }
 
-  if (authLoading) return <div className="empty-state" style={{ padding: '4rem' }}><p>Loading…</p></div>
+  if (authLoading) return <div className="empty-state" style={{ padding: '4rem' }}><p>{pl.publishing}</p></div>
   if (!user) return null
 
   return (
@@ -122,36 +125,36 @@ export default function PostListingPage() {
       <Toast message={message} visible={visible} />
 
       <div className="pl-wrap">
-        <h2>Post a Listing</h2>
+        <h2>{pl.title}</h2>
         <p style={{ color: 'var(--mid)', fontSize: '14px', marginBottom: '2rem' }}>
-          Your listing goes live immediately after submission.
+          {pl.subtitle}
         </p>
 
         {alertMsg && <div className="alert alert-e">{alertMsg}</div>}
 
         <form onSubmit={handleSubmit}>
           {/* ── Listing Type ── */}
-          <span className="fsec">Listing Type</span>
+          <span className="fsec">{pl.listingType}</span>
           <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1.5rem' }}>
-            <button type="button" className={`btn${listingType === 'For Sale' ? ' btn-primary' : ''}`} onClick={() => setListingType('For Sale')}>For Sale</button>
-            <button type="button" className={`btn${listingType === 'For Rent' ? ' btn-primary' : ''}`} onClick={() => setListingType('For Rent')}>For Rent</button>
+            <button type="button" className={`btn${listingType === 'For Sale' ? ' btn-primary' : ''}`} onClick={() => setListingType('For Sale')}>{pl.forSale}</button>
+            <button type="button" className={`btn${listingType === 'For Rent' ? ' btn-primary' : ''}`} onClick={() => setListingType('For Rent')}>{pl.forRent}</button>
           </div>
 
           {/* ── Basic Information ── */}
-          <span className="fsec">Basic Information</span>
+          <span className="fsec">{pl.basicInfo}</span>
 
           <div className="fg">
-            <label>Listing Title *</label>
-            <input className="fc" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Charming Detached in Rosedale" required />
+            <label>{pl.listingTitle} *</label>
+            <input className="fc" value={title} onChange={e => setTitle(e.target.value)} placeholder={pl.listingTitlePlaceholder} required />
           </div>
 
           <div className="fr">
             <div className="fg">
-              <label>Price *</label>
+              <label>{pl.price} *</label>
               <input className="fc" value={price} onChange={e => setPrice(e.target.value)} placeholder={listingType === 'For Rent' ? '$2,500/mo' : '$850,000'} required />
             </div>
             <div className="fg">
-              <label>Property Type</label>
+              <label>{pl.propertyType}</label>
               <select className="fc" value={ptype} onChange={e => setPtype(e.target.value)}>
                 <option>House</option><option>Condo</option><option>Townhouse</option><option>Apartment</option>
               </select>
@@ -160,41 +163,41 @@ export default function PostListingPage() {
 
           <div className="fr">
             <div className="fg">
-              <label>Bedrooms</label>
+              <label>{pl.bedrooms}</label>
               <input className="fc" type="number" min="0" value={beds} onChange={e => setBeds(e.target.value)} placeholder="e.g. 3" />
             </div>
             <div className="fg">
-              <label>Bathrooms</label>
+              <label>{pl.bathrooms}</label>
               <input className="fc" type="number" min="0" value={baths} onChange={e => setBaths(e.target.value)} placeholder="e.g. 2" />
             </div>
           </div>
 
           <div className="fr">
             <div className="fg">
-              <label>Square Footage</label>
+              <label>{pl.sqft}</label>
               <input className="fc" type="number" min="0" value={sqft} onChange={e => setSqft(e.target.value)} placeholder="e.g. 1200" />
             </div>
             <div className="fg">
-              <label>Garage Spaces</label>
+              <label>{pl.garage}</label>
               <input className="fc" type="number" min="0" value={garage} onChange={e => setGarage(e.target.value)} placeholder="e.g. 1" />
             </div>
           </div>
 
           {/* ── Address ── */}
-          <span className="fsec">Address</span>
+          <span className="fsec">{pl.address}</span>
 
           <div className="fg">
-            <label>Street Address *</label>
+            <label>{pl.streetAddress} *</label>
             <input className="fc" value={addr} onChange={e => setAddr(e.target.value)} placeholder="123 Main St" required />
           </div>
 
           <div className="fr">
             <div className="fg">
-              <label>City *</label>
+              <label>{pl.city} *</label>
               <input className="fc" value={city} onChange={e => setCity(e.target.value)} placeholder="Toronto" required />
             </div>
             <div className="fg">
-              <label>Province</label>
+              <label>{pl.province}</label>
               <select className="fc" value={province} onChange={e => setProvince(e.target.value)}>
                 {['AB','BC','MB','NB','NL','NS','NT','NU','ON','PE','QC','SK','YT'].map(p => <option key={p}>{p}</option>)}
               </select>
@@ -202,25 +205,25 @@ export default function PostListingPage() {
           </div>
 
           <div className="fg">
-            <label>Postal Code</label>
+            <label>{pl.postalCode}</label>
             <input className="fc" value={postal} onChange={e => setPostal(e.target.value)} placeholder="M4W 1T3" style={{ maxWidth: 160 }} />
           </div>
 
           {/* ── Description ── */}
-          <span className="fsec">Description</span>
+          <span className="fsec">{pl.descriptionLabel}</span>
 
           <div className="fg">
-            <label>Description</label>
-            <textarea className="fc" value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe the property…" style={{ minHeight: 120 }} />
+            <label>{pl.descriptionLabel}</label>
+            <textarea className="fc" value={description} onChange={e => setDescription(e.target.value)} placeholder={pl.descriptionPlaceholder} style={{ minHeight: 120 }} />
           </div>
 
           {/* ── Property Detail Link ── */}
-          <span className="fsec">Property Detail Link</span>
+          <span className="fsec">{pl.detailLink}</span>
 
           <div className="fg">
             <label>
-              Link URL&nbsp;
-              <span style={{ fontWeight: 400, color: 'var(--mid)', fontSize: 13 }}>(optional)</span>
+              {pl.linkUrl}&nbsp;
+              <span style={{ fontWeight: 400, color: 'var(--mid)', fontSize: 13 }}>({pl.linkOptional})</span>
             </label>
             <input
               className="fc"
@@ -230,17 +233,17 @@ export default function PostListingPage() {
               placeholder="https://example.com/property-details"
             />
             <p style={{ fontSize: 12, color: 'var(--mid)', marginTop: 6 }}>
-              If filled, a <strong>"Click here for more detail about the property"</strong> link will appear on your listing page and open this URL.
+              {pl.linkHint}
             </p>
           </div>
 
           {/* ── Photos ── */}
-          <span className="fsec">Photos</span>
+          <span className="fsec">{pl.photos}</span>
 
           <label className="upload-area" style={{ display: 'block', cursor: 'pointer' }}>
             <div style={{ fontSize: '28px', marginBottom: '8px' }}>📷</div>
-            <div style={{ fontWeight: 500, marginBottom: '4px' }}>{uploading ? 'Uploading…' : 'Click to upload photos'}</div>
-            <div style={{ fontSize: '12px', color: 'var(--mid)' }}>JPG, PNG or WEBP — up to 10 photos</div>
+            <div style={{ fontWeight: 500, marginBottom: '4px' }}>{uploading ? pl.uploading : pl.clickToUpload}</div>
+            <div style={{ fontSize: '12px', color: 'var(--mid)' }}>{pl.photoHint}</div>
             <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotos} disabled={uploading} />
           </label>
 
@@ -259,21 +262,21 @@ export default function PostListingPage() {
           )}
 
           {/* ── Contact Information ── */}
-          <span className="fsec">Contact Information</span>
+          <span className="fsec">{pl.contactInfo}</span>
 
           <div className="fr">
             <div className="fg">
-              <label>Agent / Seller Name</label>
+              <label>{pl.agentName}</label>
               <input className="fc" value={agentName} onChange={e => setAgentName(e.target.value)} />
             </div>
             <div className="fg">
-              <label>Contact Email</label>
+              <label>{pl.contactEmail}</label>
               <input className="fc" type="email" value={agentEmail} onChange={e => setAgentEmail(e.target.value)} />
             </div>
           </div>
 
           <div className="fg">
-            <label>Contact Phone Number</label>
+            <label>{pl.contactPhone}</label>
             <input
               className="fc"
               type="tel"
@@ -285,7 +288,7 @@ export default function PostListingPage() {
           </div>
 
           <button type="submit" className="btn btn-accent btn-full btn-lg" disabled={submitting || uploading} style={{ marginTop: '1rem' }}>
-            {submitting ? 'Publishing…' : '🚀 Publish Listing'}
+            {submitting ? pl.publishing : `🚀 ${pl.publishListing}`}
           </button>
         </form>
       </div>

@@ -7,6 +7,7 @@ import PropertyCard from '@/components/listings/PropertyCard'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
 import { useAuth } from '@/hooks/useAuth'
+import { useLanguage } from '@/hooks/useLanguage'
 import { getListings, getSavedIds, toggleSaved, ensureSeedData } from '@/lib/api'
 import { SEED_LISTINGS } from '@/lib/utils'
 import type { Listing } from '@/types'
@@ -25,6 +26,9 @@ function RentPageContent() {
   const [page, setPage] = useState(1)
   const { user } = useAuth()
   const { message, visible, showToast } = useToast()
+  const { t } = useLanguage()
+  const rx = t.rent
+  const bx = t.buy
 
   useEffect(() => {
     const load = async () => {
@@ -67,10 +71,10 @@ function RentPageContent() {
 
   const handleToggleSave = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
-    if (!user) { showToast('Sign in to save properties.'); return }
+    if (!user) { showToast(bx.signInToSave); return }
     const nowSaved = await toggleSaved(user.id, id)
     setSavedIds(prev => nowSaved ? [...prev, id] : prev.filter(x => x !== id))
-    showToast(nowSaved ? 'Property saved! ♥' : 'Removed from saved.')
+    showToast(nowSaved ? bx.propertySaved : bx.removedFromSaved)
   }
 
   const goTo = (n: number) => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
@@ -88,35 +92,35 @@ function RentPageContent() {
     <>
       <Toast message={message} visible={visible} />
       <div className="container" style={{ paddingTop: '1.5rem', paddingBottom: '3rem' }}>
-        <h1 style={{ marginBottom: '1rem' }}>For Rent</h1>
+        <h1 style={{ marginBottom: '1rem' }}>{rx.title}</h1>
 
         {/* ── Filters ── */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-          <input className="fc" placeholder="City or keyword" value={search} onChange={e => setSearch(e.target.value)} style={{ flex: '1 1 140px', minWidth: 120 }} />
+          <input className="fc" placeholder={rx.cityKeyword} value={search} onChange={e => setSearch(e.target.value)} style={{ flex: '1 1 140px', minWidth: 120 }} />
           <select className="fc" value={ptype} onChange={e => setPtype(e.target.value)} style={{ flex: '1 1 120px', minWidth: 110 }}>
-            <option value="">Any type</option>
+            <option value="">{rx.anyType}</option>
             <option>House</option><option>Condo</option><option>Apartment</option><option>Townhouse</option>
           </select>
           <select className="fc" value={beds} onChange={e => setBeds(e.target.value)} style={{ flex: '1 1 100px', minWidth: 95 }}>
-            <option value="">Any beds</option>
-            <option value="1">1+ bed</option><option value="2">2+ beds</option><option value="3">3+ beds</option>
+            <option value="">{rx.anyBeds}</option>
+            <option value="1">{rx.bed1}</option><option value="2">{rx.bed2}</option><option value="3">{rx.bed3}</option>
           </select>
           <select className="fc" value={price} onChange={e => setPrice(e.target.value)} style={{ flex: '1 1 120px', minWidth: 110 }}>
-            <option value="">Any price</option>
-            <option value="u1500">Under $1,500</option>
-            <option value="1500-2500">$1,500 – $2,500</option>
-            <option value="2500+">$2,500+</option>
+            <option value="">{rx.anyPrice}</option>
+            <option value="u1500">{rx.under1500}</option>
+            <option value="1500-2500">{rx.from1500to2500}</option>
+            <option value="2500+">{rx.over2500}</option>
           </select>
         </div>
 
         {loading ? (
-          <p>Loading…</p>
+          <p>{rx.loading}</p>
         ) : filtered.length === 0 ? (
-          <p style={{ color: 'var(--mid)' }}>No rentals match your search.</p>
+          <p style={{ color: 'var(--mid)' }}>{rx.noMatch}</p>
         ) : (
           <>
             <p style={{ color: 'var(--mid)', fontSize: 13, marginBottom: 16 }}>
-              {filtered.length} rental{filtered.length !== 1 ? 's' : ''} · Page {page} of {totalPages}
+              {filtered.length} {filtered.length !== 1 ? rx.rentals : rx.rental} · {rx.page} {page} {rx.of} {totalPages}
             </p>
 
             {/* Grid — 1 col mobile, 2 col tablet, 3 col desktop */}
