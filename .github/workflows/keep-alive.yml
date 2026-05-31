@@ -1,0 +1,28 @@
+name: Supabase Keep-Alive
+
+# Pings the "My-CRM" Supabase project on a schedule so it does not get
+# paused for inactivity. (Supabase free tier pauses a project after
+# 7 days with no database activity.) Runs every 3 days for a safe buffer.
+
+on:
+  schedule:
+    - cron: '0 6 */3 * *'   # every 3 days at 06:00 UTC
+  workflow_dispatch: {}       # allows manual runs from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          echo "Pinging Supabase project My-CRM..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://zzeyyxoahdosgahqjjgh.supabase.co/rest/v1/keep_alive?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          echo "Response code: $HTTP_CODE"
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "Ping failed (expected 200, got $HTTP_CODE)"
+            exit 1
+          fi
+          echo "Ping successful — project activity registered."
