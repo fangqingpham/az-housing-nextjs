@@ -43,12 +43,7 @@ export default function VideoHero({ heroText, heroSub }: VideoHeroProps) {
           {sub}
         </p>
 
-        <div style={{ background: 'rgba(255,255,255,0.97)', borderRadius: 14, padding: '6px 8px', display: 'flex', alignItems: 'center', width: '100%', maxWidth: 680, boxShadow: '0 8px 40px rgba(0,0,0,0.28)', boxSizing: 'border-box' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <SearchBar mode={mode} onModeChange={setMode} />
-          </div>
-        </div>
-
+        
         {/* Chips */}
         <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap', maxWidth: 680 }}>
           {h.chips.map(f => (

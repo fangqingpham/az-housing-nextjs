@@ -64,6 +64,7 @@ const PACKAGES_EN = [
       },
     ],
     addons: [
+      { name: "MLS listing by Realtor (Listing only)", price: "$199" },
       { name: "Professional photography", price: "$149" },
       { name: "In-person showing - face-to-face screening for suitability assessment (max 5 times)", price: "$399/GTA only" },
       { name: "Key handover and move-in orientation", price: "$75" },
@@ -228,6 +229,7 @@ const PACKAGES_ZH = [
       },
     ],
     addons: [
+      { name: "经纪人MLS挂牌（仅挂牌）", price: "$199" },
       { name: "专业摄影", price: "$149" },
       { name: "现场看房——面对面适合性评估（最多5次，仅限GTA）", price: "$399" },
       { name: "交钥匙和入住说明", price: "$75" },

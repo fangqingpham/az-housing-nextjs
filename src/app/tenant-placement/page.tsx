@@ -80,6 +80,7 @@ export default function TenantPlacementApplicationPage() {
 
   const [form, setForm] = useState<FormData>(initialForm);
   const [privateLeasing, setPrivateLeasing] = useState(true);
+  const [mlsListing, setMlsListing] = useState(false);
   const [photography, setPhotography] = useState(false);
   const [showings, setShowings] = useState(false);
   const [keyHandover, setKeyHandover] = useState(false);
@@ -106,6 +107,7 @@ export default function TenantPlacementApplicationPage() {
       managementPlan === "yearly" ? 1200 : 0;
     return (
       (privateLeasing ? 995 : 0) +
+      (mlsListing ? 199 : 0) +
       (photography ? 149 : 0) +
       (showings ? 399 : 0) +
       (keyHandover ? 75 : 0) +
@@ -114,10 +116,11 @@ export default function TenantPlacementApplicationPage() {
       management +
       urgentInspections * 149
     );
-  }, [privateLeasing, photography, showings, keyHandover, moveInInspection, extraApplicants, managementPlan, urgentInspections]);
+  }, [privateLeasing, mlsListing, photography, showings, keyHandover, moveInInspection, extraApplicants, managementPlan, urgentInspections]);
 
   const selectedServices = useMemo(() => [
     privateLeasing    ? `A-Z Private Leasing Package - ${money(995)}` : null,
+    mlsListing        ? `MLS Listing by Realtor (Listing only) - ${money(199)}` : null,
     photography       ? `Professional Photography - ${money(149)}` : null,
     showings          ? `In-Person Showings, max 5 - ${money(399)}` : null,
     keyHandover       ? `Key Handover and Move-In Orientation - ${money(75)}` : null,
@@ -127,7 +130,7 @@ export default function TenantPlacementApplicationPage() {
     managementPlan === "halfYear"  ? `Property Management: Half-Year Subscription - ${money(600)}` : null,
     managementPlan === "yearly"    ? `Property Management: Yearly Subscription - ${money(1200)}` : null,
     urgentInspections > 0 ? `Urgent / Same-Day Inspection x ${urgentInspections} - ${money(urgentInspections * 149)}` : null,
-  ].filter(Boolean) as string[], [privateLeasing, photography, showings, keyHandover, moveInInspection, extraApplicants, managementPlan, urgentInspections]);
+  ].filter(Boolean) as string[], [privateLeasing, mlsListing, photography, showings, keyHandover, moveInInspection, extraApplicants, managementPlan, urgentInspections]);
 
   const update = (field: keyof FormData, value: string | boolean) =>
     setForm(prev => ({ ...prev, [field]: value }));
@@ -284,6 +287,8 @@ export default function TenantPlacementApplicationPage() {
     refundStar: "**",
     refundNote: "** 条件适用：如 A-Z 批准的租户在租约开始日期起90个日历天内的45个或更多连续日历天内持续拖欠租金，客户可能有资格获得 A-Z 私人租赁套餐的全额退款。详情请联系租赁代理人。",
     section4: "4. 可选附加服务",
+    mlsListing: "MLS 房源发布（由 Realtor 发布，仅发布）",
+    mlsListingPrice: "$199",
     photography: "专业摄影",
     photographyPrice: "$149",
     showings: "面对面看房 — 最多5次，仅限大多伦多地区",
@@ -359,6 +364,8 @@ export default function TenantPlacementApplicationPage() {
     refundStar: "**",
     refundNote: "** Conditions apply: if an A-Z-approved tenant remains in rent default for 45 or more consecutive calendar days within the first 90 calendar days of the lease start date, the Client may be eligible for a full refund of the A-Z Private Leasing Package. For more details, please contact Leasing Agent.",
     section4: "4. Optional Add-On Services",
+    mlsListing: "MLS Listing by Realtor (Listing only)",
+    mlsListingPrice: "$199",
     photography: "Professional Photography",
     photographyPrice: "$149",
     showings: "In-Person Showings — Maximum 5 Showings, GTA only",
@@ -454,6 +461,7 @@ export default function TenantPlacementApplicationPage() {
             </Card>
 
             <Card title={L.section4}>
+              <ServiceCheck checked={mlsListing}      onChange={setMlsListing}     title={L.mlsListing}    price={L.mlsListingPrice} />
               <ServiceCheck checked={photography}      onChange={setPhotography}     title={L.photography}    price={L.photographyPrice} />
               <ServiceCheck checked={showings}         onChange={setShowings}        title={L.showings}       price={L.showingsPrice}     note={L.showingsNote} />
               <ServiceCheck checked={keyHandover}      onChange={setKeyHandover}     title={L.keyHandover}    price={L.keyHandoverPrice} />

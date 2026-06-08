@@ -22,8 +22,7 @@ export default function Footer() {
     },
     {
       heading: f.listings2,
-      links: [
-        { label: f.searchProperties, href: '/map-search' },
+      links: [        
         { label: f.forSale, href: '/buy' },
         { label: f.forRent, href: '/rent' },
         { label: f.postProperty, href: '/post-listing' },
