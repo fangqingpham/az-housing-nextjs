@@ -87,15 +87,6 @@ export default function HomePage() {
       <Toast message={message} visible={visible} />
 
       <VideoHero heroText={heroText || undefined} heroSub={heroSub || undefined} />
-
-      {/* CTA Banner */}
-      <div style={{ background: 'var(--dark)', color: 'white', padding: '2.5rem 1.5rem', textAlign: 'center' }}>
-        <p style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(18px,3vw,26px)', fontWeight: 500, marginBottom: '1rem' }}>
-          {h.ctaBanner}
-        </p>
-        <Link href="/post-listing" className="btn-accent">{h.postListing}</Link>
-      </div>
-
       {/* Services section */}
       <section style={{ background: '#f7f4ef', padding: 'clamp(48px,7vw,88px) 24px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
