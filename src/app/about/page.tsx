@@ -10,6 +10,11 @@ const TEAM = [
   { name: "Yuan Zhou",    role: "Head of Buyer/Seller Support", initial: "YZ", bg: "#9b59b6",       bio: "Licensed # 5049011. Licensed real estate salesperson in Ontario and has many years experience home buying, selling, renting, as well as investment strategy." },
 ];
 
+const REFERRAL_PARTNERS = [
+  { name: "Barrington Lue Sang", role: "Paralegal · Global Legal Services", initial: "BL", bg: "#e67e22", bio: "Our Toronto paralegals work hard to support our clients no matter the situation at hand, including Small Claims & Debt Recovery, Landlord & Tenant Disputes, Property Management, Assets & Lien." },
+  { name: "Suping Situ (Emily)", role: "Paralegal · Situ Legal Services", initial: "SS", bg: "#16a085", bio: "We assist both landlords & tenants before the LTB, including rent disputes, evictions, maintenance issues, and lease violations. Our goal is to protect your rights, resolve conflicts fairly, and guide you through the process with clear advice and effective advocacy." },
+];
+
 export default function AboutPage() {
   const { t } = useLanguage();
   const a = t.about;
@@ -34,7 +39,7 @@ export default function AboutPage() {
               {a.heroP2}
             </p>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <Link href="/map-search" style={{ background: "var(--accent)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 700, fontSize: 15 }}>{a.browseListings}</Link>
+              <Link href="/buy" style={{ background: "var(--accent)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 700, fontSize: 15 }}>{a.browseListings}</Link>
               <Link href="/contact"    style={{ background: "rgba(255,255,255,0.12)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.25)" }}>{a.getInTouch}</Link>
             </div>
           </div>
@@ -63,7 +68,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section style={{ padding: "clamp(60px,8vw,90px) 24px" }}>
+      <section style={{ padding: "clamp(60px,8vw,90px) 24px clamp(24px,4vw,40px)" }}>
         <div style={{ maxWidth: 1060, margin: "0 auto" }}>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.4rem)", color: "var(--dark)", marginBottom: 40, textAlign: "center" }}>{a.whatWeStandFor}</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 24 }}>
@@ -79,12 +84,29 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section style={{ padding: "clamp(60px,8vw,90px) 24px" }}>
+      <section style={{ padding: "clamp(24px,4vw,40px) 24px clamp(24px,4vw,40px)" }}>
         <div style={{ maxWidth: 1060, margin: "0 auto" }}>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.4rem)", color: "var(--dark)", marginBottom: 40, textAlign: "center" }}>{a.meetTheTeam}</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 24 }}>
             {TEAM.map(m => (
               <div key={m.name} style={{ background: "#fff", borderRadius: 14, padding: "28px 22px", boxShadow: "0 2px 14px rgba(0,0,0,0.07)", textAlign: "center" }}>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: m.bg, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 22, margin: "0 auto 16px" }}>{m.initial}</div>
+                <div style={{ fontWeight: 700, color: "var(--dark)", fontSize: 16, marginBottom: 4 }}>{m.name}</div>
+                <div style={{ color: m.bg, fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{m.role}</div>
+                <p style={{ color: "var(--mid)", fontSize: 13, lineHeight: 1.65 }}>{m.bio}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Referral Partners */}
+      <section style={{ padding: "clamp(24px,4vw,40px) 24px clamp(60px,8vw,90px)" }}>
+        <div style={{ maxWidth: 1060, margin: "0 auto" }}>
+          <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.4rem)", color: "var(--dark)", marginBottom: 40, textAlign: "center" }}>{a.referralPartners}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,280px))", gap: 24, justifyContent: "center" }}>
+            {REFERRAL_PARTNERS.map(m => (
+              <div key={m.name + m.role} style={{ background: "#fff", borderRadius: 14, padding: "28px 22px", boxShadow: "0 2px 14px rgba(0,0,0,0.07)", textAlign: "center" }}>
                 <div style={{ width: 64, height: 64, borderRadius: "50%", background: m.bg, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 22, margin: "0 auto 16px" }}>{m.initial}</div>
                 <div style={{ fontWeight: 700, color: "var(--dark)", fontSize: 16, marginBottom: 4 }}>{m.name}</div>
                 <div style={{ color: m.bg, fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{m.role}</div>

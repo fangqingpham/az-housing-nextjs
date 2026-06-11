@@ -69,7 +69,6 @@ export default function TenantsServicesPage() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            <Link href="/map-search" style={{ background: "#4a90d9", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 700, fontSize: 15 }}>{ts.searchOnMap}</Link>
             <Link href="/rent" style={{ background: "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 600, fontSize: 15 }}>{ts.browseRentals}</Link>
             <Link href="/buy" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(0,0,0,0.12)" }}>{ts.browseForSale}</Link>
           </div>
@@ -102,7 +101,7 @@ export default function TenantsServicesPage() {
             <p style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 24 }}>{ts.contactLandlordsP2}</p>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
               <Link href="/auth/register" style={{ background: "#4a90d9", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 26px", fontWeight: 700, fontSize: 14 }}>{ts.createFreeAccount}</Link>
-              <Link href="/map-search" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "12px 26px", fontWeight: 600, fontSize: 14, border: "1px solid rgba(0,0,0,0.12)" }}>{ts.browseListings}</Link>
+              <Link href="/rent" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "12px 26px", fontWeight: 600, fontSize: 14, border: "1px solid rgba(0,0,0,0.12)" }}>{ts.browseListings}</Link>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -123,7 +122,7 @@ export default function TenantsServicesPage() {
       <section style={{ background: "#4a90d9", padding: "clamp(50px,7vw,80px) 24px", textAlign: "center", color: "#fff" }}>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.6rem,4vw,2.4rem)", marginBottom: 14 }}>{ts.ctaTitle}</h2>
         <p style={{ color: "rgba(255,255,255,0.8)", marginBottom: 32, maxWidth: 500, margin: "0 auto 32px" }}>{ts.ctaSub}</p>
-        <Link href="/map-search" style={{ background: "#fff", color: "#4a90d9", textDecoration: "none", borderRadius: 10, padding: "14px 36px", fontWeight: 800, fontSize: 16 }}>{ts.startSearching}</Link>
+        <Link href="/rent" style={{ background: "#fff", color: "#4a90d9", textDecoration: "none", borderRadius: 10, padding: "14px 36px", fontWeight: 800, fontSize: 16 }}>{ts.startSearching}</Link>
       </section>
     </main>
   );
