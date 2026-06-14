@@ -123,7 +123,7 @@ export default function AboutPage() {
         <p style={{ color: "rgba(255,255,255,0.7)", marginBottom: 32, maxWidth: 460, margin: "0 auto 32px" }}>{a.readyBody}</p>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/auth/register" style={{ background: "var(--accent)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 800, fontSize: 15 }}>{a.createAccount}</Link>
-          <Link href="/contact"       style={{ background: "rgba(255,255,255,0.1)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.25)" }}>{a.contactTeam}</Link>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLScbR3z_9dq8vAc1bOPopZ_QL2FiKYcxKy1ofD4claOzpsPLyw/viewform?usp=header" target="_blank" rel="noopener noreferrer" style={{ background: "rgba(255,255,255,0.1)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.25)" }}>Join Our Team</a>
         </div>
       </section>
     </main>
