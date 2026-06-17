@@ -22,12 +22,17 @@ export const metadata: Metadata = {
     'real estate Canada',
     'homes for sale Canada',
     'rental properties Canada',
-    'property management',
-    'tenant placement',
+    'property management Canada',
+    'tenant placement Canada',
     'buy home Canada',
     'rent home Canada',
     'mortgage agent Canada',
     'real estate agent Toronto',
+    'homes for sale Ontario',
+    'rental properties Ontario',
+    'landlord services Canada',
+    'property management Toronto',
+    'A-Z Housing Solutions',
   ],
   authors: [{ name: 'A-Z Housing Solutions' }],
   creator: 'A-Z Housing Solutions',
@@ -79,25 +84,36 @@ const jsonLd = {
   name: 'A-Z Housing Solutions',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
+  image: `${SITE_URL}/og-image.jpg`,
   description:
     'Full-service real estate company offering home buying, selling, rentals, tenant placement, and property management across Canada.',
-  areaServed: {
-    '@type': 'Country',
-    name: 'Canada',
+  telephone: '+1-647-948-4428',
+  email: 'info@azhouse.ca',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Toronto',
+    addressRegion: 'Ontario',
+    addressCountry: 'CA',
   },
+  areaServed: [
+    { '@type': 'Country', name: 'Canada' },
+    { '@type': 'State', name: 'Ontario' },
+    { '@type': 'City', name: 'Toronto' },
+  ],
+  priceRange: '$$',
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
     name: 'Real Estate Services',
     itemListElement: [
-      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Rental & Tenant Placement' } },
-      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Property Management' } },
-      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Home Buying' } },
-      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Home Selling' } },
-      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Mortgage Application' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Rental & Tenant Placement', url: `${SITE_URL}/tenant-placement` } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Property Management', url: `${SITE_URL}/services/landlords` } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Home Buying', url: `${SITE_URL}/buy` } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Home Selling', url: `${SITE_URL}/services/buyers-sellers` } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Mortgage Consultation', url: `${SITE_URL}/services/pricing` } },
     ],
   },
   sameAs: [],
-}
+}	
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

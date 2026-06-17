@@ -282,15 +282,32 @@ function CaseForm({
       </div>
 
       {/* 5. Related Parties */}
-      <div style={SEC_HEAD}>Related Parties</div>
+      <div style={SEC_HEAD}>
+        Related Parties
+        {!isAdmin && <span style={{ fontSize: 10, fontWeight: 600, color: '#a8a8a4', textTransform: 'none', letterSpacing: 0, marginLeft: 6 }}>(view only)</span>}
+      </div>
       <Row2>
-        <Field label="Related Landlord"><input style={FC} value={data.related_landlord || ''} onChange={f('related_landlord')} /></Field>
-        <Field label="Related Tenant"><input style={FC} value={data.related_tenant || ''} onChange={f('related_tenant')} /></Field>
-        <Field label="Related Buyer"><input style={FC} value={data.related_buyer || ''} onChange={f('related_buyer')} /></Field>
-        <Field label="Related Seller"><input style={FC} value={data.related_seller || ''} onChange={f('related_seller')} /></Field>
-        <Field label="Related Realtor"><input style={FC} value={data.related_realtor || ''} onChange={f('related_realtor')} /></Field>
-        <Field label="Related Mortgage Agent"><input style={FC} value={data.related_mortgage_agent || ''} onChange={f('related_mortgage_agent')} /></Field>
-        <Field label="Related Paralegal"><input style={FC} value={data.related_paralegal || ''} onChange={f('related_paralegal')} /></Field>
+        {isAdmin ? (
+          <>
+            <Field label="Related Landlord"><input style={FC} value={data.related_landlord || ''} onChange={f('related_landlord')} /></Field>
+            <Field label="Related Tenant"><input style={FC} value={data.related_tenant || ''} onChange={f('related_tenant')} /></Field>
+            <Field label="Related Buyer"><input style={FC} value={data.related_buyer || ''} onChange={f('related_buyer')} /></Field>
+            <Field label="Related Seller"><input style={FC} value={data.related_seller || ''} onChange={f('related_seller')} /></Field>
+            <Field label="Related Realtor"><input style={FC} value={data.related_realtor || ''} onChange={f('related_realtor')} /></Field>
+            <Field label="Related Mortgage Agent"><input style={FC} value={data.related_mortgage_agent || ''} onChange={f('related_mortgage_agent')} /></Field>
+            <Field label="Related Paralegal"><input style={FC} value={data.related_paralegal || ''} onChange={f('related_paralegal')} /></Field>
+          </>
+        ) : (
+          <>
+            <Field label="Related Landlord"><div style={{ ...FC, background: '#f7f4ef', color: '#6b6b67' }}>{data.related_landlord || '—'}</div></Field>
+            <Field label="Related Tenant"><div style={{ ...FC, background: '#f7f4ef', color: '#6b6b67' }}>{data.related_tenant || '—'}</div></Field>
+            <Field label="Related Buyer"><div style={{ ...FC, background: '#f7f4ef', color: '#6b6b67' }}>{data.related_buyer || '—'}</div></Field>
+            <Field label="Related Seller"><div style={{ ...FC, background: '#f7f4ef', color: '#6b6b67' }}>{data.related_seller || '—'}</div></Field>
+            <Field label="Related Realtor"><div style={{ ...FC, background: '#f7f4ef', color: '#6b6b67' }}>{data.related_realtor || '—'}</div></Field>
+            <Field label="Related Mortgage Agent"><div style={{ ...FC, background: '#f7f4ef', color: '#6b6b67' }}>{data.related_mortgage_agent || '—'}</div></Field>
+            <Field label="Related Paralegal"><div style={{ ...FC, background: '#f7f4ef', color: '#6b6b67' }}>{data.related_paralegal || '—'}</div></Field>
+          </>
+        )}
       </Row2>
     </div>
   )
@@ -528,7 +545,7 @@ function CaseModal({
     }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{
         background: '#f7f4ef', borderRadius: 20, width: '100%', maxWidth: 820,
-        boxShadow: '0 24px 80px rgba(0,0,0,0.28)', overflow: 'hidden',
+        boxShadow: '0 24px 80px rgba(0,0,0,0.28)',
         marginTop: 20, marginBottom: 20,
       }}>
         {toast && (
@@ -737,7 +754,7 @@ function CreateModal({ agents, isAdmin, onClose, onCreate }: {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 200, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 20, overflowY: 'auto' }}
       onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{ background: '#f7f4ef', borderRadius: 20, width: '100%', maxWidth: 820, boxShadow: '0 24px 80px rgba(0,0,0,0.28)', overflow: 'hidden', marginTop: 20, marginBottom: 20 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#f7f4ef', borderRadius: 20, width: '100%', maxWidth: 820, boxShadow: '0 24px 80px rgba(0,0,0,0.28)', marginTop: 20, marginBottom: 20 }}>
         <div style={{ background: 'linear-gradient(135deg, #0c1525, #1a2a4a)', padding: '22px 28px', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10 }}>
           <div>
             <h2 style={{ fontFamily: 'Georgia,serif', fontSize: '1.35rem', margin: '0 0 4px' }}>Create New Case</h2>

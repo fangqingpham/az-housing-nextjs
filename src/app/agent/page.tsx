@@ -39,6 +39,10 @@ type ClientCase = {
   rent_amount: number | null; start_date: string | null; end_date: string | null
   last_contacted_date: string | null; checklist: Record<string, boolean>
   created_at: string; updated_at: string; assigned_agent_id: string | null
+  related_landlord: string | null; related_tenant: string | null
+  related_buyer: string | null; related_seller: string | null
+  related_realtor: string | null; related_mortgage_agent: string | null
+  related_paralegal: string | null
 }
 type CaseNote = { id: string; case_id: string; content: string; created_by: string; created_at: string }
 
@@ -555,7 +559,7 @@ function Dashboard({ agent }: { agent: AgentUser }) {
               {selectedCase && (
                 <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', padding:20, overflowY:'auto' }}
                   onClick={() => setSelectedCase(null)}>
-                  <div onClick={e => e.stopPropagation()} style={{ background:'#f7f4ef', borderRadius:20, width:'100%', maxWidth:740, boxShadow:'0 24px 80px rgba(0,0,0,0.28)', overflow:'hidden', marginTop:20, marginBottom:20 }}>
+                  <div onClick={e => e.stopPropagation()} style={{ background:'#f7f4ef', borderRadius:20, width:'100%', maxWidth:740, boxShadow:'0 24px 80px rgba(0,0,0,0.28)', marginTop:20, marginBottom:20 }}>
                     <div style={{ background:'linear-gradient(135deg,#0c1525,#1a2a4a)', padding:'20px 24px', color:'#fff', position:'sticky', top:0, zIndex:10 }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12 }}>
                         <div style={{ minWidth:0 }}>
@@ -630,7 +634,29 @@ function Dashboard({ agent }: { agent: AgentUser }) {
                           ))}
 
                           {selectedCase.client_needs && <div style={{ marginBottom:14 }}><div style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', color:'#a8a8a4', marginBottom:4 }}>Client Needs</div><p style={{ margin:0, fontSize:13, color:'#1b2a4a', lineHeight:1.65 }}>{selectedCase.client_needs}</p></div>}
-                          {selectedCase.current_situation && <div><div style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', color:'#a8a8a4', marginBottom:4 }}>Current Situation</div><p style={{ margin:0, fontSize:13, color:'#1b2a4a', lineHeight:1.65 }}>{selectedCase.current_situation}</p></div>}
+                          {selectedCase.current_situation && <div style={{ marginBottom:14 }}><div style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', color:'#a8a8a4', marginBottom:4 }}>Current Situation</div><p style={{ margin:0, fontSize:13, color:'#1b2a4a', lineHeight:1.65 }}>{selectedCase.current_situation}</p></div>}
+
+                          {[selectedCase.related_landlord, selectedCase.related_tenant, selectedCase.related_buyer, selectedCase.related_seller, selectedCase.related_realtor, selectedCase.related_mortgage_agent, selectedCase.related_paralegal].some(Boolean) && (
+                            <div>
+                              <div style={{ fontSize:11, fontWeight:800, letterSpacing:1.5, textTransform:'uppercase', color:'#6b6b67', paddingBottom:7, borderBottom:'1px solid #e4e1d8', marginBottom:12 }}>Related Parties</div>
+                              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))', gap:'8px 20px' }}>
+                                {([
+                                  ['Landlord', selectedCase.related_landlord],
+                                  ['Tenant', selectedCase.related_tenant],
+                                  ['Buyer', selectedCase.related_buyer],
+                                  ['Seller', selectedCase.related_seller],
+                                  ['Realtor', selectedCase.related_realtor],
+                                  ['Mortgage Agent', selectedCase.related_mortgage_agent],
+                                  ['Paralegal', selectedCase.related_paralegal],
+                                ] as [string, string | null][]).filter(([, v]) => v).map(([lbl, val]) => (
+                                  <div key={lbl}>
+                                    <div style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', color:'#a8a8a4', marginBottom:2 }}>{lbl}</div>
+                                    <div style={{ fontSize:13, color:'#1b2a4a', fontWeight:500 }}>{val}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
 
