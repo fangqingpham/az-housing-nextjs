@@ -92,6 +92,7 @@ function Dashboard({ agent }: { agent: AgentUser }) {
   const [caseNotes, setCaseNotes]       = useState<CaseNote[]>([])
   const [noteContent, setNoteContent]   = useState('')
   const [savingNote, setSavingNote]     = useState(false)
+  const [showCreateCase, setShowCreateCase] = useState(false)
 
   useEffect(() => { load() }, [agent.id])
 
@@ -510,6 +511,7 @@ function Dashboard({ agent }: { agent: AgentUser }) {
                   {['New','Contacted','In Progress','Completed','Cancelled'].map(s => <option key={s}>{s}</option>)}
                 </select>
                 <button onClick={loadClients} style={{ background:'#fff', border:'1px solid #e4e1d8', borderRadius:8, padding:'9px 16px', fontSize:13, fontWeight:600, cursor:'pointer', color:'#6b6b67', fontFamily:'inherit' }}>↻ Refresh</button>
+                <button onClick={() => setShowCreateCase(true)} style={{ background:'#f5a623', border:'none', borderRadius:8, padding:'9px 18px', fontSize:13, fontWeight:700, cursor:'pointer', color:'#fff', fontFamily:'inherit', marginLeft:'auto' }}>+ New Case</button>
               </div>
 
               {casesLoading
@@ -697,9 +699,170 @@ function Dashboard({ agent }: { agent: AgentUser }) {
           )
         })()}
 
+        {showCreateCase && (
+          <NewCaseModal
+            agent={agent}
+            onClose={() => setShowCreateCase(false)}
+            onCreated={(c) => { setClientCases(prev => [c, ...prev]); setShowCreateCase(false); showToast('Case created ✓') }}
+          />
+        )}
+
       </div>
     </div>
   )
+}
+
+// ─── NewCaseModal (agent-side create; Related Parties intentionally omitted) ───
+function NewCaseModal({ agent, onClose, onCreated }: {
+  agent: AgentUser
+  onClose: () => void
+  onCreated: (c: any) => void
+}) {
+  const CLIENT_TYPES   = ['Landlord', 'Tenant', 'Mortgage Client', 'Realtor Client']
+  const SERVICE_TYPES  = ['Tenant Placement', 'Property Management', 'Mortgage Referral', 'Real Estate Referral']
+  const STATUSES       = ['New', 'Contacted', 'In Progress', 'Completed', 'Cancelled']
+  const PRIORITIES     = ['Low', 'Normal', 'High', 'Urgent']
+  const PROVINCES      = ['AB','BC','MB','NB','NL','NS','NT','NU','ON','PE','QC','SK','YT']
+  const PROPERTY_TYPES = ['Detached House','Semi-Detached House','Townhouse','Condo Apartment','Basement Apartment','Room Rental','Commercial','Other']
+  const LEAD_SOURCES   = ['Website','Referral','Social Media','Kijiji','Walk-in','Phone Inquiry','Email Inquiry','Other']
+  const CONTACT_PREFS  = ['Phone','Email','Text','WhatsApp']
+  const LANGUAGES      = ['English','French','Mandarin','Cantonese','Hindi','Punjabi','Tagalog','Tamil','Spanish','Arabic','Other']
+
+  const FC: React.CSSProperties = { border:'1px solid #e4e1d8', borderRadius:8, padding:'9px 12px', fontSize:14, fontFamily:'inherit', outline:'none', width:'100%', background:'#fff', color:'#1b2a4a' }
+  const LBL: React.CSSProperties = { fontSize:11, fontWeight:700, letterSpacing:0.5, textTransform:'uppercase', color:'#6b6b67', display:'block', marginBottom:4 }
+  const SEC: React.CSSProperties = { fontSize:11, fontWeight:800, letterSpacing:1.5, textTransform:'uppercase', color:'#f5a623', paddingBottom:8, borderBottom:'1px solid #f0ede6', marginBottom:16, marginTop:24 }
+
+  const [form, setForm] = useState<Record<string, any>>({
+    full_name:'', client_type:'', phone:'', email:'', preferred_contact:'', language:'', lead_source:'',
+    status:'New', priority:'Normal', service_type:'', start_date:'', end_date:'', deadline:'',
+    next_followup_date:'', last_contacted_date:'', property_address:'', unit:'', city:'', province:'',
+    postal_code:'', property_type:'', rent_amount:'', purchase_price:'', sale_price:'',
+    client_needs:'', current_situation:'', next_action:'',
+  })
+  const [saving, setSaving] = useState(false)
+  const [error, setError]   = useState('')
+
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setForm(prev => ({ ...prev, [k]: e.target.value }))
+
+  const submit = async () => {
+    if (!form.full_name?.trim()) { setError('Full Name is required.'); return }
+    if (!form.client_type)       { setError('Client Type is required.'); return }
+    setSaving(true); setError('')
+    const r = await fetch('/api/admin/client-cases', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form, caller_role: 'agent', caller_id: agent.id }),
+    })
+    if (r.ok) { const d = await r.json(); onCreated(d.case) }
+    else { const d = await r.json().catch(() => ({})); setError(d.error || 'Failed to create case.'); setSaving(false) }
+  }
+
+  return (
+    <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', padding:20, overflowY:'auto' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:'#f7f4ef', borderRadius:20, width:'100%', maxWidth:820, boxShadow:'0 24px 80px rgba(0,0,0,0.28)', marginTop:20, marginBottom:20 }}>
+        <div style={{ background:'linear-gradient(135deg, #0c1525, #1a2a4a)', padding:'22px 28px', color:'#fff', display:'flex', justifyContent:'space-between', alignItems:'center', position:'sticky', top:0, zIndex:10, borderRadius:'20px 20px 0 0' }}>
+          <div>
+            <h2 style={{ fontFamily:'Georgia,serif', fontSize:'1.35rem', margin:'0 0 4px' }}>Create New Case</h2>
+            <p style={{ margin:0, fontSize:13, color:'rgba(255,255,255,0.5)' }}>A unique case number will be auto-generated. This case will be assigned to you.</p>
+          </div>
+          <button onClick={onClose} style={{ background:'rgba(255,255,255,0.1)', border:'none', color:'#fff', borderRadius:'50%', width:34, height:34, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>&times;</button>
+        </div>
+        <div style={{ padding:'24px 28px 28px' }}>
+          <div style={SEC}>Client Information</div>
+          <Row2A>
+            <FieldA label="Full Name *"  L={LBL}><input style={FC} value={form.full_name} onChange={set('full_name')} placeholder="Full legal name" /></FieldA>
+            <FieldA label="Client Type *" L={LBL}>
+              <select style={FC} value={form.client_type} onChange={set('client_type')}>
+                <option value="">Select…</option>
+                {CLIENT_TYPES.map(t => <option key={t}>{t}</option>)}
+              </select>
+            </FieldA>
+            <FieldA label="Phone" L={LBL}><input style={FC} value={form.phone} onChange={set('phone')} placeholder="+1 (416) 000-0000" /></FieldA>
+            <FieldA label="Email" L={LBL}><input style={FC} type="email" value={form.email} onChange={set('email')} placeholder="client@email.com" /></FieldA>
+            <FieldA label="Preferred Contact" L={LBL}>
+              <select style={FC} value={form.preferred_contact} onChange={set('preferred_contact')}>
+                <option value="">Select…</option>
+                {CONTACT_PREFS.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </FieldA>
+            <FieldA label="Language" L={LBL}>
+              <select style={FC} value={form.language} onChange={set('language')}>
+                <option value="">Select…</option>
+                {LANGUAGES.map(l => <option key={l}>{l}</option>)}
+              </select>
+            </FieldA>
+            <FieldA label="Lead Source" L={LBL}>
+              <select style={FC} value={form.lead_source} onChange={set('lead_source')}>
+                <option value="">Select…</option>
+                {LEAD_SOURCES.map(x => <option key={x}>{x}</option>)}
+              </select>
+            </FieldA>
+          </Row2A>
+
+          <div style={SEC}>Status &amp; Service</div>
+          <Row2A>
+            <FieldA label="Status" L={LBL}><select style={FC} value={form.status} onChange={set('status')}>{STATUSES.map(x => <option key={x}>{x}</option>)}</select></FieldA>
+            <FieldA label="Priority" L={LBL}><select style={FC} value={form.priority} onChange={set('priority')}>{PRIORITIES.map(x => <option key={x}>{x}</option>)}</select></FieldA>
+            <FieldA label="Service Type" L={LBL}>
+              <select style={FC} value={form.service_type} onChange={set('service_type')}>
+                <option value="">Select…</option>
+                {SERVICE_TYPES.map(x => <option key={x}>{x}</option>)}
+              </select>
+            </FieldA>
+            <FieldA label="Start Date" L={LBL}><input style={FC} type="date" value={form.start_date} onChange={set('start_date')} /></FieldA>
+            <FieldA label="End Date" L={LBL}><input style={FC} type="date" value={form.end_date} onChange={set('end_date')} /></FieldA>
+            <FieldA label="Deadline" L={LBL}><input style={FC} type="date" value={form.deadline} onChange={set('deadline')} /></FieldA>
+            <FieldA label="Next Follow-up Date" L={LBL}><input style={FC} type="date" value={form.next_followup_date} onChange={set('next_followup_date')} /></FieldA>
+            <FieldA label="Last Contacted Date" L={LBL}><input style={FC} type="date" value={form.last_contacted_date} onChange={set('last_contacted_date')} /></FieldA>
+          </Row2A>
+
+          <div style={SEC}>Property Details</div>
+          <Row2A>
+            <FieldA label="Property Address" L={LBL}><input style={FC} value={form.property_address} onChange={set('property_address')} placeholder="Street address" /></FieldA>
+            <FieldA label="Unit" L={LBL}><input style={FC} value={form.unit} onChange={set('unit')} placeholder="Unit / Suite #" /></FieldA>
+            <FieldA label="City" L={LBL}><input style={FC} value={form.city} onChange={set('city')} placeholder="City" /></FieldA>
+            <FieldA label="Province" L={LBL}>
+              <select style={FC} value={form.province} onChange={set('province')}>
+                <option value="">Select…</option>
+                {PROVINCES.map(x => <option key={x}>{x}</option>)}
+              </select>
+            </FieldA>
+            <FieldA label="Postal Code" L={LBL}><input style={FC} value={form.postal_code} onChange={set('postal_code')} placeholder="A1A 1A1" /></FieldA>
+            <FieldA label="Property Type" L={LBL}>
+              <select style={FC} value={form.property_type} onChange={set('property_type')}>
+                <option value="">Select…</option>
+                {PROPERTY_TYPES.map(x => <option key={x}>{x}</option>)}
+              </select>
+            </FieldA>
+            <FieldA label="Rent Amount" L={LBL}><input style={FC} type="number" value={form.rent_amount} onChange={set('rent_amount')} placeholder="0.00" /></FieldA>
+            <FieldA label="Purchase Price" L={LBL}><input style={FC} type="number" value={form.purchase_price} onChange={set('purchase_price')} placeholder="0.00" /></FieldA>
+            <FieldA label="Sale Price" L={LBL}><input style={FC} type="number" value={form.sale_price} onChange={set('sale_price')} placeholder="0.00" /></FieldA>
+          </Row2A>
+
+          <div style={SEC}>Case Background</div>
+          <div style={{ display:'grid', gap:12 }}>
+            <FieldA label="Client Needs" L={LBL}><textarea style={{ ...FC, minHeight:80, resize:'vertical' } as React.CSSProperties} value={form.client_needs} onChange={set('client_needs')} placeholder="What does the client need?" /></FieldA>
+            <FieldA label="Current Situation" L={LBL}><textarea style={{ ...FC, minHeight:80, resize:'vertical' } as React.CSSProperties} value={form.current_situation} onChange={set('current_situation')} placeholder="Describe the current situation…" /></FieldA>
+            <FieldA label="Next Action" L={LBL}><input style={FC} value={form.next_action} onChange={set('next_action')} placeholder="e.g. Send lease, Follow up call…" /></FieldA>
+          </div>
+
+          {error && <p style={{ color:'#a32d2d', fontSize:13, marginTop:12 }}>{error}</p>}
+          <div style={{ display:'flex', gap:10, marginTop:24, justifyContent:'flex-end' }}>
+            <button onClick={onClose} style={{ background:'#f7f4ef', border:'1px solid #e4e1d8', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit', color:'#1b2a4a' }}>Cancel</button>
+            <button onClick={submit} disabled={saving} style={{ background:'#f5a623', color:'#fff', border:'none', borderRadius:8, padding:'10px 26px', fontSize:13, fontWeight:700, cursor: saving ? 'not-allowed' : 'pointer', fontFamily:'inherit' }}>{saving ? 'Creating…' : '+ Create Case'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Module-scope layout helpers (kept out of the component so inputs keep focus while typing)
+function Row2A({ children }: { children: React.ReactNode }) {
+  return <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))', gap:12 }}>{children}</div>
+}
+function FieldA({ label, L, children }: { label: string; L: React.CSSProperties; children: React.ReactNode }) {
+  return <div><label style={L}>{label}</label>{children}</div>
 }
 
 export default function AgentDashboardPage() {

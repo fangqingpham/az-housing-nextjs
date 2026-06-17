@@ -126,6 +126,14 @@ const SEC_HEAD: React.CSSProperties = {
   color: '#f5a623', paddingBottom: 8, borderBottom: '1px solid #f0ede6', marginBottom: 16, marginTop: 24,
 }
 
+// ─── Shared form layout helpers (module scope so inputs keep focus while typing) ──
+function Row2({ children }: { children: React.ReactNode }) {
+  return <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>{children}</div>
+}
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div><label style={LBL}>{label}</label>{children}</div>
+}
+
 // ─── CaseForm (create / edit) ─────────────────────────────────────────────────
 function CaseForm({
   data, onChange, agents, isAdmin,
@@ -136,12 +144,6 @@ function CaseForm({
   isAdmin: boolean
 }) {
   const f = (key: keyof ClientCase) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => onChange(key, e.target.value)
-  const Row2 = ({ children }: { children: React.ReactNode }) => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>{children}</div>
-  )
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div><label style={LBL}>{label}</label>{children}</div>
-  )
 
   return (
     <div>
