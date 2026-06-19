@@ -61,6 +61,9 @@ export const translations = {
       realtorMLSLeasingDesc: "1 Month's Rent",
       propertyManagementService: 'Property Management Service',
       propertyManagementServiceDesc: '$120/month',
+      forNewcomers: 'For Newcomers',
+      landingArrangement: 'Landing Arrangement',
+      landingArrangementDesc: 'Relocating from Vietnam to the GTA',
     },
     footer: {
       tagline: "Canada's complete platform for property search, listing, and real estate guidance — from search to sold.",
@@ -192,7 +195,7 @@ export const translations = {
       viewFaqs: 'View FAQs',
       areasWeServe: 'Areas We Serve',
       servingGTA: 'Serving the Greater Toronto Area',
-      topics: ['General Enquiry', 'Listing Support', 'Buy / Sell a property', 'Mortgage Inquiry', 'Legal Advice Referral', 'Join our team', 'Tenant Placement', 'Other'],
+      topics: ['General Enquiry', 'Listing Support', 'Buy / Sell a property', 'Mortgage Inquiry', 'Legal Advice Referral', 'Join our team', 'Tenant Placement', 'Landing Arrangement', 'Other'],
     },
     langPicker: {
       title: 'Choose Your Language',
@@ -614,6 +617,9 @@ export const translations = {
       realtorMLSLeasingDesc: '一个月租金',
       propertyManagementService: '物业管理服务',
       propertyManagementServiceDesc: '$120/月',
+      forNewcomers: '新移民服务',
+      landingArrangement: '落地安置',
+      landingArrangementDesc: '从越南到大多伦多地区的安置',
     },
     footer: {
       tagline: '加拿大最全面的房产搜索、挂牌和房地产指导平台——从搜索到成交。',
@@ -745,7 +751,7 @@ export const translations = {
       viewFaqs: '查看常见问题',
       areasWeServe: '服务区域',
       servingGTA: '服务大多伦多地区',
-      topics: ['一般咨询', '房源支持', '购买/出售房产', '贷款咨询', '法律建议转介', '加入我们的团队', '租户安置', '其他'],
+      topics: ['一般咨询', '房源支持', '购买/出售房产', '贷款咨询', '法律建议转介', '加入我们的团队', '租户安置', '落地安置', '其他'],
     },
     langPicker: {
       title: '选择您的语言',

@@ -227,6 +227,13 @@ export default function Navbar() {
             { label: t.nav.propertyManagementService, href: '/services/pricing#property-management', desc: t.nav.propertyManagementServiceDesc },
           ],
         },
+        {
+          label: t.nav.forNewcomers,
+          key: 'newcomers',
+          items: [
+            { label: t.nav.landingArrangement, href: '/landing-arrangement', desc: t.nav.landingArrangementDesc },
+          ],
+        },
       ],
     },
     {

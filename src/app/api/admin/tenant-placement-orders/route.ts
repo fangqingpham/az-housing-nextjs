@@ -11,6 +11,7 @@ function getSupabaseAdmin() {
 function deriveServiceType(selectedServices: string[]): string {
   if (!Array.isArray(selectedServices)) return 'Tenant Placement';
   const joined = selectedServices.join(' ').toLowerCase();
+  if (joined.includes('landing arrangement')) return 'Landing Arrangement';
   if (joined.includes('property management')) return 'Property Management';
   return 'Tenant Placement';
 }
@@ -18,6 +19,7 @@ function deriveServiceType(selectedServices: string[]): string {
 function deriveTransactionType(selectedServices: string[]): string {
   if (!Array.isArray(selectedServices)) return 'tenant_placement';
   const joined = selectedServices.join(' ').toLowerCase();
+  if (joined.includes('landing arrangement')) return 'landing_arrangement';
   if (joined.includes('property management')) return 'property_management';
   return 'tenant_placement';
 }
@@ -176,7 +178,7 @@ export async function PATCH(request: Request) {
           source_order_id:   id,
           agent_id:          agentId || null,
           client_name:       current.landlord_name || '',
-          client_type:       'landlord',
+          client_type:       svcType === 'Landing Arrangement' ? 'tenant' : 'landlord',
           property_address:  `${current.property_address || ''}${city}`,
           transaction_type:  txType,
           service_type:      svcType,
@@ -211,6 +213,7 @@ export async function PATCH(request: Request) {
         linkedCase = { case_number: existingCase.case_number, case_id: existingCase.id };
       } else if (newAgentId) {
         const serviceType = deriveServiceType(current.selected_services || []);
+        const isLandingArrangement = serviceType === 'Landing Arrangement';
         const rentRaw = String(current.expected_rent || '').replace(/[^0-9.]/g, '');
         const rentAmount = rentRaw ? Number(rentRaw) : null;
 
@@ -218,7 +221,7 @@ export async function PATCH(request: Request) {
           .from('client_cases')
           .insert({
             full_name:         current.landlord_name   || '',
-            client_type:       'Landlord',
+            client_type:       isLandingArrangement ? 'Tenant' : 'Landlord',
             phone:             current.phone            || null,
             email:             current.email            || null,
             lead_source:       'Order Form',
