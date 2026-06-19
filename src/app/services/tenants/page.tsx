@@ -3,9 +3,67 @@
 import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
 
+const LANDING_ARRANGEMENT = {
+  en: {
+    navLabel: "Landing Arrangement",
+    eyebrow: "For Newcomers from Vietnam",
+    title: "Landing Arrangement",
+    tagline: "From Vietnam to the GTA — arranged before you arrive.",
+    intro: "For individuals and families relocating from Vietnam, we arrange your accommodation and help you settle into the Greater Toronto Area — before and after you land.",
+    whyHeading: "Why arrange your home from Vietnam?",
+    why: [
+      "You can't inspect the home, its condition, or the furniture in person.",
+      "You don't know whether the area is safe, lively, or remote.",
+      "You can't be sure the landlord truly owns the home — sublet and ownership risks.",
+      "Risk of deposit scams using reposted photos of someone else's home.",
+    ],
+    beforeHeading: "What we arrange before you arrive",
+    before: [
+      "Verify the landlord via utility bills and City of Toronto ownership records.",
+      "Meet and interview the landlord in person.",
+      "Live video call so you can view the home from Vietnam.",
+      "Advice on room quality, layout, cleanliness, and roommates.",
+      "Advice on the location — safety, atmosphere, and distance to where you need to be.",
+      "Negotiate the rent for the best price.",
+      "Review the lease so you avoid unfavourable terms.",
+    ],
+    afterNote: "After you arrive: airport pickup, first-day school/workplace intro, banking, photo ID, TTC/Presto setup, and a guided transit tour.",
+    cta: "View Landing Arrangement Service →",
+    ctaNote: "Available in English & Tiếng Việt",
+  },
+  zh: {
+    navLabel: "落地安置",
+    eyebrow: "来自越南的新移民",
+    title: "落地安置服务",
+    tagline: "从越南到大多伦多地区——在您抵达之前安排妥当。",
+    intro: "为从越南搬迁而来的个人和家庭，我们在您抵达大多伦多地区之前和之后，为您安排住所并帮助您安顿下来。",
+    whyHeading: "为什么在越南时就安排好住房？",
+    why: [
+      "您无法亲自查看房屋、房况或家具。",
+      "您不了解所在区域是否安全、繁华还是偏僻。",
+      "您无法确认房东是否真正拥有该房屋——存在转租和产权风险。",
+      "存在利用盗用他人房屋照片骗取押金的诈骗风险。",
+    ],
+    beforeHeading: "我们在您抵达前为您安排",
+    before: [
+      "通过水电费账单和多伦多市政产权登记核实房东身份。",
+      "亲自联系并面谈房东。",
+      "视频通话，让您在越南即可实时看房。",
+      "就房间质量、布局、清洁度及室友提供建议。",
+      "就地段提供建议——安全性、周边氛围以及与您目的地的距离。",
+      "与房东协商租金，争取最优价格。",
+      "审阅租约，帮您避开不利条款。",
+    ],
+    afterNote: "抵达之后：机场接机、首日陪同前往学校/工作单位、开设银行账户、办理身份证件、TTC/Presto 公交卡设置，以及公交导览。",
+    cta: "查看落地安置服务 →",
+    ctaNote: "提供英文和越南语版本",
+  },
+} as const;
+
 export default function TenantsServicesPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const ts = t.tenantServices;
+  const la = LANDING_ARRANGEMENT[lang];
 
   const STEPS = [
     { n: "1", title: ts.step1Title, body: ts.step1Body },
@@ -19,13 +77,6 @@ export default function TenantsServicesPage() {
     { icon: "📞", tip: ts.tip2 },
     { icon: "💳", tip: ts.tip3 },
     { icon: "🤝", tip: ts.tip4 },
-  ];
-
-  const FEATURES = [
-    { icon: "🔒", title: ts.feature1Title, body: ts.feature1Body },
-    { icon: "📬", title: ts.feature2Title, body: ts.feature2Body },
-    { icon: "📅", title: ts.feature3Title, body: ts.feature3Body },
-    { icon: "⚡", title: ts.feature4Title, body: ts.feature4Body },
   ];
 
   return (
@@ -44,7 +95,7 @@ export default function TenantsServicesPage() {
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <a href="#property-search" style={{ background: "#4a90d9", color: "#fff", textDecoration: "none", borderRadius: 8, padding: "10px 22px", fontSize: 14, fontWeight: 700 }}>{ts.propertySearch}</a>
-            <a href="#contact-landlords" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", color: "#fff", textDecoration: "none", borderRadius: 8, padding: "10px 22px", fontSize: 14, fontWeight: 500 }}>{ts.contactLandlords}</a>
+            <a href="#landing-arrangement" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", color: "#fff", textDecoration: "none", borderRadius: 8, padding: "10px 22px", fontSize: 14, fontWeight: 500 }}>{la.navLabel}</a>
           </div>
         </div>
       </section>
@@ -90,30 +141,39 @@ export default function TenantsServicesPage() {
         </div>
       </section>
 
-      {/* Contact Landlords */}
-      <section id="contact-landlords" style={{ padding: "clamp(60px,8vw,100px) 24px", scrollMarginTop: 80 }}>
-        <div style={{ maxWidth: 1060, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 56, alignItems: "center" }}>
+      {/* Landing Arrangement (Vietnam → GTA) */}
+      <section id="landing-arrangement" style={{ padding: "clamp(60px,8vw,100px) 24px", scrollMarginTop: 80 }}>
+        <div style={{ maxWidth: 1060, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 56, alignItems: "start" }}>
           <div>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>💬</div>
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.4rem)", color: "var(--dark)", marginBottom: 14 }}>{ts.contactLandlordsTitle}</h2>
-            <p style={{ color: "#4a90d9", fontWeight: 600, marginBottom: 18 }}>{ts.contactLandlordsTagline}</p>
-            <p style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 16 }}>{ts.contactLandlordsP1}</p>
-            <p style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 24 }}>{ts.contactLandlordsP2}</p>
-            <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <Link href="/auth/register" style={{ background: "#4a90d9", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 26px", fontWeight: 700, fontSize: 14 }}>{ts.createFreeAccount}</Link>
-              <Link href="/rent" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "12px 26px", fontWeight: 600, fontSize: 14, border: "1px solid rgba(0,0,0,0.12)" }}>{ts.browseListings}</Link>
+            <div style={{ display: "inline-block", background: "#fff4e0", border: "1px solid #ffd98a", color: "#a86b00", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", borderRadius: 20, padding: "4px 14px", marginBottom: 16 }}>{la.eyebrow}</div>
+            <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.4rem)", color: "var(--dark)", marginBottom: 12 }}>{la.title}</h2>
+            <p style={{ color: "#4a90d9", fontWeight: 600, marginBottom: 18 }}>{la.tagline}</p>
+            <p style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 22 }}>{la.intro}</p>
+            <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.15rem", color: "var(--dark)", marginBottom: 12 }}>{la.whyHeading}</h3>
+            <ul style={{ listStyle: "none", margin: "0 0 26px", padding: 0, display: "grid", gap: 9 }}>
+              {la.why.map((it, i) => (
+                <li key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", color: "var(--mid)", lineHeight: 1.65, fontSize: 14 }}>
+                  <span aria-hidden="true" style={{ color: "#c98a00", fontWeight: 900, flexShrink: 0, marginTop: 1 }}>!</span>
+                  <span>{it}</span>
+                </li>
+              ))}
+            </ul>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+              <Link href="/landing-arrangement" style={{ background: "#4a90d9", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 26px", fontWeight: 700, fontSize: 14 }}>{la.cta}</Link>
+              <span style={{ color: "var(--mid)", fontSize: 13 }}>{la.ctaNote}</span>
             </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            {FEATURES.map(f => (
-              <div key={f.title} style={{ background: "#fff", borderRadius: 12, padding: "18px 20px", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", display: "flex", gap: 14, alignItems: "flex-start" }}>
-                <span style={{ fontSize: 24, flexShrink: 0 }}>{f.icon}</span>
-                <div>
-                  <div style={{ fontWeight: 700, color: "var(--dark)", marginBottom: 4, fontSize: 14 }}>{f.title}</div>
-                  <div style={{ color: "var(--mid)", fontSize: 13, lineHeight: 1.6 }}>{f.body}</div>
-                </div>
-              </div>
-            ))}
+          <div style={{ background: "#fff", borderRadius: 16, padding: "26px 24px", boxShadow: "0 2px 14px rgba(0,0,0,0.06)" }}>
+            <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.2rem", color: "var(--dark)", marginBottom: 16 }}>{la.beforeHeading}</h3>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 11 }}>
+              {la.before.map((it, i) => (
+                <li key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", color: "var(--mid)", lineHeight: 1.6, fontSize: 14 }}>
+                  <span aria-hidden="true" style={{ color: "#1a8f5c", fontWeight: 900, flexShrink: 0, marginTop: 1 }}>✓</span>
+                  <span>{it}</span>
+                </li>
+              ))}
+            </ul>
+            <p style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid rgba(0,0,0,0.08)", color: "var(--mid)", fontSize: 13, lineHeight: 1.6 }}>{la.afterNote}</p>
           </div>
         </div>
       </section>

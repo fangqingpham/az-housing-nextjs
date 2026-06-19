@@ -205,7 +205,7 @@ export default function Navbar() {
           key: 'tenants',
           items: [
             { label: t.nav.propertySearch, href: '/services/tenants#property-search', desc: t.nav.propertySearchDesc },
-            { label: t.nav.contactLandlords, href: '/services/tenants#contact-landlords', desc: t.nav.contactLandlordsDesc },
+            { label: t.nav.landingArrangement, href: '/landing-arrangement', desc: t.nav.landingArrangementDesc },
           ],
         },
         {
@@ -225,13 +225,6 @@ export default function Navbar() {
             { label: t.nav.azPrivateLeasing, href: '/services/pricing#az-private-leasing', desc: t.nav.azPrivateLeasingDesc },
             { label: t.nav.realtorMLSLeasing, href: '/services/pricing#realtor-mls-leasing', desc: t.nav.realtorMLSLeasingDesc },
             { label: t.nav.propertyManagementService, href: '/services/pricing#property-management', desc: t.nav.propertyManagementServiceDesc },
-          ],
-        },
-        {
-          label: t.nav.forNewcomers,
-          key: 'newcomers',
-          items: [
-            { label: t.nav.landingArrangement, href: '/landing-arrangement', desc: t.nav.landingArrangementDesc },
           ],
         },
       ],

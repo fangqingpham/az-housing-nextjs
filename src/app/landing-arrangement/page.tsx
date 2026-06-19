@@ -464,9 +464,7 @@ export default function LandingArrangementPage() {
         {/* Why (risk points) — warning tint */}
         <div style={{ background: "#fff8e1", borderRadius: 20, padding: "clamp(20px,4vw,30px)", border: "1px solid #ffe082" }}>
           <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.4rem", color: "var(--dark, #102247)", marginBottom: 14 }}>{L.whyTitle}</h3>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "#6b5a1e", lineHeight: 1.85, fontSize: 14.5 }}>
-            {L.whyItems.map((it, i) => <li key={i} style={{ marginBottom: 8 }}>{it}</li>)}
-          </ul>
+          <CheckList items={L.whyItems} marker="!" markerColor="#c98a00" textColor="#6b5a1e" />
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24 }}>
@@ -489,9 +487,7 @@ export default function LandingArrangementPage() {
             <div style={{ fontSize: 34, fontWeight: 900, fontFamily: "var(--serif)", whiteSpace: "nowrap" }}>{L.basicPrice}</div>
           </div>
           <p style={{ color: "rgba(255,255,255,.85)", lineHeight: 1.7, margin: "0 0 12px", fontSize: 15 }}>{L.basicIntro}</p>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "rgba(255,255,255,.78)", lineHeight: 1.8, fontSize: 14 }}>
-            {L.basicBullets.map((b, i) => <li key={i} style={{ marginBottom: 4 }}>{b}</li>)}
-          </ul>
+          <CheckList items={L.basicBullets} markerColor="var(--accent, #f5a623)" textColor="rgba(255,255,255,.85)" size={14} />
         </div>
 
         <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.25rem", color: "var(--dark, #102247)", margin: "8px 0 16px" }}>{L.addOnsTitle}</h3>
@@ -503,9 +499,7 @@ export default function LandingArrangementPage() {
             <span style={{ color: "var(--accent, #c4901a)", fontWeight: 900, fontSize: 18, whiteSpace: "nowrap" }}>{L.secondSearchPrice}</span>
           </div>
           <p style={{ color: "var(--mid, #666)", lineHeight: 1.7, margin: "0 0 10px", fontSize: 14 }}>{L.secondSearchIntro}</p>
-          <ul style={{ margin: 0, paddingLeft: 18, color: "var(--mid, #666)", lineHeight: 1.75, fontSize: 13.5 }}>
-            {L.secondSearchBullets.map((b, i) => <li key={i} style={{ marginBottom: 3 }}>{b}</li>)}
-          </ul>
+          <CheckList items={L.secondSearchBullets} size={13.5} />
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
@@ -616,13 +610,24 @@ export default function LandingArrangementPage() {
   );
 }
 
+function CheckList({ items, marker = "✓", markerColor = "#1a8f5c", textColor = "var(--mid, #666)", size = 14.5 }: { items: string[]; marker?: string; markerColor?: string; textColor?: string; size?: number }) {
+  return (
+    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 9 }}>
+      {items.map((it, i) => (
+        <li key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", color: textColor, lineHeight: 1.7, fontSize: size }}>
+          <span aria-hidden="true" style={{ color: markerColor, fontWeight: 900, flexShrink: 0, marginTop: 1 }}>{marker}</span>
+          <span>{it}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function InfoCard({ title, items, accent }: { title: string; items: string[]; accent?: boolean }) {
   return (
     <section style={{ background: "#fff", borderRadius: 20, padding: "clamp(20px,4vw,30px)", boxShadow: "0 4px 24px rgba(0,0,0,.07)", border: accent ? "2px solid var(--accent, #f5a623)" : "1px solid rgba(0,0,0,.07)", height: "100%" }}>
       <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.35rem", color: "var(--dark, #102247)", marginBottom: 14, lineHeight: 1.3 }}>{title}</h3>
-      <ul style={{ margin: 0, paddingLeft: 18, color: "var(--mid, #666)", lineHeight: 1.8, fontSize: 14.5 }}>
-        {items.map((it, i) => <li key={i} style={{ marginBottom: 8 }}>{it}</li>)}
-      </ul>
+      <CheckList items={items} />
     </section>
   );
 }
