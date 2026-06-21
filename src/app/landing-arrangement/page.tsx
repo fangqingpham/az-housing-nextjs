@@ -16,6 +16,9 @@ import React, { useEffect, useMemo, useState } from "react";
 
 type Lang = "en" | "vi";
 
+type AddlBlock = { heading?: string; items?: string[]; note?: string };
+type AddlItem = { title: string; blocks: AddlBlock[] };
+
 const money = (amount: number) =>
   new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(amount);
 
@@ -177,6 +180,76 @@ const EN = {
   successTitle: "Thank you for your order — our A-Z Housing Solutions team will contact you soon.",
   successBody: "A copy of your order request has been sent to A-Z Housing Solutions.",
 
+  additionalTitle: "Additional Services & Policies",
+  additionalHint: "Tap each item to expand the details.",
+  additional: [
+    {
+      title: "Property Viewing Service — from $99 per viewing",
+      blocks: [
+        { heading: "Includes", items: [
+          "Attendance at one (1) property viewing",
+          "Live video call during the viewing (up to 30 minutes)",
+          "Basic photos and videos of the property",
+          "General observations on the room, building, and surrounding area",
+          "A short written summary report",
+        ] },
+        { heading: "Pricing", items: [
+          "$99 per viewing within 20 km of our office",
+          "Beyond 20 km: +$10 for every additional 5 km travelled",
+        ] },
+      ],
+    },
+    {
+      title: "Custodianship for International Students Under 18 — $1,500 per year",
+      blocks: [
+        { heading: "Includes", items: [
+          "Acting as the student's local Canadian custodian for the term of the agreement",
+          "Keeping current contact details for the student, parents, and school",
+          "Being reasonably reachable by the student, parents, and school",
+          "Responding to emergencies when necessary",
+          "Helping the student access appropriate support services in a serious situation",
+          "Communicating with parents about significant concerns affecting the student",
+        ] },
+        { note: "Important: Custodianship is not legal guardianship, legal representation, immigration consulting, legal advice, educational consulting, healthcare, financial support, housing management, transportation, or day-to-day parental supervision." },
+      ],
+    },
+    {
+      title: "Excluded Fees",
+      blocks: [
+        { note: "Unless stated otherwise, service fees do not include:" },
+        { items: [
+          "Legal, lawyer, immigration consultant, and notary fees",
+          "Government application, visa, and permit fees",
+          "School fees",
+          "Translation and courier fees",
+          "Transportation, parking, and accommodation expenses",
+          "Any other third-party charges",
+        ] },
+        { note: "Please contact us for additional details." },
+      ],
+    },
+    {
+      title: "Payment Terms & Methods",
+      blocks: [
+        { heading: "Services over $799", items: [
+          "First payment (20%) — due on signing; fully refundable if you cancel at least 14 days before your arrival in Canada",
+          "Second payment (40%) — due 3 days before arrival in Canada",
+          "Final payment (40%) — due on completion of all agreed services",
+        ] },
+        { heading: "Property Viewing Service", items: [
+          "Full payment at the time of booking",
+          "Full refund if cancelled at least 7 days before the viewing date",
+        ] },
+        { heading: "Accepted payment methods", items: [
+          "International wire transfer",
+          "PayPal",
+          "Interac e-Transfer (after arrival in Canada only)",
+          "Cash (after arrival in Canada only)",
+        ] },
+      ],
+    },
+  ] as AddlItem[],
+
   fieldLabels: {
     fullName: "Full name", phone: "Phone number", email: "Email address",
     vietnamAddress: "Address in Vietnam", gtaArea: "Preferred area in the GTA",
@@ -315,6 +388,76 @@ const VI: typeof EN = {
   submitError: "Không thể gửi đơn. Vui lòng thử lại.",
   successTitle: "Cảm ơn bạn đã đặt dịch vụ — đội ngũ A-Z Housing Solutions của chúng tôi sẽ sớm liên hệ với bạn.",
   successBody: "Một bản sao yêu cầu đặt dịch vụ của bạn đã được gửi đến A-Z Housing Solutions.",
+
+  additionalTitle: "Dịch vụ & Chính sách bổ sung",
+  additionalHint: "Nhấn vào từng mục để xem chi tiết.",
+  additional: [
+    {
+      title: "Dịch vụ Xem nhà hộ — từ $99/lần",
+      blocks: [
+        { heading: "Bao gồm", items: [
+          "Đến tận nơi xem và kiểm tra nhà (1 căn)",
+          "Video call trực tiếp trong quá trình xem nhà (tối đa 30 phút)",
+          "Chụp hình và quay video cơ bản về nhà hoặc phòng",
+          "Nhận xét tổng quan về phòng ở, tòa nhà và khu vực xung quanh",
+          "Báo cáo tóm tắt ngắn sau buổi xem nhà",
+        ] },
+        { heading: "Chi phí", items: [
+          "$99/lần đối với nhà trong bán kính 20 km tính từ địa chỉ công ty",
+          "Vượt quá 20 km: phụ thu thêm $10 cho mỗi 5 km phát sinh",
+        ] },
+      ],
+    },
+    {
+      title: "Dịch vụ Giám hộ cho Du học sinh dưới 18 tuổi — $1,500/năm",
+      blocks: [
+        { heading: "Bao gồm", items: [
+          "Đóng vai trò người giám hộ tại Canada cho học sinh trong suốt thời gian thỏa thuận",
+          "Duy trì thông tin liên lạc hiện hành với học sinh, phụ huynh và nhà trường",
+          "Có thể liên lạc được một cách hợp lý khi cần thiết",
+          "Hỗ trợ phản hồi trong các trường hợp khẩn cấp",
+          "Hướng dẫn học sinh tiếp cận các dịch vụ hỗ trợ phù hợp khi xảy ra vấn đề nghiêm trọng",
+          "Liên lạc với phụ huynh khi có vấn đề quan trọng ảnh hưởng đến học sinh",
+        ] },
+        { note: "Lưu ý: Dịch vụ giám hộ không bao gồm vai trò cha mẹ hợp pháp, đại diện pháp lý, tư vấn di trú, tư vấn pháp luật, tư vấn giáo dục, dịch vụ y tế, hỗ trợ tài chính, quản lý chỗ ở, dịch vụ đưa đón hoặc giám sát sinh hoạt hằng ngày của học sinh." },
+      ],
+    },
+    {
+      title: "Các chi phí không bao gồm",
+      blocks: [
+        { note: "Trừ khi có quy định khác, phí dịch vụ không bao gồm:" },
+        { items: [
+          "Phí luật sư, tư vấn pháp lý, tư vấn di trú và công chứng",
+          "Phí nộp hồ sơ chính phủ, visa và giấy phép",
+          "Học phí và các khoản phí của trường",
+          "Phí dịch thuật và chuyển phát hồ sơ",
+          "Chi phí đi lại, đậu xe và lưu trú",
+          "Bất kỳ khoản phí phát sinh từ bên thứ ba nào khác",
+        ] },
+        { note: "Vui lòng liên hệ với chúng tôi để được tư vấn chi tiết." },
+      ],
+    },
+    {
+      title: "Chính sách & Hình thức Thanh toán",
+      blocks: [
+        { heading: "Dịch vụ trên $799", items: [
+          "Đợt 1 (20%) — thanh toán khi ký hợp đồng; hoàn 100% nếu hủy ít nhất 14 ngày trước ngày dự kiến đến Canada",
+          "Đợt 2 (40%) — thanh toán trước ngày đến Canada 3 ngày",
+          "Đợt cuối (40%) — thanh toán sau khi hoàn thành toàn bộ dịch vụ trong hợp đồng",
+        ] },
+        { heading: "Dịch vụ Xem nhà hộ", items: [
+          "Thanh toán toàn bộ khi đặt lịch",
+          "Hoàn 100% nếu hủy ít nhất 7 ngày trước ngày xem nhà",
+        ] },
+        { heading: "Hình thức thanh toán được chấp nhận", items: [
+          "Chuyển khoản quốc tế (International Wire Transfer)",
+          "PayPal",
+          "Chuyển khoản Interac e-Transfer (chỉ sau khi đến Canada)",
+          "Tiền mặt (chỉ sau khi đến Canada)",
+        ] },
+      ],
+    },
+  ] as AddlItem[],
 
   fieldLabels: {
     fullName: "Họ và tên", phone: "Số điện thoại", email: "Địa chỉ Email",
@@ -510,6 +653,17 @@ export default function LandingArrangementPage() {
         </div>
       </section>
 
+      {/* Additional Services & Policies (collapsible) */}
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "8px 16px 36px" : "8px 24px 56px" }}>
+        <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.5rem,3vw,2.1rem)", color: "var(--dark, #102247)", textAlign: "center", marginBottom: 6 }}>{L.additionalTitle}</h2>
+        <p style={{ color: "var(--mid, #666)", textAlign: "center", fontSize: 13.5, marginBottom: 24 }}>{L.additionalHint}</p>
+        <div style={{ display: "grid", gap: 12, maxWidth: 820, margin: "0 auto" }}>
+          {L.additional.map((item, i) => (
+            <AccordionItem key={i} title={item.title} blocks={item.blocks} />
+          ))}
+        </div>
+      </section>
+
       {/* Order form */}
       <form onSubmit={handleSubmit}>
         <section style={{ maxWidth: 1180, margin: "0 auto", padding: isMobile ? "8px 14px 40px" : "8px 24px 64px", display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "minmax(0, 1.4fr) minmax(300px, .6fr)", gap: isMobile ? 18 : 28, overflowX: "hidden" }}>
@@ -607,6 +761,38 @@ export default function LandingArrangementPage() {
         </section>
       </form>
     </main>
+  );
+}
+
+function AccordionItem({ title, blocks }: { title: string; blocks: AddlBlock[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ background: "#fff", borderRadius: 14, border: open ? "1px solid var(--accent, #f5a623)" : "1px solid rgba(0,0,0,.10)", overflow: "hidden", transition: "border-color .2s" }}>
+      <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "15px 18px", background: open ? "var(--cream, #f7f4ef)" : "#fff", border: "none", cursor: "pointer", textAlign: "left" }}>
+        <span style={{ fontWeight: 700, color: "var(--dark, #102247)", fontSize: 14.5 }}>{title}</span>
+        <span aria-hidden="true" style={{ flexShrink: 0, color: "var(--accent, #f5a623)", fontSize: 12, transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span>
+      </button>
+      {open && (
+        <div style={{ padding: "2px 18px 18px" }}>
+          {blocks.map((b, i) => (
+            <div key={i} style={{ marginTop: 14 }}>
+              {b.heading && <div style={{ fontWeight: 700, color: "var(--dark, #102247)", fontSize: 12.5, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>{b.heading}</div>}
+              {b.items && (
+                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 7 }}>
+                  {b.items.map((it, j) => (
+                    <li key={j} style={{ display: "flex", gap: 9, alignItems: "flex-start", color: "var(--mid, #666)", lineHeight: 1.6, fontSize: 13.5 }}>
+                      <span aria-hidden="true" style={{ color: "var(--accent, #f5a623)", fontWeight: 900, flexShrink: 0, lineHeight: 1.5 }}>•</span>
+                      <span>{it}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {b.note && <p style={{ color: "var(--mid, #666)", fontSize: 12.5, lineHeight: 1.65, margin: 0 }}>{b.note}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
