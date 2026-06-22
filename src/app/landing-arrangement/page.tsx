@@ -9,9 +9,10 @@ import React, { useEffect, useMemo, useState } from "react";
  * state ('en' | 'vi') with parallel COPY.en / COPY.vi objects (identical keys).
  * The global EN/ZH navbar toggle stays visible but does not affect this page.
  *
- * Content reconciled with Katie's Vietnamese translation (VN_version_landing.docx),
- * including her expanded "why" / "before arrival" content and the 20-online / 5-in-person
- * Basic Package detail. Pricing is unchanged.
+ * Packages & Pricing is presented as a set of collapsible tabs:
+ *   1. Single Property Viewing ($99)   2. Basic Package ($799)   3. Add-On Services
+ *   4. Custodianship ($1,500)          5. Payment Terms & Methods (+ Excluded Fees)
+ *   6. Order Now (the order form, open by default)
  */
 
 type Lang = "en" | "vi";
@@ -22,17 +23,19 @@ type AddlItem = { title: string; blocks: AddlBlock[] };
 const money = (amount: number) =>
   new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(amount);
 
-const PRICES = { basic: 799, secondSearch: 399, airport: 199, busTour: 100, schoolWork: 150, banking: 150 } as const;
+const PRICES = { basic: 799, viewing: 99, secondSearch: 399, airport: 199, busTour: 100, schoolWork: 150, banking: 150, custodianship: 1500 } as const;
 
 // Service keys -> English payload labels sent to the API (must contain "Landing Arrangement"
 // so the CRM classifies them correctly). Display labels are localized separately.
 const SERVICE_PAYLOAD: Record<string, string> = {
-  basic:        "Landing Arrangement — Basic Package (Before You Arrive)",
-  secondSearch: "Landing Arrangement — Second Home Search After Arrival",
-  airport:      "Landing Arrangement — Airport Pickup & Drop-Off",
-  busTour:      "Landing Arrangement — Bus Tour (4h)",
-  schoolWork:   "Landing Arrangement — School / Workplace First-Day Intro",
-  banking:      "Landing Arrangement — Banking + ID + TTC/Presto Setup",
+  basic:         "Landing Arrangement — Basic Package (Before You Arrive)",
+  viewing:       "Landing Arrangement — Single Property Viewing",
+  secondSearch:  "Landing Arrangement — Second Home Search After Arrival",
+  airport:       "Landing Arrangement — Airport Pickup & Drop-Off",
+  busTour:       "Landing Arrangement — Bus Tour (4h)",
+  schoolWork:    "Landing Arrangement — School / Workplace First-Day Intro",
+  banking:       "Landing Arrangement — Banking + ID + TTC/Presto Setup",
+  custodianship: "Landing Arrangement — Custodianship (Student Under 18)",
 };
 
 type FormData = {
@@ -89,7 +92,18 @@ const EN = {
   gtaOnlyNote: "This service is currently available in the Greater Toronto Area (GTA) only.",
 
   pricingTitle: "Packages & Pricing",
+  startingFrom: "Starting from $99",
   pricingNote: "All prices are in Canadian dollars (CAD) and exclude tax (HST). Services are available in the Greater Toronto Area (GTA) only.",
+  pricingHint: "Tap each tab to expand the details.",
+  orderNowTab: "Order Now",
+
+  viewingTitle: "Single Property Viewing",
+  viewingPrice: "$99",
+  viewingFormNote: "One in-person viewing within 20 km (live video call, photos, and a short summary report). Beyond 20 km: +$10 per extra 5 km — confirmed by our team.",
+
+  custodianshipTitle: "Custodianship (Student Under 18)",
+  custodianshipPrice: "$1,500 / year",
+  custodianshipFormNote: "Local Canadian custodian for an international student under 18, for the term of the agreement. Annual fee — not legal guardianship.",
 
   basicTitle: "Basic Package — \u201CBefore You Arrive\u201D",
   basicPrice: "$799 flat fee",
@@ -180,11 +194,11 @@ const EN = {
   successTitle: "Thank you for your order — our A-Z Housing Solutions team will contact you soon.",
   successBody: "A copy of your order request has been sent to A-Z Housing Solutions.",
 
-  additionalTitle: "Additional Services & Policies",
-  additionalHint: "Tap each item to expand the details.",
+  excludedFeesTitle: "Excluded Fees",
+  paymentTitle: "Payment Terms & Methods",
   additional: [
     {
-      title: "Property Viewing Service — from $99 per viewing",
+      title: "Single Property Viewing",
       blocks: [
         { heading: "Includes", items: [
           "Attendance at one (1) property viewing",
@@ -200,7 +214,7 @@ const EN = {
       ],
     },
     {
-      title: "Custodianship for International Students Under 18 — $1,500 per year",
+      title: "Custodianship for International Students Under 18",
       blocks: [
         { heading: "Includes", items: [
           "Acting as the student's local Canadian custodian for the term of the agreement",
@@ -210,7 +224,7 @@ const EN = {
           "Helping the student access appropriate support services in a serious situation",
           "Communicating with parents about significant concerns affecting the student",
         ] },
-        { note: "Important: Custodianship is not legal guardianship, legal representation, immigration consulting, legal advice, educational consulting, healthcare, financial support, housing management, transportation, or day-to-day parental supervision." },
+        { heading: "Important — not included", note: "Custodianship is not legal guardianship, legal representation, immigration consulting, legal advice, educational consulting, healthcare, financial support, housing management, transportation, or day-to-day parental supervision." },
       ],
     },
     {
@@ -236,7 +250,7 @@ const EN = {
           "Second payment (40%) — due 3 days before arrival in Canada",
           "Final payment (40%) — due on completion of all agreed services",
         ] },
-        { heading: "Property Viewing Service", items: [
+        { heading: "Single Property Viewing", items: [
           "Full payment at the time of booking",
           "Full refund if cancelled at least 7 days before the viewing date",
         ] },
@@ -298,7 +312,18 @@ const VI: typeof EN = {
   gtaOnlyNote: "Dịch vụ này hiện chỉ cung cấp tại Khu vực Đại đô thị Toronto (GTA).",
 
   pricingTitle: "Các Gói Dịch vụ & Bảng giá",
+  startingFrom: "Chỉ từ $99",
   pricingNote: "Tất cả giá đều tính bằng đô la Canada (CAD) và chưa bao gồm thuế (HST). Các dịch vụ chỉ được cung cấp tại Khu vực Đại đô thị Toronto (GTA).",
+  pricingHint: "Nhấn vào từng mục để xem chi tiết.",
+  orderNowTab: "Đặt dịch vụ ngay",
+
+  viewingTitle: "Xem nhà hộ (một lần)",
+  viewingPrice: "$99",
+  viewingFormNote: "Một lần xem nhà tận nơi trong bán kính 20 km (video call trực tiếp, hình ảnh, và báo cáo tóm tắt ngắn). Vượt quá 20 km: phụ thu thêm $10 cho mỗi 5 km — sẽ được đội ngũ của chúng tôi xác nhận.",
+
+  custodianshipTitle: "Giám hộ (du học sinh dưới 18 tuổi)",
+  custodianshipPrice: "$1,500/năm",
+  custodianshipFormNote: "Người giám hộ tại Canada cho du học sinh dưới 18 tuổi trong suốt thời gian thỏa thuận. Phí theo năm — không phải giám hộ pháp lý.",
 
   basicTitle: "Gói Cơ bản \u201CTrước khi bạn đến\u201D",
   basicPrice: "Phí trọn gói $799",
@@ -389,11 +414,11 @@ const VI: typeof EN = {
   successTitle: "Cảm ơn bạn đã đặt dịch vụ — đội ngũ A-Z Housing Solutions của chúng tôi sẽ sớm liên hệ với bạn.",
   successBody: "Một bản sao yêu cầu đặt dịch vụ của bạn đã được gửi đến A-Z Housing Solutions.",
 
-  additionalTitle: "Dịch vụ & Chính sách bổ sung",
-  additionalHint: "Nhấn vào từng mục để xem chi tiết.",
+  excludedFeesTitle: "Các chi phí không bao gồm",
+  paymentTitle: "Chính sách & Hình thức Thanh toán",
   additional: [
     {
-      title: "Dịch vụ Xem nhà hộ — từ $99/lần",
+      title: "Xem nhà hộ (một lần)",
       blocks: [
         { heading: "Bao gồm", items: [
           "Đến tận nơi xem và kiểm tra nhà (1 căn)",
@@ -409,7 +434,7 @@ const VI: typeof EN = {
       ],
     },
     {
-      title: "Dịch vụ Giám hộ cho Du học sinh dưới 18 tuổi — $1,500/năm",
+      title: "Giám hộ cho Du học sinh dưới 18 tuổi",
       blocks: [
         { heading: "Bao gồm", items: [
           "Đóng vai trò người giám hộ tại Canada cho học sinh trong suốt thời gian thỏa thuận",
@@ -419,7 +444,7 @@ const VI: typeof EN = {
           "Hướng dẫn học sinh tiếp cận các dịch vụ hỗ trợ phù hợp khi xảy ra vấn đề nghiêm trọng",
           "Liên lạc với phụ huynh khi có vấn đề quan trọng ảnh hưởng đến học sinh",
         ] },
-        { note: "Lưu ý: Dịch vụ giám hộ không bao gồm vai trò cha mẹ hợp pháp, đại diện pháp lý, tư vấn di trú, tư vấn pháp luật, tư vấn giáo dục, dịch vụ y tế, hỗ trợ tài chính, quản lý chỗ ở, dịch vụ đưa đón hoặc giám sát sinh hoạt hằng ngày của học sinh." },
+        { heading: "Lưu ý — không bao gồm", note: "Dịch vụ giám hộ không bao gồm vai trò cha mẹ hợp pháp, đại diện pháp lý, tư vấn di trú, tư vấn pháp luật, tư vấn giáo dục, dịch vụ y tế, hỗ trợ tài chính, quản lý chỗ ở, dịch vụ đưa đón hoặc giám sát sinh hoạt hằng ngày của học sinh." },
       ],
     },
     {
@@ -483,11 +508,13 @@ export default function LandingArrangementPage() {
 
   const [form, setForm] = useState<FormData>(initialForm);
   const [basic, setBasic] = useState(true);
+  const [viewing, setViewing] = useState(false);
   const [secondSearch, setSecondSearch] = useState(false);
   const [airport, setAirport] = useState(false);
   const [busTour, setBusTour] = useState(false);
   const [schoolWork, setSchoolWork] = useState(false);
   const [banking, setBanking] = useState(false);
+  const [custodianship, setCustodianship] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -501,16 +528,16 @@ export default function LandingArrangementPage() {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  const checks: Record<string, boolean> = { basic, secondSearch, airport, busTour, schoolWork, banking };
+  const checks: Record<string, boolean> = { basic, viewing, secondSearch, airport, busTour, schoolWork, banking, custodianship };
   const priceOf: Record<string, number> = {
-    basic: PRICES.basic, secondSearch: PRICES.secondSearch, airport: PRICES.airport,
-    busTour: PRICES.busTour, schoolWork: PRICES.schoolWork, banking: PRICES.banking,
+    basic: PRICES.basic, viewing: PRICES.viewing, secondSearch: PRICES.secondSearch, airport: PRICES.airport,
+    busTour: PRICES.busTour, schoolWork: PRICES.schoolWork, banking: PRICES.banking, custodianship: PRICES.custodianship,
   };
   const titleOf = (key: string): string => (L as any)[`${key}Title`];
 
   const total = useMemo(
     () => Object.keys(checks).reduce((sum, k) => sum + (checks[k] ? priceOf[k] : 0), 0),
-    [basic, secondSearch, airport, busTour, schoolWork, banking] // eslint-disable-line react-hooks/exhaustive-deps
+    [basic, viewing, secondSearch, airport, busTour, schoolWork, banking, custodianship] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   // English payload for the API (drives CRM classification). Order is stable.
@@ -518,13 +545,13 @@ export default function LandingArrangementPage() {
     () => Object.keys(checks)
       .filter(k => checks[k])
       .map(k => `${SERVICE_PAYLOAD[k]} - ${money(priceOf[k])}`),
-    [basic, secondSearch, airport, busTour, schoolWork, banking] // eslint-disable-line react-hooks/exhaustive-deps
+    [basic, viewing, secondSearch, airport, busTour, schoolWork, banking, custodianship] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  // Localized display for the sidebar.
+  // Localized display for the summary.
   const selectedDisplay = useMemo(
     () => Object.keys(checks).filter(k => checks[k]).map(k => `${titleOf(k)} — ${money(priceOf[k])}`),
-    [basic, secondSearch, airport, busTour, schoolWork, banking, lang] // eslint-disable-line react-hooks/exhaustive-deps
+    [basic, viewing, secondSearch, airport, busTour, schoolWork, banking, custodianship, lang] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const update = (field: keyof FormData, value: string | boolean) => setForm(prev => ({ ...prev, [field]: value }));
@@ -618,181 +645,197 @@ export default function LandingArrangementPage() {
         <p style={{ alignSelf: "center", display: "inline-block", background: "#fff", border: "1px solid rgba(0,0,0,.10)", borderRadius: 12, padding: "10px 16px", color: "var(--dark, #102247)", fontSize: 14, fontWeight: 600, textAlign: "center" }}>{L.gtaOnlyNote}</p>
       </section>
 
-      {/* Pricing */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "8px 16px 32px" : "8px 24px 48px" }}>
-        <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.5rem,3vw,2.1rem)", color: "var(--dark, #102247)", textAlign: "center", marginBottom: 8 }}>{L.pricingTitle}</h2>
-        <p style={{ color: "var(--mid, #666)", textAlign: "center", maxWidth: 720, margin: "0 auto 28px", fontSize: 14, lineHeight: 1.7 }}>{L.pricingNote}</p>
-
-        {/* Basic package — feature card */}
-        <div style={{ background: "var(--dark, #102247)", color: "#fff", borderRadius: 20, padding: "clamp(22px,4vw,34px)", marginBottom: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 20, flexWrap: "wrap", alignItems: "baseline", marginBottom: 14 }}>
-            <div style={{ color: "var(--accent, #f5a623)", fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase", fontSize: 13 }}>{L.basicTitle}</div>
-            <div style={{ fontSize: 34, fontWeight: 900, fontFamily: "var(--serif)", whiteSpace: "nowrap" }}>{L.basicPrice}</div>
-          </div>
-          <p style={{ color: "rgba(255,255,255,.85)", lineHeight: 1.7, margin: "0 0 12px", fontSize: 15 }}>{L.basicIntro}</p>
-          <CheckList items={L.basicBullets} markerColor="var(--accent, #f5a623)" textColor="rgba(255,255,255,.85)" size={14} />
+      {/* Packages & Pricing — collapsible tabs */}
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: isMobile ? "8px 16px 40px" : "8px 24px 64px" }}>
+        <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.5rem,3vw,2.1rem)", color: "var(--dark, #102247)", textAlign: "center", marginBottom: 6 }}>{L.pricingTitle}</h2>
+        <div style={{ textAlign: "center", marginBottom: 12 }}>
+          <span style={{ fontFamily: "var(--serif)", fontWeight: 900, color: "var(--accent, #c4901a)", fontSize: "clamp(1.7rem,4.5vw,2.6rem)", lineHeight: 1.1 }}>{L.startingFrom}</span>
         </div>
+        <p style={{ color: "var(--mid, #666)", textAlign: "center", maxWidth: 720, margin: "0 auto 6px", fontSize: 14, lineHeight: 1.7 }}>{L.pricingNote}</p>
+        <p style={{ color: "var(--mid, #666)", textAlign: "center", fontSize: 13, marginBottom: 24 }}>{L.pricingHint}</p>
 
-        <h3 style={{ fontFamily: "var(--serif)", fontSize: "1.25rem", color: "var(--dark, #102247)", margin: "8px 0 16px" }}>{L.addOnsTitle}</h3>
+        <div style={{ display: "grid", gap: 12 }}>
+          {/* Tab 1 — Single Property Viewing */}
+          <Accordion title={L.viewingTitle} price={L.viewingPrice}>
+            <Blocks blocks={L.additional[0].blocks} />
+          </Accordion>
 
-        {/* Second search — detailed white card */}
-        <div style={{ background: "#fff", borderRadius: 18, padding: "clamp(18px,4vw,26px)", boxShadow: "0 4px 24px rgba(0,0,0,.07)", border: "1px solid rgba(0,0,0,.07)", marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "baseline", marginBottom: 10 }}>
-            <strong style={{ color: "var(--dark, #102247)", fontSize: 16 }}>{L.secondSearchTitle}</strong>
-            <span style={{ color: "var(--accent, #c4901a)", fontWeight: 900, fontSize: 18, whiteSpace: "nowrap" }}>{L.secondSearchPrice}</span>
-          </div>
-          <p style={{ color: "var(--mid, #666)", lineHeight: 1.7, margin: "0 0 10px", fontSize: 14 }}>{L.secondSearchIntro}</p>
-          <CheckList items={L.secondSearchBullets} size={13.5} />
-        </div>
+          {/* Tab 2 — Basic Package */}
+          <Accordion title={L.basicTitle} price={L.basicPrice}>
+            <p style={{ color: "var(--mid, #666)", lineHeight: 1.7, margin: "4px 0 12px", fontSize: 14 }}>{L.basicIntro}</p>
+            <CheckList items={L.basicBullets} size={13.5} />
+          </Accordion>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
-          <PriceCard title={L.airportTitle} price={L.airportPrice} note={L.airportNote} />
-          <PriceCard title={L.busTourTitle} price={L.busTourPrice} />
-          <PriceCard title={L.schoolWorkTitle} price={L.schoolWorkPrice} note={L.schoolWorkNote} />
-          <PriceCard title={L.bankingTitle} price={L.bankingPrice} note={L.bankingNote} />
-        </div>
-      </section>
-
-      {/* Additional Services & Policies (collapsible) */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "8px 16px 36px" : "8px 24px 56px" }}>
-        <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.5rem,3vw,2.1rem)", color: "var(--dark, #102247)", textAlign: "center", marginBottom: 6 }}>{L.additionalTitle}</h2>
-        <p style={{ color: "var(--mid, #666)", textAlign: "center", fontSize: 13.5, marginBottom: 24 }}>{L.additionalHint}</p>
-        <div style={{ display: "grid", gap: 12, maxWidth: 820, margin: "0 auto" }}>
-          {L.additional.map((item, i) => (
-            <AccordionItem key={i} title={item.title} blocks={item.blocks} />
-          ))}
-        </div>
-      </section>
-
-      {/* Order form */}
-      <form onSubmit={handleSubmit}>
-        <section style={{ maxWidth: 1180, margin: "0 auto", padding: isMobile ? "8px 14px 40px" : "8px 24px 64px", display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "minmax(0, 1.4fr) minmax(300px, .6fr)", gap: isMobile ? 18 : 28, overflowX: "hidden" }}>
-          <div style={{ display: "grid", gap: 24 }}>
-            <div style={{ textAlign: "center", marginBottom: 4 }}>
-              <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.6rem,3vw,2.2rem)", color: "var(--dark, #102247)", marginBottom: 8 }}>{L.formTitle}</h2>
-              <p style={{ color: "var(--mid, #666)", lineHeight: 1.7, maxWidth: 640, margin: "0 auto" }}>{L.formSub}</p>
+          {/* Tab 3 — Add-On Services */}
+          <Accordion title={L.addOnsTitle}>
+            <div style={{ background: "var(--cream, #f7f4ef)", borderRadius: 14, padding: 16, marginTop: 6, marginBottom: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 8, flexWrap: "wrap" }}>
+                <strong style={{ color: "var(--dark, #102247)", fontSize: 15 }}>{L.secondSearchTitle}</strong>
+                <span style={{ color: "var(--accent, #c4901a)", fontWeight: 900, fontSize: 16, whiteSpace: "nowrap" }}>{L.secondSearchPrice}</span>
+              </div>
+              <p style={{ color: "var(--mid, #666)", lineHeight: 1.7, margin: "0 0 10px", fontSize: 13.5 }}>{L.secondSearchIntro}</p>
+              <CheckList items={L.secondSearchBullets} size={13.5} />
             </div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+              <PriceCard title={L.airportTitle} price={L.airportPrice} note={L.airportNote} />
+              <PriceCard title={L.busTourTitle} price={L.busTourPrice} />
+              <PriceCard title={L.schoolWorkTitle} price={L.schoolWorkPrice} note={L.schoolWorkNote} />
+              <PriceCard title={L.bankingTitle} price={L.bankingPrice} note={L.bankingNote} />
+            </div>
+          </Accordion>
 
-            <Card title={L.section1}>
-              <div style={gridStyle}>
-                <input required style={inputStyle} placeholder={L.fullName} value={form.fullName} onChange={e => update("fullName", e.target.value)} />
-                <input required style={inputStyle} placeholder={L.phone} value={form.phone} onChange={e => update("phone", e.target.value)} />
-                <input required type="email" style={inputStyle} placeholder={L.email} value={form.email} onChange={e => update("email", e.target.value)} />
-                <input required style={fullStyle} placeholder={L.vietnamAddress} value={form.vietnamAddress} onChange={e => update("vietnamAddress", e.target.value)} />
-              </div>
-            </Card>
+          {/* Tab 4 — Custodianship (includes + exclusions together) */}
+          <Accordion title={L.custodianshipTitle} price={L.custodianshipPrice}>
+            <Blocks blocks={L.additional[1].blocks} />
+          </Accordion>
 
-            <Card title={L.section2}>
-              <div style={gridStyle}>
-                <input required style={fullStyle} placeholder={L.gtaArea} value={form.gtaArea} onChange={e => update("gtaArea", e.target.value)} />
-                <select required style={inputStyle} value={form.gtaCity} onChange={e => update("gtaCity", e.target.value)}>
-                  <option value="">{L.gtaCity}</option>
-                  {L.gtaCityOptions.map(o => <option key={o}>{o}</option>)}
-                </select>
-                <input style={inputStyle} placeholder={L.neighbourhood} value={form.neighbourhood} onChange={e => update("neighbourhood", e.target.value)} />
-                <select required style={inputStyle} value={form.accommodationType} onChange={e => update("accommodationType", e.target.value)}>
-                  <option value="">{L.accommodationType}</option>
-                  {L.accommodationOptions.map(o => <option key={o}>{o}</option>)}
-                </select>
-                <input required style={inputStyle} placeholder={L.budget} value={form.budget} onChange={e => update("budget", e.target.value)} />
-                <input style={inputStyle} placeholder={L.bedrooms} value={form.bedrooms} onChange={e => update("bedrooms", e.target.value)} />
-                <input style={inputStyle} placeholder={L.bathrooms} value={form.bathrooms} onChange={e => update("bathrooms", e.target.value)} />
-                <input required style={inputStyle} placeholder={L.arrivalDate} value={form.arrivalDate} onChange={e => update("arrivalDate", e.target.value)} />
-              </div>
-            </Card>
+          {/* Tab 5 — Payment Terms & Methods (+ Excluded Fees) */}
+          <Accordion title={L.paymentTitle}>
+            <Blocks blocks={L.additional[3].blocks} />
+            <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid rgba(0,0,0,.08)" }}>
+              <div style={{ fontWeight: 700, color: "var(--dark, #102247)", fontSize: 12.5, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>{L.excludedFeesTitle}</div>
+              <Blocks blocks={L.additional[2].blocks} />
+            </div>
+          </Accordion>
 
-            <Card title={L.section3}>
-              <ServiceCheck checked={basic}        onChange={setBasic}        title={L.basicTitle}        price={L.basicPrice}        note={L.basicFormNote} />
-              <ServiceCheck checked={secondSearch} onChange={setSecondSearch} title={L.secondSearchTitle}  price={L.secondSearchPrice} note={L.secondSearchFormNote} />
-              <ServiceCheck checked={airport}      onChange={setAirport}      title={L.airportTitle}       price={L.airportPrice}      note={L.airportNote} />
-              <ServiceCheck checked={busTour}      onChange={setBusTour}      title={L.busTourTitle}       price={L.busTourPrice} />
-              <ServiceCheck checked={schoolWork}   onChange={setSchoolWork}   title={L.schoolWorkTitle}    price={L.schoolWorkPrice}   note={L.schoolWorkNote} />
-              <ServiceCheck checked={banking}      onChange={setBanking}      title={L.bankingTitle}       price={L.bankingPrice}      note={L.bankingNote} />
-            </Card>
+          {/* Tab 6 — Order Now (form, open by default) */}
+          <Accordion title={L.orderNowTab} defaultOpen>
+            <form onSubmit={handleSubmit}>
+              <div style={{ display: "grid", gap: 18, marginTop: 6 }}>
+                <p style={{ color: "var(--mid, #666)", lineHeight: 1.7, margin: 0, fontSize: 14 }}>{L.formSub}</p>
 
-            <Card title={L.section4}>
-              <textarea style={{ ...fullStyle, minHeight: 120, resize: "vertical" }} placeholder={L.notesPlaceholder} value={form.notes} onChange={e => update("notes", e.target.value)} />
-            </Card>
+                <Card title={L.section1}>
+                  <div style={gridStyle}>
+                    <input required style={inputStyle} placeholder={L.fullName} value={form.fullName} onChange={e => update("fullName", e.target.value)} />
+                    <input required style={inputStyle} placeholder={L.phone} value={form.phone} onChange={e => update("phone", e.target.value)} />
+                    <input required type="email" style={inputStyle} placeholder={L.email} value={form.email} onChange={e => update("email", e.target.value)} />
+                    <input required style={fullStyle} placeholder={L.vietnamAddress} value={form.vietnamAddress} onChange={e => update("vietnamAddress", e.target.value)} />
+                  </div>
+                </Card>
 
-            <Card title={L.section5}>
-              <label style={{ display: "flex", gap: 12, lineHeight: 1.6, color: "var(--mid, #666)" }}>
-                <input required type="checkbox" checked={form.consent} onChange={e => update("consent", e.target.checked)} style={{ marginTop: 5 }} />
-                <span>{L.consentText}</span>
-              </label>
-            </Card>
-          </div>
+                <Card title={L.section2}>
+                  <div style={gridStyle}>
+                    <input required style={fullStyle} placeholder={L.gtaArea} value={form.gtaArea} onChange={e => update("gtaArea", e.target.value)} />
+                    <select required style={inputStyle} value={form.gtaCity} onChange={e => update("gtaCity", e.target.value)}>
+                      <option value="">{L.gtaCity}</option>
+                      {L.gtaCityOptions.map(o => <option key={o}>{o}</option>)}
+                    </select>
+                    <input style={inputStyle} placeholder={L.neighbourhood} value={form.neighbourhood} onChange={e => update("neighbourhood", e.target.value)} />
+                    <select required style={inputStyle} value={form.accommodationType} onChange={e => update("accommodationType", e.target.value)}>
+                      <option value="">{L.accommodationType}</option>
+                      {L.accommodationOptions.map(o => <option key={o}>{o}</option>)}
+                    </select>
+                    <input required style={inputStyle} placeholder={L.budget} value={form.budget} onChange={e => update("budget", e.target.value)} />
+                    <input style={inputStyle} placeholder={L.bedrooms} value={form.bedrooms} onChange={e => update("bedrooms", e.target.value)} />
+                    <input style={inputStyle} placeholder={L.bathrooms} value={form.bathrooms} onChange={e => update("bathrooms", e.target.value)} />
+                    <input required style={inputStyle} placeholder={L.arrivalDate} value={form.arrivalDate} onChange={e => update("arrivalDate", e.target.value)} />
+                  </div>
+                </Card>
 
-          <aside style={{ alignSelf: "start", position: isMobile ? "static" : "sticky", top: isMobile ? "auto" : 86, width: "100%", minWidth: 0 }}>
-            <div style={{ background: "#fff", borderRadius: 20, padding: 26, boxShadow: "0 10px 35px rgba(0,0,0,.10)", border: "1px solid rgba(0,0,0,.07)" }}>
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", color: "var(--mid, #666)" }}>{L.estimatedTotal}</div>
-              <div style={{ fontSize: 46, fontWeight: 900, margin: "12px 0", color: "var(--dark, #102247)" }}>{money(total)}</div>
-              <p style={{ color: "var(--mid, #666)", lineHeight: 1.6, fontSize: 13 }}>{L.estimatedNote}</p>
+                <Card title={L.section3}>
+                  <ServiceCheck checked={basic}         onChange={setBasic}         title={L.basicTitle}         price={L.basicPrice}         note={L.basicFormNote} />
+                  <ServiceCheck checked={viewing}       onChange={setViewing}       title={L.viewingTitle}       price={L.viewingPrice}       note={L.viewingFormNote} />
+                  <ServiceCheck checked={secondSearch}  onChange={setSecondSearch}  title={L.secondSearchTitle}  price={L.secondSearchPrice}  note={L.secondSearchFormNote} />
+                  <ServiceCheck checked={airport}       onChange={setAirport}       title={L.airportTitle}       price={L.airportPrice}       note={L.airportNote} />
+                  <ServiceCheck checked={busTour}       onChange={setBusTour}       title={L.busTourTitle}       price={L.busTourPrice} />
+                  <ServiceCheck checked={schoolWork}    onChange={setSchoolWork}    title={L.schoolWorkTitle}    price={L.schoolWorkPrice}    note={L.schoolWorkNote} />
+                  <ServiceCheck checked={banking}       onChange={setBanking}       title={L.bankingTitle}       price={L.bankingPrice}       note={L.bankingNote} />
+                  <ServiceCheck checked={custodianship} onChange={setCustodianship} title={L.custodianshipTitle} price={L.custodianshipPrice} note={L.custodianshipFormNote} />
+                </Card>
 
-              <div style={{ background: "var(--cream, #f7f4ef)", borderRadius: 14, padding: 16, marginTop: 20 }}>
-                <strong>{L.selectedServices}</strong>
-                <ul style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--mid, #666)", fontSize: 13, lineHeight: 1.7 }}>
-                  {selectedDisplay.length ? selectedDisplay.map((s, i) => <li key={i}>{s}</li>) : <li>{L.noServiceSelected}</li>}
-                </ul>
-              </div>
+                <Card title={L.section4}>
+                  <textarea style={{ ...fullStyle, minHeight: 120, resize: "vertical" }} placeholder={L.notesPlaceholder} value={form.notes} onChange={e => update("notes", e.target.value)} />
+                </Card>
 
-              {!isFormValid && (
-                <div style={{ background: "#fff3f3", border: "1px solid #ffd0d0", borderRadius: 12, padding: 12, marginTop: 16, color: "#9a1b1b", fontSize: 12.5, lineHeight: 1.5 }}>
-                  <strong>{L.submitLocked}</strong>
-                  <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
-                    {missingRequiredFields.slice(0, 5).map(f => <li key={f}>{L.fieldLabels[f] || f}</li>)}
-                    {!form.consent && <li>{L.consentCheckbox}</li>}
-                    {!hasService && <li>{L.selectService}</li>}
-                    {missingRequiredFields.length > 5 && <li>{L.moreFields}</li>}
-                  </ul>
+                <Card title={L.section5}>
+                  <label style={{ display: "flex", gap: 12, lineHeight: 1.6, color: "var(--mid, #666)" }}>
+                    <input required type="checkbox" checked={form.consent} onChange={e => update("consent", e.target.checked)} style={{ marginTop: 5 }} />
+                    <span>{L.consentText}</span>
+                  </label>
+                </Card>
+
+                {/* Summary + submit */}
+                <div style={{ background: "#fff", borderRadius: 20, padding: 26, boxShadow: "0 10px 35px rgba(0,0,0,.10)", border: "1px solid rgba(0,0,0,.07)" }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", color: "var(--mid, #666)" }}>{L.estimatedTotal}</div>
+                  <div style={{ fontSize: 46, fontWeight: 900, margin: "12px 0", color: "var(--dark, #102247)" }}>{money(total)}</div>
+                  <p style={{ color: "var(--mid, #666)", lineHeight: 1.6, fontSize: 13 }}>{L.estimatedNote}</p>
+
+                  <div style={{ background: "var(--cream, #f7f4ef)", borderRadius: 14, padding: 16, marginTop: 20 }}>
+                    <strong>{L.selectedServices}</strong>
+                    <ul style={{ margin: "10px 0 0", paddingLeft: 18, color: "var(--mid, #666)", fontSize: 13, lineHeight: 1.7 }}>
+                      {selectedDisplay.length ? selectedDisplay.map((s, i) => <li key={i}>{s}</li>) : <li>{L.noServiceSelected}</li>}
+                    </ul>
+                  </div>
+
+                  {!isFormValid && (
+                    <div style={{ background: "#fff3f3", border: "1px solid #ffd0d0", borderRadius: 12, padding: 12, marginTop: 16, color: "#9a1b1b", fontSize: 12.5, lineHeight: 1.5 }}>
+                      <strong>{L.submitLocked}</strong>
+                      <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                        {missingRequiredFields.slice(0, 5).map(f => <li key={f}>{L.fieldLabels[f] || f}</li>)}
+                        {!form.consent && <li>{L.consentCheckbox}</li>}
+                        {!hasService && <li>{L.selectService}</li>}
+                        {missingRequiredFields.length > 5 && <li>{L.moreFields}</li>}
+                      </ul>
+                    </div>
+                  )}
+
+                  {error && <p style={{ color: "#b00020", fontSize: 13, lineHeight: 1.5, marginTop: 16 }}>{error}</p>}
+
+                  <button type="submit" disabled={!isFormValid || submitting}
+                    style={{ width: "100%", marginTop: 22, border: "none", borderRadius: 12, padding: "15px 18px", fontWeight: 800, textAlign: "center", background: !isFormValid || submitting ? "#9aa3b2" : "var(--dark, #102247)", color: "#fff", cursor: !isFormValid || submitting ? "not-allowed" : "pointer" }}>
+                    {submitting ? L.submitting : L.submitOrder}
+                  </button>
+
+                  <p style={{ textAlign: "center", color: "var(--mid, #666)", fontSize: 13, marginTop: 14 }}>{L.callText}</p>
                 </div>
-              )}
 
-              {error && <p style={{ color: "#b00020", fontSize: 13, lineHeight: 1.5, marginTop: 16 }}>{error}</p>}
-
-              <button type="submit" disabled={!isFormValid || submitting}
-                style={{ width: "100%", marginTop: 22, border: "none", borderRadius: 12, padding: "15px 18px", fontWeight: 800, textAlign: "center", background: !isFormValid || submitting ? "#9aa3b2" : "var(--dark, #102247)", color: "#fff", cursor: !isFormValid || submitting ? "not-allowed" : "pointer" }}>
-                {submitting ? L.submitting : L.submitOrder}
-              </button>
-
-              <p style={{ textAlign: "center", color: "var(--mid, #666)", fontSize: 13, marginTop: 14 }}>{L.callText}</p>
-            </div>
-            <div style={{ background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 16, padding: 18, marginTop: 18, color: "#7a6000", fontSize: 13, lineHeight: 1.7 }}>{L.taxNote}</div>
-          </aside>
-        </section>
-      </form>
+                <div style={{ background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 16, padding: 18, color: "#7a6000", fontSize: 13, lineHeight: 1.7 }}>{L.taxNote}</div>
+              </div>
+            </form>
+          </Accordion>
+        </div>
+      </section>
     </main>
   );
 }
 
-function AccordionItem({ title, blocks }: { title: string; blocks: AddlBlock[] }) {
-  const [open, setOpen] = useState(false);
+function Accordion({ title, price, defaultOpen = false, children }: { title: string; price?: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
     <div style={{ background: "#fff", borderRadius: 14, border: open ? "1px solid var(--accent, #f5a623)" : "1px solid rgba(0,0,0,.10)", overflow: "hidden", transition: "border-color .2s" }}>
-      <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "15px 18px", background: open ? "var(--cream, #f7f4ef)" : "#fff", border: "none", cursor: "pointer", textAlign: "left" }}>
-        <span style={{ fontWeight: 700, color: "var(--dark, #102247)", fontSize: 14.5 }}>{title}</span>
+      <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open}
+        style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "16px 18px", background: open ? "var(--cream, #f7f4ef)" : "#fff", border: "none", cursor: "pointer", textAlign: "left" }}>
+        <span style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", minWidth: 0 }}>
+          <span style={{ fontWeight: 800, color: "var(--dark, #102247)", fontSize: 15.5 }}>{title}</span>
+          {price && <span style={{ color: "var(--accent, #c4901a)", fontWeight: 900, fontSize: 15, whiteSpace: "nowrap" }}>{price}</span>}
+        </span>
         <span aria-hidden="true" style={{ flexShrink: 0, color: "var(--accent, #f5a623)", fontSize: 12, transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span>
       </button>
-      {open && (
-        <div style={{ padding: "2px 18px 18px" }}>
-          {blocks.map((b, i) => (
-            <div key={i} style={{ marginTop: 14 }}>
-              {b.heading && <div style={{ fontWeight: 700, color: "var(--dark, #102247)", fontSize: 12.5, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>{b.heading}</div>}
-              {b.items && (
-                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 7 }}>
-                  {b.items.map((it, j) => (
-                    <li key={j} style={{ display: "flex", gap: 9, alignItems: "flex-start", color: "var(--mid, #666)", lineHeight: 1.6, fontSize: 13.5 }}>
-                      <span aria-hidden="true" style={{ color: "var(--accent, #f5a623)", fontWeight: 900, flexShrink: 0, lineHeight: 1.5 }}>•</span>
-                      <span>{it}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {b.note && <p style={{ color: "var(--mid, #666)", fontSize: 12.5, lineHeight: 1.65, margin: 0 }}>{b.note}</p>}
-            </div>
-          ))}
-        </div>
-      )}
+      {open && <div style={{ padding: "4px 18px 20px" }}>{children}</div>}
     </div>
+  );
+}
+
+function Blocks({ blocks }: { blocks: AddlBlock[] }) {
+  return (
+    <>
+      {blocks.map((b, i) => (
+        <div key={i} style={{ marginTop: i === 0 ? 8 : 16 }}>
+          {b.heading && <div style={{ fontWeight: 700, color: "var(--dark, #102247)", fontSize: 12.5, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>{b.heading}</div>}
+          {b.items && (
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 7 }}>
+              {b.items.map((it, j) => (
+                <li key={j} style={{ display: "flex", gap: 9, alignItems: "flex-start", color: "var(--mid, #666)", lineHeight: 1.6, fontSize: 13.5 }}>
+                  <span aria-hidden="true" style={{ color: "var(--accent, #f5a623)", fontWeight: 900, flexShrink: 0, lineHeight: 1.5 }}>•</span>
+                  <span>{it}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {b.note && <p style={{ color: "var(--mid, #666)", fontSize: 12.5, lineHeight: 1.65, margin: 0 }}>{b.note}</p>}
+        </div>
+      ))}
+    </>
   );
 }
 
