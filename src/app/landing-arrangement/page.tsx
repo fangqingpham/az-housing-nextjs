@@ -23,7 +23,7 @@ type AddlItem = { title: string; blocks: AddlBlock[] };
 const money = (amount: number) =>
   new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(amount);
 
-const PRICES = { basic: 799, viewing: 99, secondSearch: 399, airport: 199, busTour: 100, schoolWork: 150, banking: 150, custodianship: 1500 } as const;
+const PRICES = { basic: 799, viewing: 99, secondSearch: 399, airport: 199, busTour: 100, schoolWork: 150, banking: 175, custodianship: 1500 } as const;
 
 // Service keys -> English payload labels sent to the API (must contain "Landing Arrangement"
 // so the CRM classifies them correctly). Display labels are localized separately.
@@ -34,7 +34,7 @@ const SERVICE_PAYLOAD: Record<string, string> = {
   airport:       "Landing Arrangement — Airport Pickup & Drop-Off",
   busTour:       "Landing Arrangement — Bus Tour (4h)",
   schoolWork:    "Landing Arrangement — School / Workplace First-Day Intro",
-  banking:       "Landing Arrangement — Banking + ID + TTC/Presto Setup",
+  banking:       "Landing Arrangement — Banking + Register a phone number + ID + TTC/Presto Setup",
   custodianship: "Landing Arrangement — Custodianship (Student Under 18)",
 };
 
@@ -144,8 +144,8 @@ const EN = {
   schoolWorkTitle: "School / workplace first-day intro",
   schoolWorkPrice: "$150",
   schoolWorkNote: "Up to 4 hours.",
-  bankingTitle: "Bank account + photo ID + TTC / Presto card",
-  bankingPrice: "$150",
+  bankingTitle: "Bank account + Register Phone Number + photo ID + TTC / Presto card",
+  bankingPrice: "$175",
   bankingNote: "Up to 6 hours.",
 
   formTitle: "Order This Service",
@@ -245,10 +245,10 @@ const EN = {
     {
       title: "Payment Terms & Methods",
       blocks: [
-        { heading: "Services over $799", items: [
-          "First payment (20%) — due on signing; fully refundable if you cancel at least 14 days before your arrival in Canada",
-          "Second payment (40%) — due 3 days before arrival in Canada",
-          "Final payment (40%) — due on completion of all agreed services",
+        { heading: "All Services (exclude Single Property Viewing)", items: [
+          "First payment (20%) — service deposit, due on signing service agreement; refundable if the  client cancels the agreement before active work begins (housing search, contacting landlords, etc.)",
+          "Second payment (50%) — due before active work begins (housing search, contacting landlords, etc.)",
+          "Final payment (30%) — due on completion of all agreed services",
         ] },
         { heading: "Single Property Viewing", items: [
           "Full payment at the time of booking",
@@ -364,8 +364,8 @@ const VI: typeof EN = {
   schoolWorkTitle: "Đưa đến trường học / nơi làm việc ngày đầu tiên",
   schoolWorkPrice: "$150",
   schoolWorkNote: "Thời gian lên đến 4 giờ.",
-  bankingTitle: "Mở tài khoản ngân hàng + làm photo ID + thẻ xe buýt TTC / Presto",
-  bankingPrice: "$150",
+  bankingTitle: "Mở tài khoản ngân hàng + Mua SIM điện thoại + làm photo ID + thẻ xe buýt TTC / Presto",
+  bankingPrice: "$175",
   bankingNote: "Thời gian lên đến 6 giờ.",
 
   formTitle: "Đặt Dịch Vụ Này",
@@ -465,10 +465,10 @@ const VI: typeof EN = {
     {
       title: "Chính sách & Hình thức Thanh toán",
       blocks: [
-        { heading: "Dịch vụ trên $799", items: [
-          "Đợt 1 (20%) — thanh toán khi ký hợp đồng; hoàn 100% nếu hủy ít nhất 14 ngày trước ngày dự kiến đến Canada",
-          "Đợt 2 (40%) — thanh toán trước ngày đến Canada 3 ngày",
-          "Đợt cuối (40%) — thanh toán sau khi hoàn thành toàn bộ dịch vụ trong hợp đồng",
+        { heading: "Các Dịch vụ (không bao gồm Dịch vụ Xem nhà hộ)", items: [
+          "Đợt 1 (20%) — đặt cọc, thanh toán khi ký hợp đồng; tiền cọc sẽ không được hoàn trả nếu khách hàng hủy hợp đồng trước khi công ty bắt đầu công việc, VD tìm nhà, liên hệ chủ nhà, đặt xe,...",
+          "Đợt 2 (50%) — thanh toán trước khi công ty bắt tay vào thực hiện hợp đồng (tìm nhà, liên hệ chủ nhà, đặt xe...)",
+          "Đợt cuối (30%) — thanh toán khi hoàn thành toàn bộ dịch vụ trong hợp đồng",
         ] },
         { heading: "Dịch vụ Xem nhà hộ", items: [
           "Thanh toán toàn bộ khi đặt lịch",
