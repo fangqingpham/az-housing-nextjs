@@ -466,7 +466,7 @@ const VI: typeof EN = {
       title: "Chính sách & Hình thức Thanh toán",
       blocks: [
         { heading: "Các Dịch vụ (không bao gồm Dịch vụ Xem nhà hộ)", items: [
-          "Đợt 1 (20%) — đặt cọc, thanh toán khi ký hợp đồng; tiền cọc sẽ không được hoàn trả nếu khách hàng hủy hợp đồng trước khi công ty bắt đầu công việc, VD tìm nhà, liên hệ chủ nhà, đặt xe,...",
+          "Đợt 1 (20%) — đặt cọc, thanh toán khi ký hợp đồng; tiền cọc sẽ được hoàn trả nếu khách hàng hủy hợp đồng trước khi công ty bắt đầu công việc, VD tìm nhà, liên hệ chủ nhà, đặt xe,...",
           "Đợt 2 (50%) — thanh toán trước khi công ty bắt tay vào thực hiện hợp đồng (tìm nhà, liên hệ chủ nhà, đặt xe...)",
           "Đợt cuối (30%) — thanh toán khi hoàn thành toàn bộ dịch vụ trong hợp đồng",
         ] },
