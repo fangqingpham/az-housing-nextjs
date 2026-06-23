@@ -109,6 +109,7 @@ export default function Footer() {
         {/* Bottom */}
         <div style={{ padding: '18px 0', fontSize: 13, display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', textAlign: 'center' }}>
           <span style={{ color: 'rgba(255,255,255,0.4)' }}>© {new Date().getFullYear()} A-Z Housing Solutions. {f.rights}</span>
+          <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>{f.operatedBy}</span>
           <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>{f.address}</span>
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
             {POLICY_LINKS.map(l => (
