@@ -319,18 +319,23 @@ export default function TestimonialCarousel() {
 
         @media (max-width: 640px) {
           .testimonial-section {
-            padding-left: 18px;
-            padding-right: 18px;
+            padding-left: 0;
+            padding-right: 0;
           }
 
           .testimonial-controls-row {
             grid-template-columns: repeat(2, 42px);
             justify-content: center;
+            row-gap: 18px;
           }
 
           .testimonial-track {
             grid-column: 1 / -1;
             grid-row: 1;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            width: 100vw;
           }
 
           .testimonial-arrow {
@@ -351,16 +356,40 @@ export default function TestimonialCarousel() {
           }
 
           .testimonial-card {
+            flex: 0 0 auto;
             min-height: 0;
-            padding: 22px 18px;
+            min-width: min(90vw, 360px);
+            max-width: 360px;
+            padding: 24px 22px;
+            white-space: normal;
+            width: min(90vw, 360px);
           }
 
           .testimonial-card:hover {
             transform: none;
           }
 
+          .testimonial-card h3,
+          .testimonial-card blockquote,
+          .testimonial-name,
+          .testimonial-role {
+            overflow-wrap: normal;
+            white-space: normal;
+            word-break: normal;
+          }
+
+          .testimonial-card h3 {
+            font-size: 1.35rem;
+          }
+
+          .testimonial-card blockquote {
+            font-size: 14px;
+            line-height: 1.7;
+          }
+
           .testimonial-dots {
             margin-top: 18px;
+            padding: 0 18px;
           }
         }
       `}</style>
