@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import VideoHero from '@/components/layout/VideoHero';
 import PropertyCard from '@/components/listings/PropertyCard';
+import TestimonialCarousel from '@/components/TestimonialCarousel';
 import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
@@ -130,6 +131,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <TestimonialCarousel />
 
       <style jsx>{`
         .services-grid {
