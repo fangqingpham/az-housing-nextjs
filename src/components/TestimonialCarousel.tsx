@@ -49,14 +49,20 @@ export default function TestimonialCarousel() {
     return () => window.clearInterval(interval);
   }, [isPaused]);
 
-  const visibleTestimonials = useMemo(
-    () =>
-      Array.from({ length: visibleCount }, (_, offset) => {
-        const index = (activeIndex + offset) % testimonials.length;
-        return testimonials[index];
-      }),
-    [activeIndex, visibleCount],
+  const renderedTestimonials = useMemo(
+    () => {
+      const clones = testimonials.slice(0, Math.max(visibleCount - 1, 0));
+      return [...testimonials, ...clones].map((item, index) => ({
+        ...item,
+        id: `${index}-${item.title}`,
+      }));
+    },
+    [testimonials, visibleCount],
   );
+
+  const trackWidth = `${(renderedTestimonials.length / visibleCount) * 100}%`;
+  const slideWidth = `${100 / renderedTestimonials.length}%`;
+  const trackTransform = `translateX(-${activeIndex * (100 / renderedTestimonials.length)}%)`;
 
   const goToPrevious = () => {
     setActiveIndex((current) => (current - 1 + testimonials.length) % testimonials.length);
@@ -82,6 +88,32 @@ export default function TestimonialCarousel() {
           <p>{h.testimonialsSubheading}</p>
         </div>
 
+        <div className="testimonial-viewport" aria-live="polite">
+          <div
+            className="testimonial-track"
+            style={{
+              transform: trackTransform,
+              width: trackWidth,
+            }}
+          >
+            {renderedTestimonials.map((item) => (
+              <div className="testimonial-slide" key={item.id} style={{ flexBasis: slideWidth, width: slideWidth }}>
+                <article className="testimonial-card">
+                  <div className="testimonial-quote-mark" aria-hidden="true">
+                    &ldquo;
+                  </div>
+                  <h3>{item.title}</h3>
+                  <blockquote>{item.review}</blockquote>
+                  <div className="testimonial-reviewer">
+                    <p className="testimonial-name">{item.name}</p>
+                    <p className="testimonial-role">{item.reviewer}</p>
+                  </div>
+                </article>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="testimonial-controls-row">
           <button
             type="button"
@@ -91,23 +123,6 @@ export default function TestimonialCarousel() {
           >
             <span aria-hidden="true">&#8592;</span>
           </button>
-
-          <div className="testimonial-track" aria-live="polite">
-            {visibleTestimonials.map((item) => (
-              <article className="testimonial-card" key={`${activeIndex}-${item.title}`}>
-                <div className="testimonial-quote-mark" aria-hidden="true">
-                  &ldquo;
-                </div>
-                <h3>{item.title}</h3>
-                <blockquote>{item.review}</blockquote>
-                <div className="testimonial-reviewer">
-                  <p className="testimonial-name">{item.name}</p>
-                  <p className="testimonial-role">{item.reviewer}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-
           <button
             type="button"
             className="testimonial-arrow"
@@ -173,18 +188,27 @@ export default function TestimonialCarousel() {
           max-width: 620px;
         }
 
-        .testimonial-controls-row {
-          align-items: center;
-          display: grid;
-          gap: 18px;
-          grid-template-columns: 46px minmax(0, 1fr) 46px;
+        .testimonial-viewport {
+          max-width: 100%;
+          overflow: hidden;
+          width: 100%;
         }
 
         .testimonial-track {
-          display: grid;
-          gap: 24px;
-          grid-template-columns: repeat(${visibleCount}, minmax(0, 1fr));
+          display: flex;
+          gap: 0;
           min-width: 0;
+          transition: transform 0.4s ease;
+          will-change: transform;
+        }
+
+        .testimonial-slide {
+          box-sizing: border-box;
+          display: flex;
+          flex: 0 0 auto;
+          justify-content: center;
+          min-width: 0;
+          padding: 0 12px;
         }
 
         .testimonial-card {
@@ -198,6 +222,7 @@ export default function TestimonialCarousel() {
           min-width: 0;
           padding: 24px 22px;
           transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+          width: 100%;
         }
 
         .testimonial-card:hover {
@@ -303,6 +328,14 @@ export default function TestimonialCarousel() {
           width: 8px;
         }
 
+        .testimonial-controls-row {
+          align-items: center;
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          margin-top: 24px;
+        }
+
         .testimonial-dot.active,
         .testimonial-dot:hover,
         .testimonial-dot:focus-visible {
@@ -312,8 +345,8 @@ export default function TestimonialCarousel() {
         }
 
         @media (max-width: 1024px) {
-          .testimonial-track {
-            gap: 18px;
+          .testimonial-slide {
+            padding: 0 9px;
           }
         }
 
@@ -324,18 +357,28 @@ export default function TestimonialCarousel() {
           }
 
           .testimonial-controls-row {
-            grid-template-columns: repeat(2, 42px);
-            justify-content: center;
             row-gap: 18px;
           }
 
-          .testimonial-track {
-            grid-column: 1 / -1;
-            grid-row: 1;
-            display: flex;
-            justify-content: center;
+          .testimonial-viewport {
+            max-width: 100%;
             overflow: hidden;
-            width: 100vw;
+            width: 100%;
+          }
+
+          .testimonial-track {
+            display: flex;
+            gap: 0;
+          }
+
+          .testimonial-slide {
+            box-sizing: border-box;
+            display: flex;
+            flex: 0 0 auto;
+            justify-content: center;
+            min-width: 0;
+            padding: 0 16px;
+            width: 100%;
           }
 
           .testimonial-arrow {
@@ -343,26 +386,15 @@ export default function TestimonialCarousel() {
             width: 42px;
           }
 
-          .testimonial-controls-row .testimonial-arrow:first-child {
-            grid-column: 1;
-            grid-row: 2;
-            justify-self: end;
-          }
-
-          .testimonial-controls-row .testimonial-arrow:last-child {
-            grid-column: 2;
-            grid-row: 2;
-            justify-self: start;
-          }
-
           .testimonial-card {
             flex: 0 0 auto;
+            box-sizing: border-box;
             min-height: 0;
-            min-width: min(90vw, 360px);
+            min-width: 0;
             max-width: 360px;
             padding: 24px 22px;
             white-space: normal;
-            width: min(90vw, 360px);
+            width: min(88vw, 360px);
           }
 
           .testimonial-card:hover {
