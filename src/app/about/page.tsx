@@ -29,28 +29,30 @@ export default function AboutPage() {
               {a.badge}
             </div>
             <h1 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2rem,5vw,3.2rem)", lineHeight: 1.2, marginBottom: 20 }}>
-              {a.heroTitle}{" "}
-              <span style={{ color: "var(--accent)" }}>{a.heroTitleAccent}</span>
+              {a.heroTitle}
+              {a.heroTitleAccent && (
+                <>
+                  {" "}
+                  <span style={{ color: "var(--accent)" }}>{a.heroTitleAccent}</span>
+                </>
+              )}
             </h1>
             <p style={{ color: "rgba(255,255,255,0.72)", lineHeight: 1.8, fontSize: "1.05rem", marginBottom: 16 }}>
               {a.heroP1}
             </p>
-            <p style={{ color: "rgba(255,255,255,0.7)", lineHeight: 1.8, fontSize: "1.05rem", marginBottom: 32 }}>
-              {a.heroP2}
-            </p>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <Link href="/buy" style={{ background: "var(--accent)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 700, fontSize: 15 }}>{a.browseListings}</Link>
+              <Link href="/tenant-placement" style={{ background: "var(--accent)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 700, fontSize: 15 }}>{a.browseListings}</Link>
               <Link href="/contact"    style={{ background: "rgba(255,255,255,0.12)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.25)" }}>{a.getInTouch}</Link>
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {[
-              { val: "1K+",  lab: a.activeListings },
-              { val: "85K+", lab: a.monthlyVisitors },
-              { val: "4.8★", lab: a.userRating },
-              { val: "Free", lab: a.basicListingTier },
+              { val: a.packagePriceValue, lab: a.packagePriceLabel },
+              { val: a.warrantyValue, lab: a.warrantyLabel },
+              { val: a.satisfiedClientsValue, lab: a.satisfiedClientsLabel },
+              { val: a.listingChannelsValue, lab: a.listingChannelsLabel, title: a.listingChannelsDetail },
             ].map(s => (
-              <div key={s.lab} style={{ background: "rgba(255,255,255,0.07)", borderRadius: 12, padding: "20px 16px", textAlign: "center", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <div key={s.lab} title={s.title} style={{ background: "rgba(255,255,255,0.07)", borderRadius: 12, padding: "20px 16px", textAlign: "center", border: "1px solid rgba(255,255,255,0.1)" }}>
                 <div style={{ fontFamily: "var(--serif)", fontSize: "1.8rem", color: "var(--accent)", fontWeight: 700 }}>{s.val}</div>
                 <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>{s.lab}</div>
               </div>
@@ -63,7 +65,9 @@ export default function AboutPage() {
       <section style={{ background: "#fff", padding: "clamp(60px,8vw,90px) 24px" }}>
         <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.8rem,4vw,2.4rem)", color: "var(--dark)", marginBottom: 16 }}>{a.ourMission}</h2>
-          <p style={{ color: "var(--mid)", fontSize: "1.1rem", lineHeight: 1.85 }}>{a.missionBody}</p>
+          {(a.description || [a.missionBody]).map((paragraph) => (
+            <p key={paragraph} style={{ color: "var(--mid)", fontSize: "1.05rem", lineHeight: 1.85, marginBottom: 16 }}>{paragraph}</p>
+          ))}
         </div>
       </section>
 
