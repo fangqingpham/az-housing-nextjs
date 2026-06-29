@@ -322,7 +322,7 @@ export default function TenantPlacementApplicationPage() {
     moreFields: "以上还有更多必填项",
     submitOrder: "提交订单请求",
     submitting: "提交中...",
-    callText: "或致电/发短信：+1 (647) 948-4428",
+    callText: "或致电/发短信：+1 (647) 6932-932",
     gtaNote: "价格仅适用于大多伦多地区。租户筛查须获申请人同意，并依赖信息可用性及第三方核实结果。",
   } : {
     badge: "A-Z Housing Solutions",
@@ -399,7 +399,7 @@ export default function TenantPlacementApplicationPage() {
     moreFields: "More required fields above",
     submitOrder: "Submit Order Request",
     submitting: "Submitting...",
-    callText: "Or call/text: +1 (647) 948-4428",
+    callText: "Or call/text: +1 (647) 6932-932",
     gtaNote: "Prices are quoted for the GTA area only. Tenant screening is subject to applicant consent, information availability, and third-party verification results.",
   };
 

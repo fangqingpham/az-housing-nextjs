@@ -87,7 +87,7 @@ const jsonLd = {
   image: `${SITE_URL}/og-image.jpg`,
   description:
     'Full-service real estate company offering home buying, selling, rentals, tenant placement, and property management across Canada.',
-  telephone: '+1-647-948-4428',
+  telephone: '+1-647-2932-932',
   email: 'info@azhouse.ca',
   address: {
     '@type': 'PostalAddress',

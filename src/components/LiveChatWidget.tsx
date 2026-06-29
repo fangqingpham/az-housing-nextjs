@@ -52,7 +52,7 @@ const FAQ: FAQEntry[] = [
     id: 'tenant-placement',
     keywords: ['tenant placement', 'find tenant', 'place tenant', 'rental listing', 'list my property', 'advertise rental', 'post rental', 'need a tenant', 'looking for tenant'],
     answer:
-      'Our **Tenant Placement** service helps landlords find reliable, responsible tenants fast.\n\nWhat\'s included:\n• Listing your property on our website (free)\n• Credit & background checks\n• Employment & income verification\n• Court filing search (OpenRoom)\n• Landlord reference checks\n• Candidate recommendation\n\nFlat fee: **$799** (A-Z Private Leasing) or **1 month\'s rent** (Realtor MLS Full Package).\n\nWould you like to get started or speak with our team?',
+      'Our **Tenant Placement** service helps landlords find reliable, responsible tenants fast.\n\nWhat\'s included:\n• Listing your property on our website (free)\n• Credit & background checks\n• Employment & income verification\n• Court filing search (OpenRoom)\n• Landlord reference checks\n• Candidate recommendation\n\nFlat fee: **$995** (A-Z Private Leasing) or **1 month\'s rent** (Realtor MLS Full Package).\n\nWould you like to get started or speak with our team?',
     quickReplies: ['Get started', 'Tell me about pricing', 'Contact Us'],
   },
   {
@@ -152,7 +152,7 @@ const FAQ: FAQEntry[] = [
     id: 'language',
     keywords: ['chinese', 'mandarin', 'cantonese', 'vietnamese', 'language', 'speak', 'communicate', 'translation', 'multilingual', 'french', 'hindi', 'punjabi', 'other language'],
     answer:
-      'We strive to serve clients in their preferred language. Please **contact us directly** to confirm which languages are currently available with our team.\n\n📧 info@azhouse.ca\n📞 +1 (647) 948-4428',
+      'We strive to serve clients in their preferred language. Please **contact us directly** to confirm which languages are currently available with our team.\n\n📧 info@azhouse.ca\n📞 +1 (647)-6932-932',
     quickReplies: ['Contact Us'],
   },
   {
@@ -172,9 +172,9 @@ const FAQ: FAQEntry[] = [
   },
   {
     id: 'pricing',
-    keywords: ['price', 'pricing', 'cost', 'fee', 'how much', 'charge', 'rate', 'package', 'flat fee', '799', 'affordable', 'what does it cost', 'pricing structure'],
+    keywords: ['price', 'pricing', 'cost', 'fee', 'how much', 'charge', 'rate', 'package', 'flat fee', '995', 'affordable', 'what does it cost', 'pricing structure'],
     answer:
-      'Our pricing depends on the service and your specific situation. Here\'s a general overview:\n\n• **Tenant Placement (A-Z Private):** $799 flat fee\n• **Tenant Placement (Realtor MLS):** 1 month\'s rent\n• **Property Management:** $120/month\n• **Mortgage Advice:** No upfront cost — we\'re paid by lenders\n• **Realtor Service (Buying):** No buyer agent fees in most cases\n• **Realtor Service (Selling):** 1% listing option available\n\nFor a precise quote based on your situation, please leave your contact info and we\'ll reach out.',
+      'Our pricing depends on the service and your specific situation. Here\'s a general overview:\n\n• **Tenant Placement (A-Z Private):** $995 flat fee\n• **Tenant Placement (Realtor MLS):** 1 month\'s rent\n• **Property Management:** $120/month\n• **Mortgage Advice:** No upfront cost — we\'re paid by lenders\n• **Realtor Service (Buying):** No buyer agent fees in most cases\n• **Realtor Service (Selling):** 1% listing option available\n\nFor a precise quote based on your situation, please leave your contact info and we\'ll reach out.',
     quickReplies: ['Get a quote', 'Contact Us'],
   },
   {
@@ -188,7 +188,7 @@ const FAQ: FAQEntry[] = [
     id: 'contact',
     keywords: ['contact', 'reach', 'email', 'phone', 'call', 'address', 'office', 'where are you', 'get in touch', 'how to contact'],
     answer:
-      '📧 **Email:** info@azhouse.ca\n📞 **Phone:** +1 (647) 948-4428\n🏢 **Office:** 18 King Street East, Suite 1400, Toronto, ON\n🌐 **Website:** www.azhouse.ca\n\nOr I can take your details now and have someone contact you — just say "contact me"!',
+      '📧 **Email:** info@azhouse.ca\n📞 **Phone:** +1 (647) 6932-932\n🏢 **Office:** 18 King Street East, Suite 1400, Toronto, ON\n🌐 **Website:** www.azhouse.ca\n\nOr I can take your details now and have someone contact you — just say "contact me"!',
     quickReplies: ['Contact me', 'Business hours'],
   },
   {
@@ -232,7 +232,7 @@ const FAQ: FAQEntry[] = [
     id: 'urgent',
     keywords: ['urgent', 'emergency', 'asap', 'immediately', 'right now', 'today', 'critical', 'serious', 'flooding', 'break in', 'fire', 'damage', 'help now', 'need help now'],
     answer:
-      '🚨 **For urgent matters, please contact us directly:**\n\n📞 **Call:** +1 (647) 948-4428\n📧 **Email:** info@azhouse.ca\n\nFor property emergencies (flooding, fire, break-in), call **911** first, then contact us.',
+      '🚨 **For urgent matters, please contact us directly:**\n\n📞 **Call:** +1 (647) 6932-932\n📧 **Email:** info@azhouse.ca\n\nFor property emergencies (flooding, fire, break-in), call **911** first, then contact us.',
     urgent: true,
     quickReplies: ['Contact Us'],
   },
@@ -443,12 +443,12 @@ export default function LiveChatWidget() {
             ))
           } else {
             addBotReply(botMsg(
-              'There was a hiccup sending your details. Please reach us directly:\n📧 info@azhouse.ca\n📞 +1 (647) 948-4428',
+              'There was a hiccup sending your details. Please reach us directly:\n📧 info@azhouse.ca\n📞 +1 (647) 6932-932',
             ))
           }
         } catch {
           addBotReply(botMsg(
-            'Network error. Please reach us at:\n📧 info@azhouse.ca\n📞 +1 (647) 948-4428',
+            'Network error. Please reach us at:\n📧 info@azhouse.ca\n📞 +1 (647) 2932-932',
           ))
         } finally {
           setSending(false)
@@ -494,7 +494,7 @@ export default function LiveChatWidget() {
     // ── Contact Us shortcut ───────────────────────────────────
     if (lower === 'contact us' || lower === 'contact') {
       addBotReply(botMsg(
-        '📧 info@azhouse.ca\n📞 +1 (647) 948-4428\n🏢 18 King Street East, Suite 1400, Toronto, ON\n\nOr leave your details here and we\'ll reach out!',
+        '📧 info@azhouse.ca\n📞 +1 (647) 6932-932\n🏢 18 King Street East, Suite 1400, Toronto, ON\n\nOr leave your details here and we\'ll reach out!',
         ['Leave my details', ...MAIN_QUICK_REPLIES.slice(0, 3)],
       ))
       return

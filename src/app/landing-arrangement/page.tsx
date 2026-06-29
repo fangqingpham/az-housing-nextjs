@@ -186,7 +186,7 @@ const EN = {
   moreFields: "More required fields above",
   submitOrder: "Submit Order Request",
   submitting: "Submitting...",
-  callText: "Or call / text: +1 (647) 948-4428",
+  callText: "Or call / text: +1 (647) 6932-932",
   taxNote: "Prices exclude tax (HST). Service available in the GTA only.",
 
   validationError: "Please complete all required fields, give your consent, and select at least one service before submitting.",
@@ -406,7 +406,7 @@ const VI: typeof EN = {
   moreFields: "Còn các mục bắt buộc khác ở trên",
   submitOrder: "Gửi Yêu Cầu Đặt Dịch Vụ",
   submitting: "Đang gửi...",
-  callText: "Hoặc gọi điện / nhắn tin: +1 (647) 948-4428",
+  callText: "Hoặc gọi điện / nhắn tin: +1 (647) 6932-932",
   taxNote: "Giá chưa bao gồm thuế (HST). Dịch vụ chỉ cung cấp tại khu vực GTA.",
 
   validationError: "Vui lòng điền đầy đủ các mục bắt buộc, đồng ý chấp thuận, và chọn ít nhất một dịch vụ trước khi gửi.",

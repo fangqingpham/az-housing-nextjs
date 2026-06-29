@@ -6,7 +6,7 @@ import { useLanguage } from '@/hooks/useLanguage'
 
 const SUPPORT_CARDS = [
   { icon: '📧', titleKey: 'emailSupport',  detail: 'info@azhouse.ca',              sub: 'emailSub',   href: 'mailto:info@azhouse.ca' },
-  { icon: '📞', titleKey: 'phoneSupport',  detail: '+1 (647) 948-4428',            sub: 'phoneSub',   href: 'tel:+16479484428' },
+  { icon: '📞', titleKey: 'phoneSupport',  detail: '+1 (647)-6932-932',            sub: 'phoneSub',   href: 'tel:+1(647)6932932' },
   { icon: '💬', titleKey: 'liveSupport',   detail: 'liveDetail',                   sub: 'liveSub',    href: null },
 ]
 

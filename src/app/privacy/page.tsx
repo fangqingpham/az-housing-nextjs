@@ -70,7 +70,7 @@ export default function PrivacyPage() {
               <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>A-Z Housing Solutions</p>
               <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>加拿大安大略省多伦多市</p>
               <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>电子邮件：azhousing.solutions@outlook.com</p>
-              <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>电话：+1 (647) 948-4428</p>
+              <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>电话：+1 (647) 6932-932</p>
             </>
           ) : (
             <>
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
               <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>A-Z Housing Solutions</p>
               <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>Toronto, Ontario, Canada</p>
               <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>Email: azhousing.solutions@outlook.com</p>
-              <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>Phone: +1 (647) 948-4428</p>
+              <p style={{ lineHeight:1.8, color:"#444", marginBottom:"0.6rem", fontSize:15 }}>Phone: +1 (647) 6932-932</p>
             </>
           )}
         </div>
