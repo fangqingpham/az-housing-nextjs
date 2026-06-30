@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import SearchBar from '@/components/listings/SearchBar'
 import { useLanguage } from '@/hooks/useLanguage'
 
-const VIDEO_URL = 'https://mdqapinkafuzkxvsmqvs.supabase.co/storage/v1/object/public/media/az%20housing.mp4'
+const YOUTUBE_VIDEO_ID = 'H4-hQv7HDx8'
+const YOUTUBE_THUMBNAIL_URL = `https://i.ytimg.com/vi/${YOUTUBE_VIDEO_ID}/maxresdefault.jpg`
+const YOUTUBE_EMBED_URL = `https://www.youtube-nocookie.com/embed/${YOUTUBE_VIDEO_ID}?rel=0&modestbranding=1`
 
 interface VideoHeroProps {
   heroText?: string
@@ -12,19 +13,44 @@ interface VideoHeroProps {
 }
 
 export default function VideoHero({ heroText, heroSub }: VideoHeroProps) {
-  const [mode, setMode] = useState<'sale' | 'rent'>('sale')
-  const { t } = useLanguage()
+  const [showVideo, setShowVideo] = useState(false)
+  const { lang, t } = useLanguage()
   const h = t.hero
 
   const title = heroText || h.defaultTitle
   const sub = heroSub || h.defaultSub
+  const watchVideoText = lang === 'zh' ? '\u64ad\u653e\u89c6\u9891' : 'Watch Video'
 
   return (
     <section style={{ position: 'relative', minHeight: 'clamp(520px, 80vh, 780px)', display: 'flex', alignItems: 'center', overflow: 'hidden', background: '#0d1b2a' }}>
-      {/* Video */}
-      <video autoPlay muted loop playsInline style={{ position: 'absolute', top: '50%', left: '50%', width: 'max(100%, calc(100vh * 16/9))', height: 'max(100%, calc(100vw * 9/16))', transform: 'translate(-50%, -50%)', zIndex: 0, objectFit: 'cover', pointerEvents: 'none' }}>
-        <source src={VIDEO_URL} type="video/mp4" />
-      </video>
+      {/* Click-to-load YouTube video */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
+        {showVideo ? (
+          <iframe
+            src={YOUTUBE_EMBED_URL}
+            title="A-Z Housing Solutions video"
+            loading="lazy"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            style={{ position: 'absolute', top: '50%', left: '50%', width: 'max(100%, calc(100vh * 16/9))', height: 'max(100%, calc(100vw * 9/16))', transform: 'translate(-50%, -50%)', border: 0, objectFit: 'cover' }}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowVideo(true)}
+            aria-label={watchVideoText}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0, padding: 0, cursor: 'pointer', background: `center / cover no-repeat url("${YOUTUBE_THUMBNAIL_URL}")` }}
+          >
+            <span style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.22)' }} />
+            <span style={{ position: 'absolute', right: 'clamp(18px, 5vw, 72px)', bottom: 'clamp(22px, 7vw, 88px)', display: 'inline-flex', alignItems: 'center', gap: 12, color: '#fff', fontWeight: 700, fontSize: 'clamp(0.9rem, 2vw, 1rem)', background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.34)', borderRadius: 999, padding: '10px 18px', backdropFilter: 'blur(8px)', boxShadow: '0 12px 28px rgba(0,0,0,0.28)' }}>
+              <span style={{ display: 'grid', placeItems: 'center', width: 34, height: 34, borderRadius: '50%', background: 'var(--accent)' }}>
+                <span style={{ width: 0, height: 0, borderTop: '7px solid transparent', borderBottom: '7px solid transparent', borderLeft: '11px solid #0d1b2a', marginLeft: 3 }} />
+              </span>
+              {watchVideoText}
+            </span>
+          </button>
+        )}
+      </div>
 
       {/* Overlay */}
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(10,20,40,0.82) 0%, rgba(10,20,40,0.60) 60%, rgba(10,20,40,0.50) 100%)', zIndex: 1 }} />
