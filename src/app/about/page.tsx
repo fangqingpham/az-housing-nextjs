@@ -43,6 +43,7 @@ export default function AboutPage() {
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
               <Link href="/tenant-placement" style={{ background: "var(--accent)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 700, fontSize: 15 }}>{a.browseListings}</Link>
               <Link href="/contact"    style={{ background: "rgba(255,255,255,0.12)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.25)" }}>{a.getInTouch}</Link>
+              <Link href="/referral-program" style={{ background: "rgba(245,166,35,0.18)", color: "var(--accent)", textDecoration: "none", borderRadius: 10, padding: "12px 28px", fontWeight: 700, fontSize: 15, border: "1px solid rgba(245,166,35,0.35)" }}>{a.referralProgram}</Link>
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>

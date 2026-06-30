@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 type ClientCase = {
   id: string; case_number: string; full_name: string; client_type: string
   phone: string | null; email: string | null; preferred_contact: string | null
-  language: string | null; lead_source: string | null; assigned_agent_id: string | null
+  language: string | null; lead_source: string | null; lead_source_detail: string | null; assigned_agent_id: string | null
   status: string; priority: string; property_address: string | null; unit: string | null
   city: string | null; province: string | null; postal_code: string | null
   property_type: string | null; rent_amount: number | null; purchase_price: number | null
@@ -20,6 +20,7 @@ type ClientCase = {
   related_buyer: string | null; related_seller: string | null
   related_realtor: string | null; related_mortgage_agent: string | null
   related_paralegal: string | null; checklist: Record<string, boolean>
+  referral_submission_id: string | null; referral_partner_id: string | null; referral_id: string | null
   archived: boolean; created_at: string; updated_at: string
 }
 
@@ -632,7 +633,9 @@ function CaseModal({
                     { heading: 'Client Information', rows: [
                       ['Phone', caseData.phone || '—'], ['Email', caseData.email || '—'],
                       ['Preferred Contact', caseData.preferred_contact || '—'], ['Language', caseData.language || '—'],
-                      ['Lead Source', caseData.lead_source || '—'],
+                      ['Lead Source', caseData.lead_source_detail || caseData.lead_source || '—'],
+                      ['Referral ID', caseData.referral_id || '—'],
+                      ['Referral Submission', caseData.referral_submission_id || '—'],
                     ]},
                     { heading: 'Assignment & Status', rows: [
                       ['Assigned Agent', agentName(caseData.assigned_agent_id)],

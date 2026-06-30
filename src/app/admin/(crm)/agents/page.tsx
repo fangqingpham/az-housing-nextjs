@@ -9,6 +9,16 @@ import type { AppUser } from '@/types'
 
 const ROLES = ['buyer', 'landlord', 'agent', 'admin'] as const
 type Role = typeof ROLES[number]
+type ReferralPartner = {
+  id: string
+  full_name: string
+  email: string
+  phone: string
+  referral_id: string
+  etransfer_email: string
+  partner_status: string
+  created_at: string
+}
 
 const ROLE_COLORS: Record<Role, { bg: string; color: string; border: string }> = {
   admin:    { bg: '#fef3dc', color: '#a86d1a', border: '#f5d38a' },
@@ -20,6 +30,7 @@ const ROLE_COLORS: Record<Role, { bg: string; color: string; border: string }> =
 export default function AdminAgentsPage() {
   const { message, visible, showToast } = useToast()
   const [users, setUsers] = useState<AppUser[]>([])
+  const [referralPartners, setReferralPartners] = useState<ReferralPartner[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<Role | ''>('')
@@ -27,7 +38,16 @@ export default function AdminAgentsPage() {
 
   useEffect(() => { load() }, [])
 
-  const load = async () => { setLoading(true); setUsers(await getUsers()); setLoading(false) }
+  const load = async () => {
+    setLoading(true)
+    const [userRows, referralRes] = await Promise.all([
+      getUsers(),
+      fetch('/api/admin/referrals', { cache: 'no-store' }).then(r => r.json()).catch(() => ({ partners: [] })),
+    ])
+    setUsers(userRows)
+    setReferralPartners(referralRes.partners || [])
+    setLoading(false)
+  }
 
   const changeRole = async (userId: string, newRole: Role) => {
     setUpdatingId(userId)
@@ -97,6 +117,31 @@ export default function AdminAgentsPage() {
                     </tr>
                   )
                 })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="page-header" style={{ marginTop: 34 }}>
+          <div><h2 className="page-title" style={{ fontSize: 22 }}>Referral Partners</h2><p className="page-sub">{referralPartners.length} public referral partner records</p></div>
+        </div>
+        {loading ? null : referralPartners.length === 0 ? <div className="empty-msg">No referral partners yet.</div> : (
+          <div className="table-wrap">
+            <table className="crm-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Partner Type</th><th>Referral ID</th><th>E-transfer</th><th>Status</th><th>Created</th></tr></thead>
+              <tbody>
+                {referralPartners.map(p => (
+                  <tr key={p.id}>
+                    <td><span className="td-name">{p.full_name}</span></td>
+                    <td><a href={`mailto:${p.email}`} className="td-email">{p.email}</a></td>
+                    <td className="td-sub">{p.phone || '--'}</td>
+                    <td><span className="role-select" style={{ background: '#e1f5ee', color: '#2d7a4f', borderColor: '#9fe1cb' }}>Referral Partner</span></td>
+                    <td className="td-sub" style={{ fontFamily: 'monospace', color: '#1b2a4a', fontWeight: 700 }}>{p.referral_id}</td>
+                    <td><a href={`mailto:${p.etransfer_email}`} className="td-email">{p.etransfer_email}</a></td>
+                    <td className="td-sub">{p.partner_status}</td>
+                    <td className="td-sub td-nowrap">{p.created_at?.slice(0,10) || '--'}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
