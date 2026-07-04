@@ -3,15 +3,36 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { getArticles, insertArticle, updateArticle, deleteArticle } from '@/lib/api'
 import Toast from '@/components/ui/Toast'
+import ArticleBody from '@/components/articles/ArticleBody'
 import { useToast } from '@/hooks/useToast'
+import { cleanArticleDraft } from '@/lib/articles/format'
 import type { BlogPost } from '@/types'
 
 const ARTICLE_CATEGORIES = ['Buying Guide','Selling Tips','Renting Advice','Market Analysis','Neighbourhood Guide','Mortgages & Finance','Legal Updates','Renovation & Maintenance','Investment','News']
 const ARTICLE_COLORS = ['#E8F4FD','#FEF3DC','#E1F5EE','#F0E8FD','#FDE8E8','#E8F0FD','#FFF3E0','#E8F5E9','#FCE4EC','#E3F2FD']
 const emptyArticle = (): BlogPost => ({ id:'', title:'', cat:'Buying Guide', excerpt:'', date: new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'}), read:'5 min read', color:'#E8F4FD', body:'', image:'', author:'' })
 type Tab = 'site' | 'articles' | 'account'
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+
+async function prepareCoverImage(file: File) {
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) throw new Error('Only JPG, PNG, and WebP images are allowed.')
+  if (file.size > MAX_IMAGE_BYTES) throw new Error('Image must be 5 MB or smaller.')
+  const bitmap = await createImageBitmap(file)
+  const scale = Math.min(1, 1600 / bitmap.width)
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale))
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale))
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('This browser could not process the image.')
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/webp', 0.82))
+  if (!blob) throw new Error('This browser could not compress the image.')
+  return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.webp', { type: 'image/webp' })
+}
 
 export default function AdminSettingsPage() {
   const router = useRouter()
@@ -38,7 +59,19 @@ export default function AdminSettingsPage() {
 
   useEffect(() => { if (tab === 'articles' && articles.length === 0) loadArticles() }, [tab])
 
-  const loadArticles = async () => { setArtLoading(true); setArticles(await getArticles()); setArtLoading(false) }
+  const loadArticles = async () => {
+    setArtLoading(true)
+    try {
+      const response = await fetch('/api/admin/articles', { cache: 'no-store' })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Articles could not be loaded.')
+      setArticles(data.articles || [])
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Articles could not be loaded.')
+    } finally {
+      setArtLoading(false)
+    }
+  }
 
   const saveSettings = async () => {
     setSavingSettings(true)
@@ -53,26 +86,39 @@ export default function AdminSettingsPage() {
 
   const uploadImage = async (file: File) => {
     setImgUploading(true)
-    const supabase = createClient()
-    const ext = file.name.split('.').pop()?.toLowerCase()
-    const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage.from('article-images').upload(path, file, { upsert: true, contentType: file.type })
-    if (error) { showToast('Upload failed.'); setImgUploading(false); return }
-    const { data } = supabase.storage.from('article-images').getPublicUrl(path)
-    setArtField('image', data.publicUrl); showToast('Image uploaded ✓'); setImgUploading(false)
+    try {
+      const optimized = await prepareCoverImage(file)
+      const formData = new FormData()
+      formData.append('file', optimized)
+      const response = await fetch('/api/admin/articles/cover', { method: 'POST', body: formData })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Image upload failed.')
+      setArtField('image', data.url)
+      showToast('Image uploaded ✓')
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Image upload failed.')
+    } finally {
+      setImgUploading(false)
+    }
   }
 
   const saveArticle = async () => {
     if (!artForm.title.trim()) { showToast('Title is required.'); return }
     if (!artForm.excerpt.trim()) { showToast('Excerpt is required.'); return }
-    if (artModal.isNew) { await insertArticle({ ...artForm, id: `art-${Date.now()}-${Math.random().toString(36).slice(2,7)}` }); showToast('Article published ✓') }
-    else { await updateArticle(artForm.id, artForm); showToast('Article updated ✓') }
+    const article = { ...artForm, body: cleanArticleDraft(artForm.body) }
+    if (artModal.isNew) article.id = `art-${Date.now()}-${Math.random().toString(36).slice(2,7)}`
+    const response = await fetch('/api/admin/articles', { method: artModal.isNew ? 'POST' : 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(article) })
+    const data = await response.json()
+    if (!response.ok) { showToast(data.error || 'Article could not be saved.'); return }
+    showToast(artModal.isNew ? 'Article published ✓' : 'Article updated ✓')
     setArtModal({ open: false, isNew: true }); await loadArticles()
   }
 
   const removeArticle = async (id: string) => {
     if (!confirm('Delete this article?')) return
-    await deleteArticle(id); setArticles(prev => prev.filter(a => a.id !== id)); showToast('Article deleted.')
+    const response = await fetch(`/api/admin/articles?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+    if (!response.ok) { showToast('Article could not be deleted.'); return }
+    setArticles(prev => prev.filter(a => a.id !== id)); showToast('Article deleted.')
   }
 
   const changePassword = async () => {
@@ -116,7 +162,7 @@ export default function AdminSettingsPage() {
               <label>Cover Image</label>
               <div style={{display:'flex',gap:8,alignItems:'center'}}>
                 <input className="fc" style={{marginBottom:0,flex:1}} placeholder="Paste URL or upload…" value={artForm.image||''} onChange={e=>setArtField('image',e.target.value)} />
-                <label className="upload-btn">{imgUploading?'⏳':'📁 Upload'}<input type="file" accept="image/*" style={{display:'none'}} disabled={imgUploading} onChange={e=>{const f=e.target.files?.[0];if(f)uploadImage(f);e.target.value=''}} /></label>
+                <label className="upload-btn">{imgUploading?'⏳':'📁 Upload'}<input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" style={{display:'none'}} disabled={imgUploading} onChange={e=>{const f=e.target.files?.[0];if(f)uploadImage(f);e.target.value=''}} /></label>
               </div>
               {artForm.image&&<div style={{marginTop:8,borderRadius:8,overflow:'hidden',height:100,position:'relative'}}><img src={artForm.image} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} /><button onClick={()=>setArtField('image','')} style={{position:'absolute',top:6,right:6,background:'rgba(0,0,0,0.5)',color:'#fff',border:'none',borderRadius:6,padding:'3px 8px',cursor:'pointer',fontSize:12}}>✕</button></div>}
             </div>
@@ -129,12 +175,13 @@ export default function AdminSettingsPage() {
             <div className="fg"><label>Excerpt *</label><textarea className="fc" rows={2} value={artForm.excerpt} onChange={e=>setArtField('excerpt',e.target.value)} /></div>
             <div className="fg">
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <label style={{margin:0}}>Body (HTML)</label>
+                <label style={{margin:0}}>Article Body (Markdown supported)</label>
                 <div style={{display:'flex',gap:4}}>
+                  <button onClick={()=>{setArtField('body',cleanArticleDraft(artForm.body));showToast('Article formatting cleaned ✓')}} style={{fontSize:12,padding:'3px 10px',borderRadius:6,cursor:'pointer',background:'transparent',color:'#6b6b67',border:'1px solid #e4e1d8',fontFamily:'inherit'}}>Clean Format</button>
                   {(['write','preview'] as const).map(m=><button key={m} onClick={()=>setArtBodyMode(m)} style={{fontSize:12,padding:'3px 10px',borderRadius:6,cursor:'pointer',background:artBodyMode===m?'#f5a623':'transparent',color:artBodyMode===m?'#1e2a45':'#a8a8a4',border:'1px solid #e4e1d8',fontFamily:'inherit'}}>{m.charAt(0).toUpperCase()+m.slice(1)}</button>)}
                 </div>
               </div>
-              {artBodyMode==='write' ? <textarea className="fc" rows={9} value={artForm.body} onChange={e=>setArtField('body',e.target.value)} style={{fontFamily:'monospace',fontSize:13}} /> : <div style={{border:'1px solid #e4e1d8',borderRadius:8,padding:'1rem',minHeight:160,background:'#fafaf8',fontSize:14,lineHeight:1.8,color:'#6b6b67'}} dangerouslySetInnerHTML={{__html:artForm.body||'<p style="color:#ccc;font-style:italic">Nothing to preview yet.</p>'}} />}
+              {artBodyMode==='write' ? <textarea className="fc" rows={12} value={artForm.body} onChange={e=>setArtField('body',e.target.value)} placeholder={'Write naturally with blank lines between paragraphs.\n\n## Subheading\n\n- Bullet point\n- Another point\n\n**Bold text**'} style={{fontFamily:'inherit',fontSize:14,lineHeight:1.6}} /> : <div style={{border:'1px solid #e4e1d8',borderRadius:8,padding:'1rem',minHeight:160,background:'#fafaf8'}}><ArticleBody body={artForm.body} emptyMessage="Nothing to preview yet." /></div>}
             </div>
             <div className="modal-actions">
               <button className="btn btn-primary" onClick={saveArticle}>{artModal.isNew?'Publish Article':'Save Changes'}</button>

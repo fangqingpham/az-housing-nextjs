@@ -1,24 +1,16 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-function getAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error('Supabase admin env vars missing')
-  return createClient(url, key)
-}
+import { requireStaff, StaffUser } from '@/lib/server/staff-auth'
 
 type RouteContext = { params: { id: string } }
 
-async function verifyCaseAccess(caseId: string, callerRole: string, callerId: string | null) {
-  const admin = getAdmin()
+async function verifyCaseAccess(caseId: string, user: StaffUser, admin: ReturnType<typeof import('@/lib/server/staff-auth').getServiceRoleClient>) {
   const { data } = await admin
     .from('client_cases')
     .select('id, assigned_agent_id')
     .eq('id', caseId)
     .single()
   if (!data) return { ok: false, status: 404, error: 'Case not found' }
-  if (callerRole === 'agent' && callerId && data.assigned_agent_id !== callerId) {
+  if (user.role === 'agent' && data.assigned_agent_id !== user.id) {
     return { ok: false, status: 403, error: 'Forbidden' }
   }
   return { ok: true }
@@ -27,14 +19,12 @@ async function verifyCaseAccess(caseId: string, callerRole: string, callerId: st
 // ── GET /api/admin/client-cases/[id]/notes ────────────────────────
 // Query params: caller_role=admin|agent  caller_id=<uuid>
 export async function GET(request: Request, { params }: RouteContext) {
-  const { searchParams } = new URL(request.url)
-  const callerRole = searchParams.get('caller_role') || 'admin'
-  const callerId   = searchParams.get('caller_id')
-
-  const check = await verifyCaseAccess(params.id, callerRole, callerId)
+  const auth = await requireStaff()
+  if ('error' in auth) return auth.error
+  const check = await verifyCaseAccess(params.id, auth.user, auth.admin)
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status })
 
-  const { data, error } = await getAdmin()
+  const { data, error } = await auth.admin
     .from('case_notes')
     .select('*')
     .eq('case_id', params.id)
@@ -47,17 +37,16 @@ export async function GET(request: Request, { params }: RouteContext) {
 // ── POST /api/admin/client-cases/[id]/notes ───────────────────────
 // Body: { content, created_by, caller_role?, caller_id? }
 export async function POST(request: Request, { params }: RouteContext) {
+  const auth = await requireStaff()
+  if ('error' in auth) return auth.error
   const body = await request.json()
-  const callerRole = body.caller_role || 'admin'
-  const callerId   = body.caller_id   || null
-
-  const check = await verifyCaseAccess(params.id, callerRole, callerId)
+  const check = await verifyCaseAccess(params.id, auth.user, auth.admin)
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status })
 
   const { content, created_by } = body
   if (!content?.trim()) return NextResponse.json({ error: 'Note content is required' }, { status: 400 })
 
-  const { data, error } = await getAdmin()
+  const { data, error } = await auth.admin
     .from('case_notes')
     .insert({
       case_id:    params.id,

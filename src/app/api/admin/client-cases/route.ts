@@ -1,12 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-function getAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error('Supabase admin env vars missing')
-  return createClient(url, key)
-}
+import { requireStaff } from '@/lib/server/staff-auth'
 
 // ── GET  /api/admin/client-cases ─────────────────────────────────
 // Query params:
@@ -15,11 +8,11 @@ function getAdmin() {
 //   archived=true|false      (default false)
 //   client_type, service_type, status, priority, agent_id, search
 export async function GET(request: Request) {
-  const admin = getAdmin()
+  const auth = await requireStaff()
+  if ('error' in auth) return auth.error
+  const { admin, user } = auth
   const { searchParams } = new URL(request.url)
 
-  const callerRole = searchParams.get('caller_role') || 'admin'
-  const callerId   = searchParams.get('caller_id')
   const archived   = searchParams.get('archived') === 'true'
 
   let query = admin
@@ -29,8 +22,8 @@ export async function GET(request: Request) {
     .order('created_at', { ascending: false })
 
   // Agents only see cases assigned to them
-  if (callerRole === 'agent' && callerId) {
-    query = query.eq('assigned_agent_id', callerId)
+  if (user.role === 'agent') {
+    query = query.eq('assigned_agent_id', user.id)
   } else {
     // Admins can filter by agent optionally
     const agentId = searchParams.get('agent_id')
@@ -64,15 +57,17 @@ export async function GET(request: Request) {
 
 // ── POST /api/admin/client-cases ─────────────────────────────────
 export async function POST(request: Request) {
-  const admin = getAdmin()
+  const auth = await requireStaff()
+  if ('error' in auth) return auth.error
+  const { admin, user } = auth
   const body  = await request.json()
 
   if (!body.full_name?.trim()) return NextResponse.json({ error: 'full_name is required' }, { status: 400 })
   if (!body.client_type)        return NextResponse.json({ error: 'client_type is required' }, { status: 400 })
 
   // If agent is creating (caller_role=agent) and no assigned_agent_id, auto-assign to self
-  if (body.caller_role === 'agent' && body.caller_id && !body.assigned_agent_id) {
-    body.assigned_agent_id = body.caller_id
+  if (user.role === 'agent') {
+    body.assigned_agent_id = user.id
   }
 
   // Strip internal-only fields before insert

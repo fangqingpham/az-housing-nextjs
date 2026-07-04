@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireStaff } from '@/lib/server/staff-auth';
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -27,12 +28,16 @@ function deriveTransactionType(selectedServices: string[]): string {
 // ── GET /api/admin/tenant-placement-orders ──────────────────────────────────
 export async function GET() {
   try {
+    const auth = await requireStaff();
+    if ('error' in auth) return auth.error;
     const supabase = getSupabaseAdmin();
 
-    const { data: orders, error } = await supabase
+    let ordersQuery = supabase
       .from('tenant_placement_orders')
       .select('*')
       .order('created_at', { ascending: false });
+    if (auth.user.role === 'agent') ordersQuery = ordersQuery.eq('assigned_agent_id', auth.user.id);
+    const { data: orders, error } = await ordersQuery;
 
     if (error) return NextResponse.json({ error: 'Orders could not be loaded.' }, { status: 500 });
     if (!orders || orders.length === 0) return NextResponse.json({ orders: [] });
@@ -67,6 +72,8 @@ export async function GET() {
 // ── PATCH /api/admin/tenant-placement-orders ────────────────────────────────
 export async function PATCH(request: Request) {
   try {
+    const auth = await requireStaff();
+    if ('error' in auth) return auth.error;
     const body = await request.json();
     const { id, status, commission, commission_paid, changed_by, changed_by_role } = body;
 
@@ -83,6 +90,12 @@ export async function PATCH(request: Request) {
 
     if (fetchErr || !current) {
       return NextResponse.json({ error: 'Order not found.' }, { status: 404 });
+    }
+    if (auth.user.role === 'agent' && current.assigned_agent_id !== auth.user.id) {
+      return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
+    }
+    if (auth.user.role === 'agent' && ('assigned_agent_id' in body || commission !== undefined || commission_paid !== undefined)) {
+      return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
     }
 
     const updates: Record<string, any> = {};

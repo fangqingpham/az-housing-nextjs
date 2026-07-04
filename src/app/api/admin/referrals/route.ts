@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient, publicError } from '@/lib/server/referrals'
+import { requireStaff } from '@/lib/server/staff-auth'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
+    const auth = await requireStaff(['admin'])
+    if ('error' in auth) return auth.error
     const admin = getAdminClient()
     const [partnersRes, submissionsRes, payoutsRes] = await Promise.all([
       admin.from('referral_partners').select('*').order('created_at', { ascending: false }),
@@ -29,6 +32,8 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await requireStaff(['admin'])
+    if ('error' in auth) return auth.error
     const { id, ...updates } = await req.json()
     if (!id) return NextResponse.json(publicError('Payout id is required.'), { status: 400 })
 

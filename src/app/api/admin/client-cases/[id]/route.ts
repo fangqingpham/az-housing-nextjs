@@ -1,12 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-function getAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error('Supabase admin env vars missing')
-  return createClient(url, key)
-}
+import { requireStaff } from '@/lib/server/staff-auth'
 
 type RouteContext = { params: { id: string } }
 
@@ -36,10 +29,9 @@ function sanitiseUpdates(raw: Record<string, any>): Record<string, any> {
 
 // ── GET /api/admin/client-cases/[id] ─────────────────────────────
 export async function GET(request: Request, { params }: RouteContext) {
-  const admin = getAdmin()
-  const { searchParams } = new URL(request.url)
-  const callerRole = searchParams.get('caller_role') || 'admin'
-  const callerId   = searchParams.get('caller_id')
+  const auth = await requireStaff()
+  if ('error' in auth) return auth.error
+  const { admin, user } = auth
 
   const { data, error } = await admin
     .from('client_cases')
@@ -49,7 +41,7 @@ export async function GET(request: Request, { params }: RouteContext) {
 
   if (error || !data) return NextResponse.json({ error: 'Case not found' }, { status: 404 })
 
-  if (callerRole === 'agent' && callerId && data.assigned_agent_id !== callerId) {
+  if (user.role === 'agent' && data.assigned_agent_id !== user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -58,11 +50,10 @@ export async function GET(request: Request, { params }: RouteContext) {
 
 // ── PATCH /api/admin/client-cases/[id] ───────────────────────────
 export async function PATCH(request: Request, { params }: RouteContext) {
-  const admin = getAdmin()
+  const auth = await requireStaff()
+  if ('error' in auth) return auth.error
+  const { admin, user } = auth
   const body  = await request.json()
-
-  const callerRole = body.caller_role || 'admin'
-  const callerId   = body.caller_id
 
   // Verify case exists
   const { data: existing, error: fetchErr } = await admin
@@ -74,7 +65,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   if (fetchErr || !existing) return NextResponse.json({ error: 'Case not found' }, { status: 404 })
 
   // Agents can only edit their own cases
-  if (callerRole === 'agent' && callerId && existing.assigned_agent_id !== callerId) {
+  if (user.role === 'agent' && existing.assigned_agent_id !== user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -87,7 +78,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   } = body
 
   // Agents cannot reassign cases
-  if (callerRole === 'agent') delete raw.assigned_agent_id
+  if (user.role === 'agent') delete raw.assigned_agent_id
 
   // ⚠️  Sanitise empty strings → null for UUID / date / numeric columns
   //     Supabase rejects '' for uuid-typed columns with a 500 error

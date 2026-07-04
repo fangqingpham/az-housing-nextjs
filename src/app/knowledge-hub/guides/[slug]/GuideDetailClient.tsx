@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getArticleById } from '@/lib/api';
+import ArticleBody from '@/components/articles/ArticleBody';
 import type { BlogPost } from '@/types';
 
 const CAT_META: Record<string, { color: string; icon: string }> = {
@@ -132,14 +133,7 @@ export default function GuideDetailClient() {
 
         {/* Article body — written as HTML in the admin editor */}
         {article.body ? (
-          <div
-            dangerouslySetInnerHTML={{ __html: article.body }}
-            style={{
-              color: 'var(--dark)',
-              fontSize: 'clamp(15px,2vw,17px)',
-              lineHeight: 1.85,
-            }}
-          />
+          <ArticleBody body={article.body} />
         ) : (
           <p style={{ color: 'var(--mid)', fontStyle: 'italic' }}>
             Full guide content coming soon.

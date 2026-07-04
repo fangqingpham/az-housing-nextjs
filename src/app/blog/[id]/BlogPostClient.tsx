@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { BLOGS } from "@/lib/utils";
 import { getArticleById } from "@/lib/api";
+import ArticleBody from "@/components/articles/ArticleBody";
 import type { BlogPost } from "@/types";
 
 export default function BlogPostClient() {
@@ -75,10 +76,7 @@ export default function BlogPostClient() {
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "48px 24px 80px" }}>
         <div style={{ background: "#fff", borderRadius: 16, padding: "clamp(28px,5vw,56px)", boxShadow: "0 2px 20px rgba(0,0,0,0.07)", marginBottom: 48 }}>
           <p style={{ fontSize: "1.15rem", color: "var(--dark)", lineHeight: 1.8, fontStyle: "italic", borderLeft: "4px solid var(--accent)", paddingLeft: 20, marginBottom: 32 }}>{post.excerpt}</p>
-          <div
-            style={{ color: "var(--mid)", lineHeight: 1.85, fontSize: "1rem" }}
-            dangerouslySetInnerHTML={{ __html: post.body || "<p>Full article coming soon.</p>" }}
-          />
+          <ArticleBody body={post.body} />
         </div>
 
         <div style={{ background: "#fff", borderRadius: 14, padding: "28px 32px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 20, marginBottom: 48, flexWrap: "wrap" }}>
