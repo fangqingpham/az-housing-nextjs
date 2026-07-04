@@ -19,7 +19,7 @@ async function verifyCaseAccess(caseId: string, user: StaffUser, admin: ReturnTy
 // ── GET /api/admin/client-cases/[id]/notes ────────────────────────
 // Query params: caller_role=admin|agent  caller_id=<uuid>
 export async function GET(request: Request, { params }: RouteContext) {
-  const auth = await requireStaff()
+  const auth = await requireStaff(request)
   if ('error' in auth) return auth.error
   const check = await verifyCaseAccess(params.id, auth.user, auth.admin)
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status })
@@ -37,7 +37,7 @@ export async function GET(request: Request, { params }: RouteContext) {
 // ── POST /api/admin/client-cases/[id]/notes ───────────────────────
 // Body: { content, created_by, caller_role?, caller_id? }
 export async function POST(request: Request, { params }: RouteContext) {
-  const auth = await requireStaff()
+  const auth = await requireStaff(request)
   if ('error' in auth) return auth.error
   const body = await request.json()
   const check = await verifyCaseAccess(params.id, auth.user, auth.admin)

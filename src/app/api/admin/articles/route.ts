@@ -7,8 +7,8 @@ function articlePayload(input: Record<string, unknown>) {
   return Object.fromEntries(ARTICLE_FIELDS.filter(key => key in input).map(key => [key, input[key]]))
 }
 
-export async function GET() {
-  const auth = await requireStaff(['admin'])
+export async function GET(request: NextRequest) {
+  const auth = await requireStaff(request, ['admin'])
   if ('error' in auth) return auth.error
   const { data, error } = await auth.admin.from('articles').select('*').order('created_at', { ascending: false })
   if (error) return NextResponse.json({ error: 'Articles could not be loaded.' }, { status: 500 })
@@ -16,7 +16,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireStaff(['admin'])
+  const auth = await requireStaff(request, ['admin'])
   if ('error' in auth) return auth.error
   const payload = articlePayload(await request.json())
   if (!String(payload.title || '').trim() || !String(payload.excerpt || '').trim()) {
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const auth = await requireStaff(['admin'])
+  const auth = await requireStaff(request, ['admin'])
   if ('error' in auth) return auth.error
   const input = await request.json()
   const id = String(input.id || '')
@@ -41,7 +41,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const auth = await requireStaff(['admin'])
+  const auth = await requireStaff(request, ['admin'])
   if ('error' in auth) return auth.error
   const id = request.nextUrl.searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'Article id is required.' }, { status: 400 })

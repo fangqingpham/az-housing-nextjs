@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
+import { adminFetch } from '@/lib/client/admin-fetch'
 
 type DealStage = 'lead' | 'contacted' | 'viewing' | 'offer' | 'closed' | 'cancelled'
 
@@ -59,7 +60,7 @@ export default function AdminPipelinePage() {
     setLoading(true)
     const [dealsRes, ordersRes, agentsRes] = await Promise.all([
       fetch('/api/admin/deals').then(r => r.json()),
-      fetch('/api/admin/tenant-placement-orders').then(r => r.json()),
+      adminFetch('/api/admin/tenant-placement-orders').then(r => r.json()),
       fetch('/api/admin/agents').then(r => r.json()).catch(() => ({ agents: [] })),
     ])
     setDeals(dealsRes.deals || [])

@@ -7,6 +7,7 @@ import Toast from '@/components/ui/Toast'
 import ArticleBody from '@/components/articles/ArticleBody'
 import { useToast } from '@/hooks/useToast'
 import { cleanArticleDraft } from '@/lib/articles/format'
+import { adminFetch, readAdminJson } from '@/lib/client/admin-fetch'
 import type { BlogPost } from '@/types'
 
 const ARTICLE_CATEGORIES = ['Buying Guide','Selling Tips','Renting Advice','Market Analysis','Neighbourhood Guide','Mortgages & Finance','Legal Updates','Renovation & Maintenance','Investment','News']
@@ -43,6 +44,7 @@ export default function AdminSettingsPage() {
   const [savingSettings, setSavingSettings] = useState(false)
   const [articles, setArticles] = useState<BlogPost[]>([])
   const [artLoading, setArtLoading] = useState(false)
+  const [artError, setArtError] = useState('')
   const [artSearch, setArtSearch] = useState('')
   const [artCat, setArtCat] = useState('')
   const [artModal, setArtModal] = useState<{ open: boolean; isNew: boolean }>({ open: false, isNew: true })
@@ -61,13 +63,15 @@ export default function AdminSettingsPage() {
 
   const loadArticles = async () => {
     setArtLoading(true)
+    setArtError('')
     try {
-      const response = await fetch('/api/admin/articles', { cache: 'no-store' })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Articles could not be loaded.')
+      const response = await adminFetch('/api/admin/articles', { cache: 'no-store' })
+      const data = await readAdminJson<{ articles: BlogPost[] }>(response)
       setArticles(data.articles || [])
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Articles could not be loaded.')
+      const message = error instanceof Error ? error.message : 'Articles could not be loaded.'
+      setArtError(message)
+      showToast(message)
     } finally {
       setArtLoading(false)
     }
@@ -90,9 +94,8 @@ export default function AdminSettingsPage() {
       const optimized = await prepareCoverImage(file)
       const formData = new FormData()
       formData.append('file', optimized)
-      const response = await fetch('/api/admin/articles/cover', { method: 'POST', body: formData })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Image upload failed.')
+      const response = await adminFetch('/api/admin/articles/cover', { method: 'POST', body: formData })
+      const data = await readAdminJson<{ url: string }>(response)
       setArtField('image', data.url)
       showToast('Image uploaded ✓')
     } catch (error) {
@@ -105,20 +108,23 @@ export default function AdminSettingsPage() {
   const saveArticle = async () => {
     if (!artForm.title.trim()) { showToast('Title is required.'); return }
     if (!artForm.excerpt.trim()) { showToast('Excerpt is required.'); return }
-    const article = { ...artForm, body: cleanArticleDraft(artForm.body) }
-    if (artModal.isNew) article.id = `art-${Date.now()}-${Math.random().toString(36).slice(2,7)}`
-    const response = await fetch('/api/admin/articles', { method: artModal.isNew ? 'POST' : 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(article) })
-    const data = await response.json()
-    if (!response.ok) { showToast(data.error || 'Article could not be saved.'); return }
-    showToast(artModal.isNew ? 'Article published ✓' : 'Article updated ✓')
-    setArtModal({ open: false, isNew: true }); await loadArticles()
+    try {
+      const article = { ...artForm, body: cleanArticleDraft(artForm.body) }
+      if (artModal.isNew) article.id = `art-${Date.now()}-${Math.random().toString(36).slice(2,7)}`
+      const response = await adminFetch('/api/admin/articles', { method: artModal.isNew ? 'POST' : 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(article) })
+      await readAdminJson(response)
+      showToast(artModal.isNew ? 'Article published ✓' : 'Article updated ✓')
+      setArtModal({ open: false, isNew: true }); await loadArticles()
+    } catch (error) { showToast(error instanceof Error ? error.message : 'Article could not be saved.') }
   }
 
   const removeArticle = async (id: string) => {
     if (!confirm('Delete this article?')) return
-    const response = await fetch(`/api/admin/articles?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
-    if (!response.ok) { showToast('Article could not be deleted.'); return }
-    setArticles(prev => prev.filter(a => a.id !== id)); showToast('Article deleted.')
+    try {
+      const response = await adminFetch(`/api/admin/articles?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+      await readAdminJson(response)
+      setArticles(prev => prev.filter(a => a.id !== id)); showToast('Article deleted.')
+    } catch (error) { showToast(error instanceof Error ? error.message : 'Article could not be deleted.') }
   }
 
   const changePassword = async () => {
@@ -225,7 +231,9 @@ export default function AdminSettingsPage() {
               <select className="fc" style={{maxWidth:200,marginBottom:0}} value={artCat} onChange={e=>setArtCat(e.target.value)}><option value="">All categories</option>{ARTICLE_CATEGORIES.map(c=><option key={c}>{c}</option>)}</select>
               <button className="btn btn-primary" style={{marginLeft:'auto'}} onClick={()=>{setArtForm(emptyArticle());setArtBodyMode('write');setArtModal({open:true,isNew:true})}}>+ New Article</button>
             </div>
-            {artLoading?<div className="empty-msg">Loading articles…</div>:filteredArticles.length===0?(
+            {artLoading?<div className="empty-msg">Loading articles…</div>:artError?(
+              <div className="empty-msg"><p style={{fontWeight:700,color:'#a32d2d',marginBottom:8}}>Articles could not be loaded</p><p>{artError}</p></div>
+            ):filteredArticles.length===0?(
               <div className="empty-msg"><div style={{fontSize:36,marginBottom:12}}>✍️</div><p style={{fontWeight:600,marginBottom:6}}>No articles yet</p><p style={{color:'#a8a8a4',fontSize:13,marginBottom:18}}>Articles you publish here appear on the blog.</p><button className="btn btn-primary" onClick={()=>{setArtForm(emptyArticle());setArtModal({open:true,isNew:true})}}>Write Your First Article</button></div>
             ):(
               <div className="table-wrap">

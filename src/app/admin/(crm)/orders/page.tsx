@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
+import { adminFetch, readAdminJson } from '@/lib/client/admin-fetch'
 
 type Order = {
   id: string; created_at: string; landlord_name: string; company_name: string | null
@@ -29,6 +30,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders]   = useState<Order[]>([])
   const [agents, setAgents]   = useState<Agent[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [search, setSearch]   = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -38,18 +40,24 @@ export default function AdminOrdersPage() {
 
   const load = async () => {
     setLoading(true)
-    const [ordersRes, agentsRes] = await Promise.all([
-      fetch('/api/admin/tenant-placement-orders', { cache: 'no-store' }),
-      createClient().from('users').select('id,fname,lname,email').eq('role', 'agent').order('fname'),
-    ])
-    if (ordersRes.ok) { const d = await ordersRes.json(); setOrders(d.orders || []) }
-    setAgents(agentsRes.data || [])
-    setLoading(false)
+    setLoadError('')
+    try {
+      const [ordersRes, agentsRes] = await Promise.all([
+        adminFetch('/api/admin/tenant-placement-orders', { cache: 'no-store' }),
+        createClient().from('users').select('id,fname,lname,email').eq('role', 'agent').order('fname'),
+      ])
+      const data = await readAdminJson<{ orders: Order[] }>(ordersRes)
+      setOrders(data.orders || [])
+      setAgents(agentsRes.data || [])
+    } catch (error) {
+      const text = error instanceof Error ? error.message : 'Orders could not be loaded.'
+      setLoadError(text); showToast(text)
+    } finally { setLoading(false) }
   }
 
   const patch = async (orderId: string, fields: Record<string, any>) => {
     setSaving(orderId)
-    const r = await fetch('/api/admin/tenant-placement-orders', {
+    const r = await adminFetch('/api/admin/tenant-placement-orders', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: orderId, ...fields }),
     })
@@ -79,6 +87,7 @@ export default function AdminOrdersPage() {
     <>
       <Toast message={message} visible={visible} />
       <div className="page-shell">
+        {loadError && <div className="empty-msg" style={{color:'#a32d2d',marginBottom:16}}>{loadError}</div>}
         <div className="page-header">
           <div>
             <h1 className="page-title">Orders</h1>

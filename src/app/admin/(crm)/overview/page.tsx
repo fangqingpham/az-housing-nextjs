@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { adminFetch } from '@/lib/client/admin-fetch'
 import {
   getListings, getUserCount, getMessageCount,
   getArticleCount,
@@ -21,7 +22,7 @@ type RecentOrder = {
 }
 
 async function fetchOrders(): Promise<RecentOrder[]> {
-  const r = await fetch('/api/admin/tenant-placement-orders', { cache: 'no-store' })
+  const r = await adminFetch('/api/admin/tenant-placement-orders', { cache: 'no-store' })
   if (!r.ok) return []
   const d = await r.json()
   return d.orders || []

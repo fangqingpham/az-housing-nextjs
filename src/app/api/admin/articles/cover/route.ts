@@ -17,7 +17,7 @@ function hasValidSignature(type: string, bytes: Uint8Array) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireStaff(['admin'])
+  const auth = await requireStaff(request, ['admin'])
   if ('error' in auth) return auth.error
 
   const formData = await request.formData()

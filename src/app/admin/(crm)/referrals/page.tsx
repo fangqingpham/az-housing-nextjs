@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
+import { adminFetch, readAdminJson } from '@/lib/client/admin-fetch'
 
 type Partner = {
   id: string; full_name: string; email: string; phone: string; referral_id: string
@@ -44,19 +45,19 @@ export default function AdminReferralsPage() {
 
   async function load() {
     setLoading(true)
-    const res = await fetch('/api/admin/referrals', { cache: 'no-store' })
-    if (res.ok) {
-      const data = await res.json()
+    try {
+      const res = await adminFetch('/api/admin/referrals', { cache: 'no-store' })
+      const data = await readAdminJson<{ partners: Partner[]; submissions: Submission[]; payouts: Payout[] }>(res)
       setPartners(data.partners || [])
       setSubmissions(data.submissions || [])
       setPayouts(data.payouts || [])
-    }
-    setLoading(false)
+    } catch (error) { showToast(error instanceof Error ? error.message : 'Referral data could not be loaded.') }
+    finally { setLoading(false) }
   }
 
   async function patch(id: string, fields: Record<string, any>) {
     setSaving(id)
-    const res = await fetch('/api/admin/referrals', {
+    const res = await adminFetch('/api/admin/referrals', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, ...fields }),

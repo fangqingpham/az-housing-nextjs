@@ -26,9 +26,9 @@ function deriveTransactionType(selectedServices: string[]): string {
 }
 
 // ── GET /api/admin/tenant-placement-orders ──────────────────────────────────
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const auth = await requireStaff();
+    const auth = await requireStaff(request);
     if ('error' in auth) return auth.error;
     const supabase = getSupabaseAdmin();
 
@@ -72,7 +72,7 @@ export async function GET() {
 // ── PATCH /api/admin/tenant-placement-orders ────────────────────────────────
 export async function PATCH(request: Request) {
   try {
-    const auth = await requireStaff();
+    const auth = await requireStaff(request);
     if ('error' in auth) return auth.error;
     const body = await request.json();
     const { id, status, commission, commission_paid, changed_by, changed_by_role } = body;

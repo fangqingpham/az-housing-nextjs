@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { adminFetch } from '@/lib/client/admin-fetch'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -403,7 +404,7 @@ function NotesTab({ caseId }: { caseId: string }) {
 
   const loadNotes = useCallback(async () => {
     setLoading(true)
-    const r = await fetch(`/api/admin/client-cases/${caseId}/notes?caller_role=admin`)
+    const r = await adminFetch(`/api/admin/client-cases/${caseId}/notes?caller_role=admin`)
     if (r.ok) { const d = await r.json(); setNotes(d.notes) }
     setLoading(false)
   }, [caseId])
@@ -414,7 +415,7 @@ function NotesTab({ caseId }: { caseId: string }) {
     if (!content.trim()) return
     setSaving(true)
     setError('')
-    const r = await fetch(`/api/admin/client-cases/${caseId}/notes`, {
+    const r = await adminFetch(`/api/admin/client-cases/${caseId}/notes`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, caller_role: 'admin' }),
     })
@@ -501,7 +502,7 @@ function CaseModal({
 
   const saveDetails = async () => {
     setSaving(true)
-    const r = await fetch(`/api/admin/client-cases/${caseData.id}?caller_role=admin`, {
+    const r = await adminFetch(`/api/admin/client-cases/${caseData.id}?caller_role=admin`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     })
@@ -518,7 +519,7 @@ function CaseModal({
   }
 
   const saveChecklist = async (checklist: Record<string, boolean>) => {
-    const r = await fetch(`/api/admin/client-cases/${caseData.id}`, {
+    const r = await adminFetch(`/api/admin/client-cases/${caseData.id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ checklist, caller_role: 'admin' }),
     })
@@ -613,7 +614,7 @@ function CaseModal({
                     <div style={{ display: 'flex', gap: 8 }}>
                       {isAdmin && (
                         <button onClick={async () => {
-                          const r = await fetch(`/api/admin/client-cases/${caseData.id}`, {
+                          const r = await adminFetch(`/api/admin/client-cases/${caseData.id}`, {
                           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ archived: !caseData.archived, caller_role: 'admin' }),
                           })
@@ -741,7 +742,7 @@ function CreateModal({ agents, isAdmin, onClose, onCreate }: {
     if (!form.full_name?.trim()) { setError('Full Name is required.'); return }
     if (!form.client_type) { setError('Client Type is required.'); return }
     setSaving(true); setError('')
-    const r = await fetch('/api/admin/client-cases', {
+    const r = await adminFetch('/api/admin/client-cases', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, caller_role: 'admin' }),
     })
@@ -787,6 +788,7 @@ export default function ClientManagementPage() {
   const [cases, setCases]             = useState<ClientCase[]>([])
   const [agents, setAgents]           = useState<Agent[]>([])
   const [loading, setLoading]         = useState(true)
+  const [loadError, setLoadError]     = useState('')
   const isAdmin                       = true  // this page is admin-only (AdminGuard)
   const [search, setSearch]           = useState('')
   const [filterClient, setFilterClient]   = useState('')
@@ -803,6 +805,7 @@ export default function ClientManagementPage() {
 
   const load = useCallback(async () => {
     setLoading(true)
+    setLoadError('')
     const params = new URLSearchParams()
     params.set('caller_role', 'admin')
     if (showArchived) params.set('archived', 'true')
@@ -812,17 +815,18 @@ export default function ClientManagementPage() {
     if (filterPriority) params.set('priority', filterPriority)
     if (filterAgent && isAdmin) params.set('agent_id', filterAgent)
 
-    const [casesRes, agentsRes] = await Promise.all([
-      fetch(`/api/admin/client-cases?${params}`),
-      createClient().from('users').select('id,fname,lname,email').eq('role', 'agent').order('fname'),
-    ])
-
-    if (casesRes.ok) {
+    try {
+      const [casesRes, agentsRes] = await Promise.all([
+        adminFetch(`/api/admin/client-cases?${params}`),
+        createClient().from('users').select('id,fname,lname,email').eq('role', 'agent').order('fname'),
+      ])
       const d = await casesRes.json()
+      if (!casesRes.ok) throw new Error(d.error || 'Client cases could not be loaded.')
       setCases(d.cases || [])
-    }
-    setAgents(agentsRes.data || [])
-    setLoading(false)
+      setAgents(agentsRes.data || [])
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'Client cases could not be loaded.')
+    } finally { setLoading(false) }
   }, [showArchived, filterClient, filterService, filterStatus, filterPriority, filterAgent, isAdmin])
 
   useEffect(() => { load() }, [load])
@@ -938,6 +942,8 @@ export default function ClientManagementPage() {
         {/* Case List */}
         {loading ? (
           <div style={{ padding: 48, textAlign: 'center', color: '#a8a8a4', background: '#fff', borderRadius: 14 }}>Loading cases…</div>
+        ) : loadError ? (
+          <div style={{ padding: 48, textAlign: 'center', color: '#a32d2d', background: '#fff', borderRadius: 14 }}>{loadError}</div>
         ) : filtered.length === 0 ? (
           <div style={{ padding: 48, textAlign: 'center', color: '#a8a8a4', background: '#fff', borderRadius: 14 }}>
             {cases.length === 0 ? 'No cases yet. Create your first one!' : 'No cases match your search or filters.'}

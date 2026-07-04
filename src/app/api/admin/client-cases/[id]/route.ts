@@ -29,7 +29,7 @@ function sanitiseUpdates(raw: Record<string, any>): Record<string, any> {
 
 // ── GET /api/admin/client-cases/[id] ─────────────────────────────
 export async function GET(request: Request, { params }: RouteContext) {
-  const auth = await requireStaff()
+  const auth = await requireStaff(request)
   if ('error' in auth) return auth.error
   const { admin, user } = auth
 
@@ -50,7 +50,7 @@ export async function GET(request: Request, { params }: RouteContext) {
 
 // ── PATCH /api/admin/client-cases/[id] ───────────────────────────
 export async function PATCH(request: Request, { params }: RouteContext) {
-  const auth = await requireStaff()
+  const auth = await requireStaff(request)
   if ('error' in auth) return auth.error
   const { admin, user } = auth
   const body  = await request.json()

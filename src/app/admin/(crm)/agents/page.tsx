@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
 import type { AppUser } from '@/types'
+import { adminFetch } from '@/lib/client/admin-fetch'
 
 const ROLES = ['buyer', 'landlord', 'agent', 'admin'] as const
 type Role = typeof ROLES[number]
@@ -42,7 +43,7 @@ export default function AdminAgentsPage() {
     setLoading(true)
     const [userRows, referralRes] = await Promise.all([
       getUsers(),
-      fetch('/api/admin/referrals', { cache: 'no-store' }).then(r => r.json()).catch(() => ({ partners: [] })),
+      adminFetch('/api/admin/referrals', { cache: 'no-store' }).then(r => r.json()).catch(() => ({ partners: [] })),
     ])
     setUsers(userRows)
     setReferralPartners(referralRes.partners || [])

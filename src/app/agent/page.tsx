@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import AgentGuard, { AgentUser } from '@/components/admin/AgentGuard'
+import { adminFetch } from '@/lib/client/admin-fetch'
 
 type Order = {
   id: string; created_at: string; landlord_name: string; company_name: string | null
@@ -100,7 +101,7 @@ function Dashboard({ agent }: { agent: AgentUser }) {
 
   const loadClients = async () => {
     setCasesLoading(true)
-    const r = await fetch(`/api/admin/client-cases?caller_role=agent&caller_id=${agent.id}`)
+    const r = await adminFetch(`/api/admin/client-cases?caller_role=agent&caller_id=${agent.id}`)
     if (r.ok) { const d = await r.json(); setClientCases(d.cases || []) }
     setCasesLoading(false)
   }
@@ -119,7 +120,7 @@ function Dashboard({ agent }: { agent: AgentUser }) {
 
   const updateStatus = async (orderId: string, newStatus: string) => {
     setSaving(orderId)
-    const r = await fetch('/api/admin/tenant-placement-orders', {
+    const r = await adminFetch('/api/admin/tenant-placement-orders', {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: orderId, status: newStatus, changed_by: agent.id, changed_by_role: 'agent' }),
     })
@@ -458,14 +459,14 @@ function Dashboard({ agent }: { agent: AgentUser }) {
           }
 
           const loadNotes = async (caseId: string) => {
-            const r = await fetch(`/api/admin/client-cases/${caseId}/notes?caller_role=agent&caller_id=${agent.id}`)
+            const r = await adminFetch(`/api/admin/client-cases/${caseId}/notes?caller_role=agent&caller_id=${agent.id}`)
             if (r.ok) { const d = await r.json(); setCaseNotes(d.notes || []) }
           }
 
           const addNote = async () => {
             if (!selectedCase || !noteContent.trim()) return
             setSavingNote(true)
-            const r = await fetch(`/api/admin/client-cases/${selectedCase.id}/notes`, {
+            const r = await adminFetch(`/api/admin/client-cases/${selectedCase.id}/notes`, {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ content: noteContent, created_by: `${agent.fname} ${agent.lname} (Agent)`, caller_role: 'agent', caller_id: agent.id }),
             })
@@ -476,7 +477,7 @@ function Dashboard({ agent }: { agent: AgentUser }) {
 
           const updateCaseField = async (field: string, value: string) => {
             if (!selectedCase) return
-            const r = await fetch(`/api/admin/client-cases/${selectedCase.id}`, {
+            const r = await adminFetch(`/api/admin/client-cases/${selectedCase.id}`, {
               method: 'PATCH', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ [field]: value, caller_role: 'agent', caller_id: agent.id }),
             })
@@ -749,7 +750,7 @@ function NewCaseModal({ agent, onClose, onCreated }: {
     if (!form.full_name?.trim()) { setError('Full Name is required.'); return }
     if (!form.client_type)       { setError('Client Type is required.'); return }
     setSaving(true); setError('')
-    const r = await fetch('/api/admin/client-cases', {
+    const r = await adminFetch('/api/admin/client-cases', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, caller_role: 'agent', caller_id: agent.id }),
     })

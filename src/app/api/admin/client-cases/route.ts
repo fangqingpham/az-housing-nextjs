@@ -8,7 +8,7 @@ import { requireStaff } from '@/lib/server/staff-auth'
 //   archived=true|false      (default false)
 //   client_type, service_type, status, priority, agent_id, search
 export async function GET(request: Request) {
-  const auth = await requireStaff()
+  const auth = await requireStaff(request)
   if ('error' in auth) return auth.error
   const { admin, user } = auth
   const { searchParams } = new URL(request.url)
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
 
 // ── POST /api/admin/client-cases ─────────────────────────────────
 export async function POST(request: Request) {
-  const auth = await requireStaff()
+  const auth = await requireStaff(request)
   if ('error' in auth) return auth.error
   const { admin, user } = auth
   const body  = await request.json()

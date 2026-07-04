@@ -4,9 +4,9 @@ import { requireStaff } from '@/lib/server/staff-auth'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const auth = await requireStaff(['admin'])
+    const auth = await requireStaff(req, ['admin'])
     if ('error' in auth) return auth.error
     const admin = getAdminClient()
     const [partnersRes, submissionsRes, payoutsRes] = await Promise.all([
@@ -32,7 +32,7 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const auth = await requireStaff(['admin'])
+    const auth = await requireStaff(req, ['admin'])
     if ('error' in auth) return auth.error
     const { id, ...updates } = await req.json()
     if (!id) return NextResponse.json(publicError('Payout id is required.'), { status: 400 })

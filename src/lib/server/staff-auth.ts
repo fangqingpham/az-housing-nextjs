@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { createClient as createSessionClient } from '@/lib/supabase/server'
 
 export type StaffUser = { id: string; role: 'admin' | 'agent' }
 
@@ -13,22 +12,38 @@ export function getServiceRoleClient() {
   })
 }
 
-export async function requireStaff(allowedRoles: StaffUser['role'][] = ['admin', 'agent']) {
-  const sessionClient = createSessionClient()
-  const { data: { user }, error } = await sessionClient.auth.getUser()
-  if (error || !user) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
+export async function requireStaff(request: Request, allowedRoles: StaffUser['role'][] = ['admin', 'agent']) {
+  const authorization = request.headers.get('authorization')
+  const match = authorization?.match(/^Bearer\s+(.+)$/i)
+  if (!match?.[1]) {
+    return { error: NextResponse.json({ error: 'Unauthorized: missing bearer token.' }, { status: 401 }) }
   }
 
-  const admin = getServiceRoleClient()
-  const { data: staff } = await admin
+  let admin
+  try {
+    admin = getServiceRoleClient()
+  } catch (error) {
+    console.error('[staff auth] Supabase server configuration is missing', error)
+    return { error: NextResponse.json({ error: 'Server authentication is not configured.' }, { status: 500 }) }
+  }
+
+  const { data: { user }, error } = await admin.auth.getUser(match[1])
+  if (error || !user) {
+    return { error: NextResponse.json({ error: 'Unauthorized: invalid or expired session.' }, { status: 401 }) }
+  }
+
+  const { data: staff, error: staffError } = await admin
     .from('users')
     .select('id, role')
     .eq('id', user.id)
     .maybeSingle()
 
+  if (staffError) {
+    console.error('[staff auth] Staff role lookup failed', staffError.message)
+    return { error: NextResponse.json({ error: 'Could not verify the staff role.' }, { status: 500 }) }
+  }
   if (!staff || !allowedRoles.includes(staff.role)) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) }
+    return { error: NextResponse.json({ error: 'Forbidden: this account does not have the required staff role.' }, { status: 403 }) }
   }
 
   return { user: staff as StaffUser, admin }
