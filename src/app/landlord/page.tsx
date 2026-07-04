@@ -141,6 +141,7 @@ const TESTIMONIALS_ZH = [
 ];
 
 const FAQS_EN = [
+  { q: "Why is tenant screening important for Ontario landlords?", a: "Tenant screening helps landlords reduce the risk of non-payment, fake documents, poor communication, and future tenancy problems. A proper screening process should not rely on one document only. It should review the applicant’s identity, income, employment, credit history, landlord references, affordability, and overall consistency of the application." },
   { q: "How long does it take for my listing to go live?",    a: "Most listings are reviewed and approved within 2-4 hours during business hours. You will receive an email confirmation as soon as your listing is live." },
   { q: "Can I edit my listing after it is published?",        a: "Yes. You can update photos, pricing, description, and availability at any time from your dashboard. Changes go live immediately." },
   { q: "Is my contact information kept private?",             a: "Absolutely. Prospective tenants and buyers send enquiries through our platform. Your email and phone number are never displayed publicly." },

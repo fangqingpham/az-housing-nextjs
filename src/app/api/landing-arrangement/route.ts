@@ -57,6 +57,7 @@ function getTransporter() {
 
 async function sendNewOrderEmail(order: {
   id: string;
+  createdAt: string;
   fullName: string;
   phone: string;
   email: string;
@@ -79,6 +80,8 @@ async function sendNewOrderEmail(order: {
     : '<li><em>None selected</em></li>';
 
   const rows = [
+    ['Client Type',        'Tenant'],
+    ['Order Type',         'Landing Arrangement'],
     ['Client Name',        order.fullName],
     ['Phone',              order.phone],
     ['Email',              `<a href="mailto:${order.email}" style="color:#1e2a45;">${order.email}</a>`],
@@ -106,10 +109,12 @@ async function sendNewOrderEmail(order: {
     from:    `"A-Z Housing Orders" <${process.env.SMTP_USER}>`,
     to:      'info@azhouse.ca',
     replyTo: order.email,
-    subject: `🛬 New Landing Arrangement Order — ${order.fullName} (arriving in ${order.gtaCity})`,
+    subject: 'New A-Z Housing Order Received',
     text: [
       'New Landing Arrangement Order submitted via the A-Z Housing website.',
       '',
+      'Client Type:   Tenant',
+      'Order Type:    Landing Arrangement',
       `Client:        ${order.fullName}`,
       `Phone:         ${order.phone}`,
       `Email:         ${order.email}`,
@@ -124,6 +129,8 @@ async function sendNewOrderEmail(order: {
       `Notes: ${order.additionalNotes || '—'}`,
       '',
       `Order ID: ${order.id}`,
+      `Created: ${new Date(order.createdAt).toLocaleString('en-CA', { timeZone: 'America/Toronto' })} ET`,
+      `Admin: https://azhouse.ca/admin/orders`,
     ].join('\n'),
     html: `
       <div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto;background:#f7f4ef;padding:32px 24px;border-radius:12px;">
@@ -152,6 +159,8 @@ async function sendNewOrderEmail(order: {
 
         <p style="color:#aaa;font-size:11px;text-align:center;margin-top:16px;">
           Order ID: <code>${order.id}</code><br/>
+          Created: ${new Date(order.createdAt).toLocaleString('en-CA', { timeZone: 'America/Toronto' })} ET<br/>
+          <a href="https://azhouse.ca/admin/orders" style="color:#1e2a45;">Open Admin Orders</a><br/>
           A-Z Housing Solutions &middot; info@azhouse.ca
         </p>
       </div>
@@ -226,7 +235,7 @@ export async function POST(request: Request) {
         authorization_confirmed: Boolean(form.consent || body.consent || form.authorizationConfirmed),
         status: 'new',
       })
-      .select('id')
+      .select('id, created_at')
       .single();
 
     if (error) {
@@ -234,24 +243,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order could not be saved.' }, { status: 500 });
     }
 
-    sendNewOrderEmail({
-      id: data.id,
-      fullName, phone, email,
-      vietnamAddress, gtaArea, gtaCity,
-      neighbourhood:    neighbourhood || '',
-      accommodationType,
-      budget:           budget || '',
-      bedrooms:         bedrooms  || '',
-      bathrooms:        bathrooms || '',
-      arrivalDate:      arrivalDate || '',
-      selectedServices, estimatedTotal,
-      additionalNotes:  additionalNotes || '',
-      language,
-    }).catch(err => console.error('[landing-arrangement] Email FAILED:', err?.message ?? err));
+    console.log(`[landing-arrangement] Order created successfully: ${data.id}`);
+    console.log(`[landing-arrangement] Attempting admin notification via SMTP for order ${data.id}`);
+    let notificationWarning: string | undefined;
+    try {
+      await sendNewOrderEmail({
+        id: data.id,
+        createdAt: data.created_at,
+        fullName, phone, email,
+        vietnamAddress, gtaArea, gtaCity,
+        neighbourhood:    neighbourhood || '',
+        accommodationType,
+        budget:           budget || '',
+        bedrooms:         bedrooms  || '',
+        bathrooms:        bathrooms || '',
+        arrivalDate:      arrivalDate || '',
+        selectedServices, estimatedTotal,
+        additionalNotes:  additionalNotes || '',
+        language,
+      });
+      console.log(`[landing-arrangement] Admin notification sent for order ${data.id}`);
+    } catch (emailError) {
+      notificationWarning = 'Order saved, but the admin notification email could not be sent.';
+      console.error(`[landing-arrangement] Admin notification failed for order ${data.id}:`, emailError instanceof Error ? emailError.message : emailError);
+    }
 
     return NextResponse.json({
       success: true,
       orderId: data.id,
+      ...(notificationWarning ? { warning: notificationWarning } : {}),
       message: 'Thank you for your order, our A-Z Housing Solutions Team will contact you soon.',
     });
   } catch (error) {

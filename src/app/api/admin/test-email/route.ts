@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { requireStaff } from '@/lib/server/staff-auth';
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function POST(request: NextRequest) {
+  const auth = await requireStaff(request, ['admin']);
+  if ('error' in auth) return auth.error;
   const host   = process.env.SMTP_HOST;
   const port   = Number(process.env.SMTP_PORT ?? 465);
   const secure = process.env.SMTP_SECURE !== 'false';
@@ -11,10 +14,10 @@ export async function GET() {
 
   // Step 1: Check env vars exist
   const envCheck = {
-    SMTP_HOST:   host   ?? '❌ MISSING',
+    SMTP_HOST:   host   ? '✅ set' : '❌ MISSING',
     SMTP_PORT:   port,
     SMTP_SECURE: secure,
-    SMTP_USER:   user   ?? '❌ MISSING',
+    SMTP_USER:   user   ? '✅ set' : '❌ MISSING',
     SMTP_PASS:   pass   ? '✅ set' : '❌ MISSING',
   };
 
