@@ -8,6 +8,8 @@ export const SERVICE_PAYOUTS: Record<string, number> = {
   'Property Management — 6 Months': 50,
   'Property Management — 1 Year': 100,
   'Tenant Placement + Property Management': 200,
+  'Landing Arrangement tron goi': 100,
+  'Landing Arrangement full package': 100,
   'Not sure': 0,
 }
 
@@ -67,6 +69,9 @@ export function buildServiceArray(service: string) {
   if (!service) return []
   if (service === 'Tenant Placement + Property Management') {
     return ['Basic Tenant Placement', 'Property Management']
+  }
+  if (service === 'Landing Arrangement tron goi') {
+    return ['Landing Arrangement']
   }
   return [service]
 }

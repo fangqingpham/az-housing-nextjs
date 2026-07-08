@@ -7,7 +7,7 @@ import { adminFetch, readAdminJson } from '@/lib/client/admin-fetch'
 
 type Partner = {
   id: string; full_name: string; email: string; phone: string; referral_id: string
-  etransfer_email: string; partner_status: string
+  etransfer_email: string; partner_status: string; partner_type?: string | null
 }
 type Payout = {
   id: string; referral_submission_id: string | null; client_case_id: string | null
@@ -30,6 +30,7 @@ const PAYMENTS = ['not_payable', 'payable', 'paid', 'cancelled', 'reversed']
 const fmtMoney = (n: number) => '$' + Number(n || 0).toLocaleString('en-CA', { minimumFractionDigits: 2 })
 const toDateInput = (value: string | null) => value ? value.slice(0, 10) : ''
 const fromDateInput = (value: string) => value ? new Date(`${value}T12:00:00`).toISOString() : null
+const partnerLabel = (type?: string | null) => type === 'vietnam_agency' ? 'Vietnam Agency Partner' : 'Referral Partner'
 
 export default function AdminReferralsPage() {
   const { message, visible, showToast } = useToast()
@@ -84,7 +85,7 @@ export default function AdminReferralsPage() {
     const s = submissionMap[p.referral_submission_id || '']
     const q = search.toLowerCase()
     return [
-      p.partner?.full_name, p.partner?.email, p.partner?.referral_id,
+      p.partner?.full_name, p.partner?.email, p.partner?.referral_id, partnerLabel(p.partner?.partner_type),
       s?.landlord_name, s?.landlord_email, s?.property_address, s?.city,
     ].filter(Boolean).join(' ').toLowerCase().includes(q)
   })
@@ -123,7 +124,7 @@ export default function AdminReferralsPage() {
                     <div>
                       <div className="name">{s?.landlord_name || 'Referral Lead'}</div>
                       <div className="sub">{s?.property_address || '--'}{s?.city ? `, ${s.city}` : ''}</div>
-                      <div className="meta">{p.partner?.full_name || s?.partner_name || 'Unknown partner'} · {p.partner?.referral_id || s?.referral_id || '--'}</div>
+                      <div className="meta">{partnerLabel(p.partner?.partner_type)} · {p.partner?.full_name || s?.partner_name || 'Unknown partner'} · {p.partner?.referral_id || s?.referral_id || '--'}</div>
                     </div>
                     <div className="right">
                       <div className="amount">{fmtMoney(p.payout_amount)}</div>
@@ -135,6 +136,7 @@ export default function AdminReferralsPage() {
                     <div className="detail">
                       <div className="detail-grid">
                         <Info label="Partner Email" value={p.partner?.email || s?.partner_email || '--'} />
+                        <Info label="Partner Type" value={partnerLabel(p.partner?.partner_type)} />
                         <Info label="E-transfer" value={p.etransfer_email || p.partner?.etransfer_email || '--'} />
                         <Info label="Landlord Email" value={s?.landlord_email || '--'} />
                         <Info label="Landlord Phone" value={s?.landlord_phone || '--'} />

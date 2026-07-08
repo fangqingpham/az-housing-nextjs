@@ -259,7 +259,16 @@ export default function Navbar() {
       ],
     },
     { kind: 'link', label: t.nav.contact, href: '/contact' },
-    { kind: 'link', label: t.nav.about, href: '/about' },
+    {
+      kind: 'dropdown',
+      label: t.nav.about,
+      key: 'about',
+      items: [
+        { label: t.nav.about, href: '/about' },
+        { label: t.about.referralProgram, href: '/referral-program' },
+        { label: 'Vietnam Referral Partner', href: '/vietnam-referral-partner' },
+      ],
+    },
   ]
 
   const servicesItem = NAV.find(i => i.kind === 'services') as Extract<NavItem, { kind: 'services' }>
@@ -467,10 +476,6 @@ export default function Navbar() {
           <Link href="/contact" onClick={() => setMobileOpen(false)} style={{ display: 'block', padding: '14px 18px', fontSize: 15, fontWeight: 600, color: 'var(--dark)', textDecoration: 'none', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
             {t.nav.contact}
           </Link>
-          <Link href="/about" onClick={() => setMobileOpen(false)} style={{ display: 'block', padding: '14px 18px', fontSize: 15, fontWeight: 600, color: 'var(--dark)', textDecoration: 'none', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
-            {t.nav.about}
-          </Link>
-
           <div style={{ padding: '14px 18px', display: 'flex', gap: 10 }}>
             {user ? (
               <>

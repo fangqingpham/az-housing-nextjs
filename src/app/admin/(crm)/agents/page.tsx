@@ -18,6 +18,7 @@ type ReferralPartner = {
   referral_id: string
   etransfer_email: string
   partner_status: string
+  partner_type?: string | null
   created_at: string
 }
 
@@ -27,6 +28,7 @@ const ROLE_COLORS: Record<Role, { bg: string; color: string; border: string }> =
   landlord: { bg: '#e1f5ee', color: '#2d7a4f', border: '#9fe1cb' },
   buyer:    { bg: '#f0e8fd', color: '#6930c3', border: '#c4a8f0' },
 }
+const partnerLabel = (type?: string | null) => type === 'vietnam_agency' ? 'Vietnam Agency Partner' : 'Referral Partner'
 
 export default function AdminAgentsPage() {
   const { message, visible, showToast } = useToast()
@@ -136,7 +138,7 @@ export default function AdminAgentsPage() {
                     <td><span className="td-name">{p.full_name}</span></td>
                     <td><a href={`mailto:${p.email}`} className="td-email">{p.email}</a></td>
                     <td className="td-sub">{p.phone || '--'}</td>
-                    <td><span className="role-select" style={{ background: '#e1f5ee', color: '#2d7a4f', borderColor: '#9fe1cb' }}>Referral Partner</span></td>
+                    <td><span className="role-select" style={{ background: p.partner_type === 'vietnam_agency' ? '#fef3dc' : '#e1f5ee', color: p.partner_type === 'vietnam_agency' ? '#a86d1a' : '#2d7a4f', borderColor: p.partner_type === 'vietnam_agency' ? '#f5d38a' : '#9fe1cb' }}>{partnerLabel(p.partner_type)}</span></td>
                     <td className="td-sub" style={{ fontFamily: 'monospace', color: '#1b2a4a', fontWeight: 700 }}>{p.referral_id}</td>
                     <td><a href={`mailto:${p.etransfer_email}`} className="td-email">{p.etransfer_email}</a></td>
                     <td className="td-sub">{p.partner_status}</td>
