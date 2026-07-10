@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import '@/styles/globals.css'
 import PublicChrome from '@/components/layout/PublicChrome'
 import LanguagePicker from '@/components/ui/LanguagePicker'
 import { LanguageProvider } from '@/hooks/LanguageProvider'
 
 const SITE_URL = 'https://www.azhouse.ca'
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -153,6 +155,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             })();
           `}
         </Script>
+        {GA_MEASUREMENT_ID ? <GoogleAnalytics gaId={GA_MEASUREMENT_ID} /> : null}
       </body>
     </html>
   )
