@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
 import { adminFetch, readAdminJson } from '@/lib/client/admin-fetch'
+import { leadTrackingSummary } from '@/lib/lead-tracking'
 
 type Partner = {
   id: string; full_name: string; email: string; phone: string; referral_id: string
@@ -22,6 +23,9 @@ type Submission = {
   landlord_name: string; landlord_email: string; landlord_phone: string
   property_address: string | null; city: string | null; interested_services: string[] | null
   possible_duplicate: boolean; duplicate_reason: string | null; created_at: string
+  utm_source?: string | null; utm_medium?: string | null; utm_campaign?: string | null
+  utm_content?: string | null; utm_term?: string | null; fbclid?: string | null
+  lead_tracking?: Record<string, string> | null; notes?: string | null
 }
 
 const ELIGIBILITY = ['pending_requirements', 'eligible', 'cancelled', 'reversed']
@@ -118,6 +122,7 @@ export default function AdminReferralsPage() {
             {filteredPayouts.map(p => {
               const s = submissionMap[p.referral_submission_id || '']
               const isOpen = expanded === p.id
+              const sourceSummary = s ? leadTrackingSummary(s.lead_tracking || s) : ''
               return (
                 <div key={p.id} className="card">
                   <div className="card-top" onClick={() => setExpanded(isOpen ? null : p.id)}>
@@ -143,6 +148,8 @@ export default function AdminReferralsPage() {
                         <Info label="Service Interest" value={p.service_type || s?.interested_services?.join(', ') || '--'} />
                         <Info label="Eligible Fee" value={fmtMoney(p.eligible_fee)} />
                       </div>
+                      {sourceSummary && <div className="source-box"><strong>Lead Source</strong><pre>{sourceSummary}</pre></div>}
+                      {s?.notes && <div className="source-box"><strong>Submission Notes</strong><pre>{s.notes}</pre></div>}
                       {s?.possible_duplicate && <div className="warn">Possible duplicate: {s.duplicate_reason}</div>}
                       <div className="controls">
                         <Field label="Agreement Signed"><input className="fc" type="date" value={toDateInput(p.agreement_signed_at)} onChange={e => patch(p.id, { agreement_signed_at: fromDateInput(e.target.value) })} /></Field>
@@ -193,6 +200,9 @@ export default function AdminReferralsPage() {
         .info-label,.fg label{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#a8a8a4;margin-bottom:3px}
         .info-value{font-size:13px;color:#1b2a4a;font-weight:600}
         .warn{background:#fff5e0;border:1px solid #f5d38a;color:#a86d1a;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+        .source-box{background:#fff8e1;border:1px solid #ffe082;color:#1b2a4a;border-radius:10px;padding:12px 14px;font-size:13px;margin-bottom:14px}
+        .source-box strong{display:block;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#a86d1a;margin-bottom:4px}
+        .source-box pre{margin:0;white-space:pre-wrap;font-family:inherit;line-height:1.6}
         .fc{border:1px solid #e4e1d8;border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;width:100%;background:#fafaf8}
         .fg{display:flex;flex-direction:column;gap:4px}
         .btn{background:#fff;border:1px solid #e4e1d8;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer;color:#1b2a4a}

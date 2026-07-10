@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+import {
+  appendLeadTrackingToNotes,
+  cleanLeadTracking,
+  isMissingLeadTrackingColumnError,
+  leadTrackingColumnPayload,
+  leadTrackingHtml,
+  stripLeadTrackingColumns,
+} from '@/lib/lead-tracking';
 
 function cleanMoney(value: unknown): number {
   const cleaned = String(value ?? 0).replace(/[^0-9.]/g, '');
@@ -54,6 +62,7 @@ async function sendNewOrderEmail(order: {
   selectedServices: string[];
   estimatedTotal: number;
   additionalNotes: string;
+  leadTracking?: unknown;
 }) {
   const servicesList = order.selectedServices.length
     ? order.selectedServices.map(s => `<li style="padding:3px 0;">${s}</li>`).join('')
@@ -130,6 +139,8 @@ async function sendNewOrderEmail(order: {
           <ul style="margin:0;padding-left:18px;color:#444;font-size:14px;line-height:1.8;">${servicesList}</ul>
         </div>
 
+        ${leadTrackingHtml(order.leadTracking)}
+
         <div style="background:#1e2a45;border-radius:10px;padding:16px 22px;text-align:center;margin-bottom:20px;">
           <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0 0 8px;">Estimated Total</p>
           <p style="color:#f5a623;font-size:28px;font-weight:800;font-family:Georgia,serif;margin:0;">
@@ -190,14 +201,13 @@ export async function POST(request: Request) {
     const bathrooms       = text(form.bathrooms || body.bathrooms) || null;
     const moveInDate      = text(form.moveInDate || form.move_in_date || body.moveInDate) || null;
     const additionalNotes = text(form.notes || form.additionalNotes || body.additionalNotes) || null;
+    const leadTracking    = cleanLeadTracking(body.leadTracking || body.lead_tracking || form.leadTracking || form.lead_tracking || body);
     const selectedServices = body.selectedServices || body.selected_services || [];
     const estimatedTotal  = cleanMoney(body.estimatedTotal || body.estimated_total || form.estimatedTotal);
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    const { data, error } = await supabase
-      .from('tenant_placement_orders')
-      .insert({
+    const insertPayload = {
         landlord_name:           landlordName,
         company_name:            companyName,
         phone, email,
@@ -211,17 +221,33 @@ export async function POST(request: Request) {
         showing_ready:           showingReady,
         selected_services:       selectedServices,
         estimated_total:         estimatedTotal,
-        additional_notes:        additionalNotes,
+        additional_notes:        appendLeadTrackingToNotes(additionalNotes, leadTracking),
         authorization_confirmed: Boolean(
           form.authorization || form.authorizationConfirmed ||
           body.authorizationConfirmed || body.authorization_confirmed
         ),
         status: 'new',
-      })
+        ...leadTrackingColumnPayload(leadTracking),
+        lead_tracking: leadTracking,
+      };
+
+    let { data, error } = await supabase
+      .from('tenant_placement_orders')
+      .insert(insertPayload)
       .select('id, created_at')
       .single();
 
-    if (error) {
+    if (error && isMissingLeadTrackingColumnError(error)) {
+      const retry = await supabase
+        .from('tenant_placement_orders')
+        .insert(stripLeadTrackingColumns(insertPayload))
+        .select('id, created_at')
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
+
+    if (error || !data) {
       console.error('[tenant-placement] DB insert error:', error);
       return NextResponse.json({ error: 'Order could not be saved.' }, { status: 500 });
     }
@@ -243,6 +269,7 @@ export async function POST(request: Request) {
         moveInDate:      moveInDate    || '',
         showingReady, selectedServices, estimatedTotal,
         additionalNotes: additionalNotes || '',
+        leadTracking,
       });
       console.log(`[tenant-placement] Admin notification sent for order ${data.id}`);
     } catch (emailError) {

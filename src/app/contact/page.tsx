@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { insertMessage } from '@/lib/api'
 import { useLanguage } from '@/hooks/useLanguage'
+import LeadTrackingFields from '@/components/LeadTrackingFields'
+import { getStoredLeadTracking } from '@/lib/client/lead-tracking'
+import { trackFormEventOnce, trackMarketingEvent } from '@/lib/client/marketing-events'
 
 const SUPPORT_CARDS = [
   { icon: '📧', titleKey: 'emailSupport',  detail: 'info@azhouse.ca',              sub: 'emailSub',   href: 'mailto:info@azhouse.ca' },
@@ -60,10 +62,20 @@ export default function ContactPage() {
       phone: form.phone.trim(),
       message: form.topic ? `Topic: ${form.topic}\n\n${form.message.trim()}` : form.message.trim(),
       viewing_date: '',
+      leadTracking: getStoredLeadTracking(),
     }
     try {
-      const ok = await insertMessage(payload as any)
-      if (!ok) { setErrorMsg(c.errorFail); setSending(false); return }
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) { setErrorMsg(c.errorFail); setSending(false); return }
+      trackFormEventOnce('contact_form_submit', `${form.email}:${Date.now()}`, {
+        service: form.topic || 'general_contact',
+        form_name: 'contact_page',
+        metadata: { topic: form.topic || 'general' },
+      })
       setSent(true)
       setSending(false)
     } catch {
@@ -100,6 +112,7 @@ export default function ContactPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 16, padding: '32px 28px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <LeadTrackingFields />
               {errorMsg && (
                 <div style={{ background: '#fff1f1', border: '1px solid #ffb3b3', color: '#b42318', padding: '12px 14px', borderRadius: 10, fontSize: 14 }}>{errorMsg}</div>
               )}
@@ -142,7 +155,12 @@ export default function ContactPage() {
           {SUPPORT_CARDS.map(card => (
             <div
               key={card.titleKey}
-              onClick={() => { if (card.href) window.open(card.href, '_blank'); else window.dispatchEvent(new Event('az:openchat')) }}
+              onClick={() => {
+                if (card.titleKey === 'emailSupport') void trackMarketingEvent('email_click', { service: 'contact', metadata: { location: 'contact_page' } })
+                if (card.titleKey === 'phoneSupport') void trackMarketingEvent('phone_click', { service: 'contact', metadata: { location: 'contact_page' } })
+                if (card.titleKey === 'liveSupport') void trackMarketingEvent('messenger_click', { service: 'contact', metadata: { location: 'contact_page' } })
+                if (card.href) window.open(card.href, '_blank'); else window.dispatchEvent(new Event('az:openchat'))
+              }}
               style={{ background: '#fff', borderRadius: 14, padding: '22px 20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: 16, alignItems: 'center', cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s' }}
               onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-3px)'; el.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)' }}
               onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(0)'; el.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)' }}

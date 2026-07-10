@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server'
 import { BUSINESS_EMAIL, emailShell, sendEmail } from '@/lib/server/email'
 import {
+  appendLeadTrackingToNotes,
+  cleanLeadTracking,
+  isMissingLeadTrackingColumnError,
+  leadTrackingColumnPayload,
+  leadTrackingHtml,
+  leadTrackingSummary,
+  stripLeadTrackingColumns,
+} from '@/lib/lead-tracking'
+import {
   REFERRAL_TERMS_VERSION,
   cleanText,
   generateReferralId,
@@ -41,6 +50,7 @@ export async function POST(request: Request) {
     const expectedMonthlyClients = cleanText(body.expectedMonthlyClients)
     const payoutMethod = cleanText(body.payoutMethod)
     const notes = cleanText(body.notes)
+    const leadTracking = cleanLeadTracking(body.leadTracking || body.lead_tracking || body)
 
     const fullName = isVietnamPartner ? companyName : cleanText(body.fullName)
     const phone = cleanText(body.phone)
@@ -60,8 +70,9 @@ export async function POST(request: Request) {
           expectedMonthlyClients ? `Expected monthly clients: ${expectedMonthlyClients}` : '',
           payoutMethod ? `Preferred commission method: ${payoutMethod}` : '',
           notes ? `Notes: ${notes}` : '',
+          leadTrackingSummary(leadTracking),
         ].filter(Boolean).join('\n')
-      : cleanText(body.partnerBackground)
+      : appendLeadTrackingToNotes(cleanText(body.partnerBackground), leadTracking) || ''
 
     const termsAccepted = Boolean(body.termsAccepted)
     const limitsAccepted = Boolean(body.limitsAccepted)
@@ -99,13 +110,20 @@ export async function POST(request: Request) {
       partner_status: existing?.partner_status || 'active',
       referral_terms_accepted_at: new Date().toISOString(),
       referral_terms_version: REFERRAL_TERMS_VERSION,
+      ...leadTrackingColumnPayload(leadTracking),
+      lead_tracking: leadTracking,
     }
 
-    const query = existing
-      ? admin.from('referral_partners').update(payload).eq('id', existing.id).select().single()
-      : admin.from('referral_partners').insert(payload).select().single()
+    const runWrite = (writePayload: Record<string, any>) => existing
+      ? admin.from('referral_partners').update(writePayload).eq('id', existing.id).select().single()
+      : admin.from('referral_partners').insert(writePayload).select().single()
 
-    const { data: partner, error } = await query
+    let { data: partner, error } = await runWrite(payload)
+    if (error && isMissingLeadTrackingColumnError(error)) {
+      const retry = await runWrite(stripLeadTrackingColumns(payload))
+      partner = retry.data
+      error = retry.error
+    }
     if (error) throw error
 
     const pageUrl = isVietnamPartner ? 'azhouse.ca/vietnam-referral-partner' : 'azhouse.ca/referral-program'
@@ -164,7 +182,7 @@ export async function POST(request: Request) {
         to: BUSINESS_EMAIL,
         subject: isVietnamPartner ? 'Dang ky Doi Tac Viet Nam - A-Z Housing' : `New Referral Partner Signup - ${fullName}`,
         replyTo: email,
-        text: `New referral partner signup\n\nPartner type: ${isVietnamPartner ? 'Vietnam Agency Partner' : 'Referral Partner'}\nSource page: ${sourcePage || 'referral-program'}\nLanguage: ${language || 'en'}\nName: ${fullName}\nContact: ${contactName || fullName}\nEmail: ${email}\nPhone: ${phone}\nReferral ID: ${referralId}\nE-transfer: ${etransferEmail}\nCity: ${city}, ${province}\nBackground: ${partnerBackground}\nPartner row: ${partner.id}`,
+        text: `New referral partner signup\n\nPartner type: ${isVietnamPartner ? 'Vietnam Agency Partner' : 'Referral Partner'}\nSource page: ${sourcePage || 'referral-program'}\nLanguage: ${language || 'en'}\nName: ${fullName}\nContact: ${contactName || fullName}\nEmail: ${email}\nPhone: ${phone}\nReferral ID: ${referralId}\nE-transfer: ${etransferEmail}\nCity: ${city}, ${province}\nBackground: ${partnerBackground}\n${leadTrackingSummary(leadTracking)}\nPartner row: ${partner.id}`,
         html: emailShell(isVietnamPartner ? 'Vietnam Agency Partner Signup' : 'New Referral Partner Signup', `
           <p><strong>Partner type:</strong> ${isVietnamPartner ? 'Vietnam Agency Partner' : 'Referral Partner'}</p>
           <p><strong>Source page:</strong> ${sourcePage || 'referral-program'}</p>
@@ -177,6 +195,7 @@ export async function POST(request: Request) {
           <p><strong>E-transfer email:</strong> ${etransferEmail}</p>
           <p><strong>City:</strong> ${city}, ${province}</p>
           <p><strong>Background:</strong><br/>${partnerBackground.replace(/\n/g, '<br/>')}</p>
+          ${leadTrackingHtml(leadTracking)}
           <p><strong>Partner row:</strong> ${partner.id}</p>
         `),
       }),

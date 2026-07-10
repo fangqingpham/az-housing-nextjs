@@ -6,6 +6,7 @@ import { getMessages, deleteMessage, getUsers } from '@/lib/api'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
 import type { Message, AppUser } from '@/types'
+import { leadTrackingSummary } from '@/lib/lead-tracking'
 
 type Tab = 'messages' | 'users'
 
@@ -83,6 +84,9 @@ export default function AdminLeadsPage() {
                     </div>
                   </div>
                   <p className="msg-body">&ldquo;{m.text}&rdquo;</p>
+                  {leadTrackingSummary((m as any).lead_tracking || m) && (
+                    <div className="source-block"><strong>Lead Source</strong><pre>{leadTrackingSummary((m as any).lead_tracking || m)}</pre></div>
+                  )}
                   <div className="msg-contact">
                     {m.fromemail&&<a href={`mailto:${m.fromemail}`}>✉️ {m.fromemail}</a>}
                     {m.phone&&<span>📞 {m.phone}</span>}
@@ -137,6 +141,9 @@ export default function AdminLeadsPage() {
         .msg-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
         .msg-date{font-size:11.5px;color:#a8a8a4;white-space:nowrap}
         .msg-body{font-size:13.5px;color:#6b6b67;font-style:italic;line-height:1.6;margin:0 0 10px}
+        .source-block{background:#fff8e1;border:1px solid #ffe082;border-radius:9px;padding:10px 12px;margin:0 0 10px}
+        .source-block strong{display:block;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#a86d1a;margin-bottom:4px}
+        .source-block pre{margin:0;white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.5;color:#1b2a4a}
         .msg-contact{display:flex;gap:16px;font-size:12.5px;flex-wrap:wrap}
         .msg-contact a{color:#f5a623;text-decoration:none}
         .msg-contact a:hover{text-decoration:underline}

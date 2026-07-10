@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { useLanguage } from '@/hooks/useLanguage'
+import LeadTrackingFields from '@/components/LeadTrackingFields'
+import { getStoredLeadTracking } from '@/lib/client/lead-tracking'
+import { trackFormEventOnce } from '@/lib/client/marketing-events'
 
 const BACKGROUNDS = [
   'Realtor / real estate agent',
@@ -63,10 +66,15 @@ export default function ReferralProgramPage() {
       const res = await fetch('/api/referral-partners/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(signup),
+        body: JSON.stringify({ ...signup, leadTracking: getStoredLeadTracking() }),
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json.error || r.genericError)
+      trackFormEventOnce('referral_signup', signup.email, {
+        service: 'referral_program',
+        form_name: 'referral_partner_signup',
+        metadata: { city: signup.city, province: signup.province },
+      })
       setSignup(initialSignup)
       setSignupState({ loading: false, done: true, error: '' })
     } catch (err) {
@@ -81,10 +89,16 @@ export default function ReferralProgramPage() {
       const res = await fetch('/api/referrals/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(referral),
+        body: JSON.stringify({ ...referral, leadTracking: getStoredLeadTracking() }),
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json.error || r.genericError)
+      trackFormEventOnce('referral_submission', json.reference || `${referral.referralId}:${referral.landlordEmail}`, {
+        service: referral.serviceInterest || 'referral_submission',
+        form_name: 'referral_submission',
+        referral_id: json.reference,
+        metadata: { referral_id: referral.referralId, service_interest: referral.serviceInterest },
+      })
       setReferral(initialReferral)
       setReferralState({ loading: false, done: true, error: '', reference: json.reference || '' })
     } catch (err) {
@@ -130,6 +144,7 @@ export default function ReferralProgramPage() {
               {signupState.done && <div style={{ background: '#e1f5ee', color: '#2d7a4f', border: '1px solid #9fe1cb', borderRadius: 10, padding: 14, marginBottom: 16, fontWeight: 700 }}>{r.signupSuccess}</div>}
               {signupState.error && <div style={{ background: '#fcebeb', color: '#a32d2d', border: '1px solid #e8a5a5', borderRadius: 10, padding: 14, marginBottom: 16 }}>{signupState.error}</div>}
               <form onSubmit={submitSignup} style={{ display: 'grid', gap: 14 }}>
+                <LeadTrackingFields />
                 <div style={{ display: 'none' }}><input value={signup.website} onChange={e => setSignupField('website', e.target.value)} tabIndex={-1} autoComplete="off" /></div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14 }}>
                   <Field label={r.fullName} labelStyle={labelStyle}><input required style={inputStyle} value={signup.fullName} onChange={e => setSignupField('fullName', e.target.value)} /></Field>
@@ -163,6 +178,7 @@ export default function ReferralProgramPage() {
               {referralState.done && <div style={{ background: '#e1f5ee', color: '#2d7a4f', border: '1px solid #9fe1cb', borderRadius: 10, padding: 14, margin: '10px 0 16px', fontWeight: 700 }}>{r.referralSuccess}{referralState.reference ? ` ${referralState.reference}` : ''}</div>}
               {referralState.error && <div style={{ background: '#fcebeb', color: '#a32d2d', border: '1px solid #e8a5a5', borderRadius: 10, padding: 14, margin: '10px 0 16px' }}>{referralState.error}</div>}
               <form onSubmit={submitReferral} style={{ display: 'grid', gap: 14, marginTop: 10 }}>
+                <LeadTrackingFields />
                 <div style={{ display: 'none' }}><input value={referral.website} onChange={e => setReferralField('website', e.target.value)} tabIndex={-1} autoComplete="off" /></div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14 }}>
                   <Field label={r.referralId} labelStyle={labelStyle}><input required style={inputStyle} value={referral.referralId} onChange={e => setReferralField('referralId', e.target.value)} /></Field>

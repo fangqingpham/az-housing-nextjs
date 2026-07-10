@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Toast from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
 import { adminFetch, readAdminJson } from '@/lib/client/admin-fetch'
+import { leadTrackingSummary } from '@/lib/lead-tracking'
 
 type Order = {
   id: string; created_at: string; landlord_name: string; company_name: string | null
@@ -15,6 +16,9 @@ type Order = {
   additional_notes: string | null; authorization_confirmed: boolean; status: string
   assigned_agent_id: string | null; commission: number; commission_paid: boolean
   linked_case_number: string | null; linked_case_id: string | null
+  utm_source?: string | null; utm_medium?: string | null; utm_campaign?: string | null
+  utm_content?: string | null; utm_term?: string | null; fbclid?: string | null
+  lead_tracking?: Record<string, string> | null
 }
 type Agent = { id: string; fname: string; lname: string; email: string }
 
@@ -112,6 +116,7 @@ export default function AdminOrdersPage() {
               const sc     = STATUS_CONFIG[o.status] || STATUS_CONFIG.new
               const isOpen = expanded === o.id
               const name   = agentName(o.assigned_agent_id)
+              const sourceSummary = leadTrackingSummary(o.lead_tracking || o)
 
               return (
                 <div key={o.id} className="order-card">
@@ -154,6 +159,13 @@ export default function AdminOrdersPage() {
 
                       {o.additional_notes && (
                         <div className="notes-block"><strong>Notes</strong><p>{o.additional_notes}</p></div>
+                      )}
+
+                      {sourceSummary && (
+                        <div className="source-block">
+                          <strong>Lead Source</strong>
+                          <pre>{sourceSummary}</pre>
+                        </div>
                       )}
 
                       {/* Linked Client Case */}
@@ -245,6 +257,9 @@ export default function AdminOrdersPage() {
         .notes-block{font-size:13px;color:#6b6b67;margin-bottom:14px}
         .notes-block strong{display:block;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#a8a8a4;margin-bottom:4px}
         .notes-block p{margin:0;line-height:1.6}
+        .source-block{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+        .source-block strong{display:block;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#a86d1a;margin-bottom:6px}
+        .source-block pre{margin:0;white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.6;color:#1b2a4a}
         .manager-section{background:#f7f4ef;border-radius:12px;padding:18px;margin-top:16px}
         .manager-title{font-family:Georgia,serif;font-size:14px;font-weight:700;color:#1b2a4a;margin:0 0 14px}
         .manager-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}

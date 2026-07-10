@@ -5,6 +5,7 @@ import '@/styles/globals.css'
 import PublicChrome from '@/components/layout/PublicChrome'
 import LanguagePicker from '@/components/ui/LanguagePicker'
 import { LanguageProvider } from '@/hooks/LanguageProvider'
+import LeadSourceTracker from '@/components/LeadSourceTracker'
 
 const SITE_URL = 'https://www.azhouse.ca'
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
@@ -134,6 +135,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           (skipped on /admin/* routes so the admin gets a clean canvas).
         */}
         <LanguageProvider>
+          <LeadSourceTracker />
           <LanguagePicker />
           <PublicChrome>
             {children}

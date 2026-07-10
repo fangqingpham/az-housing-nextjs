@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
+import LeadTrackingFields from "@/components/LeadTrackingFields";
+import { getStoredLeadTracking } from "@/lib/client/lead-tracking";
+import { trackFormEventOnce, trackMarketingEvent } from "@/lib/client/marketing-events";
 
 const money = (amount: number) =>
   new Intl.NumberFormat("en-CA", {
@@ -92,6 +95,7 @@ export default function TenantPlacementApplicationPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const startedRef = useRef(false);
 
   useEffect(() => {
     const updateSize = () => setIsMobile(window.innerWidth <= 900);
@@ -132,8 +136,16 @@ export default function TenantPlacementApplicationPage() {
     urgentInspections > 0 ? `Urgent / Same-Day Inspection x ${urgentInspections} - ${money(urgentInspections * 149)}` : null,
   ].filter(Boolean) as string[], [privateLeasing, mlsListing, photography, showings, keyHandover, moveInInspection, extraApplicants, managementPlan, urgentInspections]);
 
-  const update = (field: keyof FormData, value: string | boolean) =>
+  const markStarted = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    void trackMarketingEvent("order_form_start", { service: "tenant_placement", form_name: "tenant_placement_order" });
+  };
+
+  const update = (field: keyof FormData, value: string | boolean) => {
+    markStarted();
     setForm(prev => ({ ...prev, [field]: value }));
+  };
 
   const requiredFields: (keyof FormData)[] = [
     "landlordName", "phone", "email", "mailingAddress", "propertyAddress", "city", "postalCode",
@@ -212,12 +224,19 @@ export default function TenantPlacementApplicationPage() {
           additionalNotes: form.notes,
           authorizationConfirmed: form.authorization,
           submittedAt: new Date().toISOString(),
+          leadTracking: getStoredLeadTracking(),
         }),
       });
+      const data = await response.json().catch(() => null);
       if (!response.ok) {
-        const data = await response.json().catch(() => null);
         throw new Error(data?.error || (lang === 'zh' ? "提交失败，请重试。" : "The order could not be submitted. Please try again."));
       }
+      trackFormEventOnce("order_form_submit", data?.orderId || form.email, {
+        service: "tenant_placement",
+        form_name: "tenant_placement_order",
+        order_id: data?.orderId,
+        metadata: { estimated_total: total, selected_services_count: selectedServices.length },
+      });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -414,6 +433,7 @@ export default function TenantPlacementApplicationPage() {
       </section>
 
       <form onSubmit={handleSubmit}>
+        <LeadTrackingFields />
         <section style={{ maxWidth: 1180, margin: "0 auto", padding: isMobile ? "24px 14px" : "48px 24px", display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "minmax(0, 1.4fr) minmax(300px, .6fr)", gap: isMobile ? 18 : 28, overflowX: "hidden" }}>
           <div style={{ display: "grid", gap: 24 }}>
 

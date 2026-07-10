@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import LeadTrackingFields from "@/components/LeadTrackingFields";
+import { getStoredLeadTracking } from "@/lib/client/lead-tracking";
+import { trackFormEventOnce, trackMarketingEvent } from "@/lib/client/marketing-events";
 
 /**
  * Landing Arrangement — standalone bilingual page (English default + Tiếng Việt toggle).
@@ -520,6 +523,7 @@ export default function LandingArrangementPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const startedRef = useRef(false);
 
   useEffect(() => {
     const updateSize = () => setIsMobile(window.innerWidth <= 900);
@@ -554,7 +558,16 @@ export default function LandingArrangementPage() {
     [basic, viewing, secondSearch, airport, busTour, schoolWork, banking, custodianship, lang] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const update = (field: keyof FormData, value: string | boolean) => setForm(prev => ({ ...prev, [field]: value }));
+  const markStarted = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    void trackMarketingEvent("order_form_start", { service: "landing_arrangement", form_name: "landing_arrangement_order" });
+  };
+
+  const update = (field: keyof FormData, value: string | boolean) => {
+    markStarted();
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
 
   const requiredFields: (keyof FormData)[] = ["fullName", "phone", "email", "vietnamAddress", "gtaArea", "gtaCity", "accommodationType", "budget", "arrivalDate"];
   const missingRequiredFields = requiredFields.filter(f => String(form[f]).trim().length === 0);
@@ -579,12 +592,19 @@ export default function LandingArrangementPage() {
           arrivalDate: form.arrivalDate, selectedServices, estimatedTotal: total,
           additionalNotes: form.notes, consent: form.consent, language: lang,
           submittedAt: new Date().toISOString(),
+          leadTracking: getStoredLeadTracking(),
         }),
       });
+      const data = await response.json().catch(() => null);
       if (!response.ok) {
-        const data = await response.json().catch(() => null);
         throw new Error(data?.error || L.submitError);
       }
+      trackFormEventOnce("order_form_submit", data?.orderId || form.email, {
+        service: "landing_arrangement",
+        form_name: "landing_arrangement_order",
+        order_id: data?.orderId,
+        metadata: { estimated_total: total, selected_services_count: selectedServices.length },
+      });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -701,6 +721,7 @@ export default function LandingArrangementPage() {
           {/* Tab 6 — Order Now (form, open by default) */}
           <Accordion title={L.orderNowTab} defaultOpen>
             <form onSubmit={handleSubmit}>
+              <LeadTrackingFields />
               <div style={{ display: "grid", gap: 18, marginTop: 6 }}>
                 <p style={{ color: "var(--mid, #666)", lineHeight: 1.7, margin: 0, fontSize: 14 }}>{L.formSub}</p>
 

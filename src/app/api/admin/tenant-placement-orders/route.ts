@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireStaff } from '@/lib/server/staff-auth';
+import { cleanLeadTracking, leadTrackingSummary } from '@/lib/lead-tracking';
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -229,6 +230,8 @@ export async function PATCH(request: Request) {
         const isLandingArrangement = serviceType === 'Landing Arrangement';
         const rentRaw = String(current.expected_rent || '').replace(/[^0-9.]/g, '');
         const rentAmount = rentRaw ? Number(rentRaw) : null;
+        const leadTracking = cleanLeadTracking(current.lead_tracking || current);
+        const sourceDetail = leadTrackingSummary(leadTracking);
 
         const { data: newCase } = await supabase
           .from('client_cases')
@@ -238,6 +241,7 @@ export async function PATCH(request: Request) {
             phone:             current.phone            || null,
             email:             current.email            || null,
             lead_source:       'Order Form',
+            lead_source_detail: sourceDetail || null,
             assigned_agent_id: newAgentId,
             status:            'New',
             priority:          'Normal',
@@ -249,7 +253,7 @@ export async function PATCH(request: Request) {
             service_type:      serviceType,
             client_needs:      current.additional_notes || null,
             source_order_id:   id,
-            checklist:         {},
+            checklist:         { lead_tracking: leadTracking },
           })
           .select('id, case_number')
           .single();

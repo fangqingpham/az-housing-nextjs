@@ -81,6 +81,7 @@ export async function POST(request: Request) {
     preferred_contact:      payload.preferred_contact  || null,
     language:               payload.language           || null,
     lead_source:            payload.lead_source        || null,
+    lead_source_detail:     payload.lead_source_detail || null,
     assigned_agent_id:      payload.assigned_agent_id  || null,
     status:                 payload.status             || 'New',
     priority:               payload.priority           || 'Normal',

@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server'
 import { BUSINESS_EMAIL, emailShell, sendEmail } from '@/lib/server/email'
 import {
+  appendLeadTrackingToNotes,
+  cleanLeadTracking,
+  isMissingLeadTrackingColumnError,
+  leadTrackingColumnPayload,
+  leadTrackingHtml,
+  leadTrackingSummary,
+  stripLeadTrackingColumns,
+} from '@/lib/lead-tracking'
+import {
   buildServiceArray,
   calculateReferralPayout,
   cleanText,
@@ -20,6 +29,7 @@ export async function POST(request: Request) {
     const sourcePage = cleanText(body.sourcePage)
     const language = cleanText(body.language)
     const isVietnamReferral = sourcePage === 'vietnam-referral-partner' || cleanText(body.partnerType) === 'vietnam_agency'
+    const leadTracking = cleanLeadTracking(body.leadTracking || body.lead_tracking || body)
 
     const referralId = cleanText(body.referralId).toUpperCase()
     const partnerEmail = normalizeEmail(body.partnerEmail)
@@ -54,7 +64,7 @@ export async function POST(request: Request) {
           rentalBudget ? `Expected rental budget: ${rentalBudget}` : '',
           rawNotes ? `Notes: ${rawNotes}` : '',
         ].filter(Boolean).join('\n')
-      : rawNotes
+      : appendLeadTrackingToNotes(rawNotes, leadTracking) || ''
     const consentConfirmed = Boolean(body.consentConfirmed)
     const partnerRuleConfirmed = Boolean(body.partnerRuleConfirmed)
 
@@ -95,9 +105,7 @@ export async function POST(request: Request) {
     const interestedServices = buildServiceArray(serviceInterest)
     const payoutAmount = calculateReferralPayout(serviceInterest)
 
-    const { data: submission, error: submissionError } = await admin
-      .from('referral_submissions')
-      .insert({
+    const submissionPayload = {
         referral_partner_id: partner.id,
         referral_id: referralId,
         partner_name: partner.full_name,
@@ -115,10 +123,34 @@ export async function POST(request: Request) {
         possible_duplicate: possibleDuplicate,
         duplicate_reason: duplicateReason,
         status: 'submitted',
-      })
+        ...leadTrackingColumnPayload(leadTracking),
+        lead_tracking: leadTracking,
+      }
+
+    let { data: submission, error: submissionError } = await admin
+      .from('referral_submissions')
+      .insert(submissionPayload)
       .select()
       .single()
+    if (submissionError && isMissingLeadTrackingColumnError(submissionError)) {
+      const retry = await admin
+        .from('referral_submissions')
+        .insert(stripLeadTrackingColumns(submissionPayload))
+        .select()
+        .single()
+      submission = retry.data
+      submissionError = retry.error
+    }
     if (submissionError) throw submissionError
+
+    const checklist = isVietnamReferral
+      ? {
+          partner_type: 'vietnam_agency',
+          source_page: sourcePage || 'vietnam-referral-partner',
+          language: language || 'vi',
+          lead_tracking: leadTracking,
+        }
+      : { lead_tracking: leadTracking }
 
     const { data: clientCase, error: caseError } = await admin
       .from('client_cases')
@@ -128,7 +160,7 @@ export async function POST(request: Request) {
         phone: landlordPhone,
         email: landlordEmail,
         lead_source: 'Referral',
-        lead_source_detail: isVietnamReferral ? 'Vietnam Referral Partner' : 'Referral Partner',
+        lead_source_detail: leadTrackingSummary(leadTracking) || (isVietnamReferral ? 'Vietnam Referral Partner' : 'Referral Partner'),
         status: 'New',
         priority: possibleDuplicate ? 'High' : 'Normal',
         property_address: propertyAddress,
@@ -139,13 +171,7 @@ export async function POST(request: Request) {
         referral_submission_id: submission.id,
         referral_partner_id: partner.id,
         referral_id: referralId,
-        checklist: isVietnamReferral
-          ? {
-              partner_type: 'vietnam_agency',
-              source_page: sourcePage || 'vietnam-referral-partner',
-              language: language || 'vi',
-            }
-          : {},
+        checklist,
       })
       .select()
       .single()
@@ -235,7 +261,7 @@ export async function POST(request: Request) {
         to: BUSINESS_EMAIL,
         subject: adminSubject,
         replyTo: partner.email,
-        text: `New referral lead\n\nPartner type: ${isVietnamReferral ? 'Vietnam Agency Partner' : 'Referral Partner'}\nSource page: ${sourcePage || 'referral-program'}\nLanguage: ${language || 'en'}\nReferral ID: ${referralId}\nPartner: ${partner.full_name} <${partner.email}> ${partner.phone}\nClient: ${landlordName} <${landlordEmail}> ${landlordPhone}\nLocation: ${propertyAddress}, ${city}\nInterest: ${serviceInterest}\nPotential payout: $${payoutAmount}\nDuplicate flag: ${possibleDuplicate ? 'Yes - ' + duplicateReason : 'No'}\nClient case: ${clientCase.case_number}\nSubmission: ${submission.id}`,
+        text: `New referral lead\n\nPartner type: ${isVietnamReferral ? 'Vietnam Agency Partner' : 'Referral Partner'}\nSource page: ${sourcePage || 'referral-program'}\nLanguage: ${language || 'en'}\nReferral ID: ${referralId}\nPartner: ${partner.full_name} <${partner.email}> ${partner.phone}\nClient: ${landlordName} <${landlordEmail}> ${landlordPhone}\nLocation: ${propertyAddress}, ${city}\nInterest: ${serviceInterest}\nPotential payout: $${payoutAmount}\nDuplicate flag: ${possibleDuplicate ? 'Yes - ' + duplicateReason : 'No'}\n${leadTrackingSummary(leadTracking)}\nClient case: ${clientCase.case_number}\nSubmission: ${submission.id}`,
         html: emailShell(isVietnamReferral ? 'New Vietnam Referral Lead' : 'New Referral Lead', `
           <p><strong>Partner type:</strong> ${isVietnamReferral ? 'Vietnam Agency Partner' : 'Referral Partner'}</p>
           <p><strong>Source page:</strong> ${sourcePage || 'referral-program'}</p>
@@ -247,6 +273,7 @@ export async function POST(request: Request) {
           <p><strong>Interest:</strong> ${serviceInterest}</p>
           <p><strong>Potential payout:</strong> $${payoutAmount}</p>
           <p><strong>Duplicate flag:</strong> ${possibleDuplicate ? duplicateReason : 'No'}</p>
+          ${leadTrackingHtml(leadTracking)}
           <p><strong>Client case:</strong> ${clientCase.case_number}</p>
           <p><strong>Submission:</strong> ${submission.id}</p>
         `),
