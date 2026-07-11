@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { useLanguage } from '@/hooks/useLanguage'
 import type { Lang } from '@/lib/translations'
 
 export default function LanguagePicker() {
   const { showPicker, setLang, t } = useLanguage()
+  const pathname = usePathname()
   const [visible, setVisible] = useState(false)
   const [exiting, setExiting] = useState(false)
 
@@ -14,6 +16,8 @@ export default function LanguagePicker() {
       requestAnimationFrame(() => setVisible(true))
     }
   }, [showPicker])
+
+  if (pathname === '/vi/ho-tro-den-canada') return null
 
   if (!showPicker && !visible) return null
 

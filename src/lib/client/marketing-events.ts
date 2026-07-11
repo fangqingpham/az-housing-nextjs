@@ -15,9 +15,19 @@ export type MarketingEventName =
   | 'cta_click'
   | 'pricing_view'
   | 'faq_open'
+  | 'vietnam_bridge_page_view'
+  | 'service_card_expand'
+  | 'service_question_click'
+  | 'chat_open'
+  | 'pricing_click'
+  | 'lead_form_start'
+  | 'lead_form_submit'
+  | 'scroll_50'
+  | 'scroll_90'
 
 type EventPayload = {
   service?: string
+  selected_service?: string
   form_name?: string
   order_id?: string
   referral_id?: string
@@ -84,6 +94,8 @@ export async function trackMarketingEvent(eventName: MarketingEventName, payload
     session_identifier: attribution.session_identifier || getSessionIdentifier(),
     metadata: {
       ...(payload.metadata || {}),
+      selected_service: payload.selected_service || payload.service,
+      event_timestamp: new Date().toISOString(),
       form_name: payload.form_name,
       order_id: payload.order_id,
       referral_id: payload.referral_id,

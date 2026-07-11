@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
-import { GoogleAnalytics } from '@next/third-parties/google'
 import '@/styles/globals.css'
 import PublicChrome from '@/components/layout/PublicChrome'
 import LanguagePicker from '@/components/ui/LanguagePicker'
 import { LanguageProvider } from '@/hooks/LanguageProvider'
 import LeadSourceTracker from '@/components/LeadSourceTracker'
+import TawkToLoader from '@/components/TawkToLoader'
+import RouteAnalytics from '@/components/RouteAnalytics'
 
 const SITE_URL = 'https://www.azhouse.ca'
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
@@ -142,22 +142,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </PublicChrome>
         </LanguageProvider>
 
-        {/* Tawk.to live chat loader */}
-        <Script id="tawk-to-live-chat" strategy="afterInteractive">
-          {`
-            var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-            (function(){
-              var s1 = document.createElement("script");
-              var s0 = document.getElementsByTagName("script")[0];
-              s1.async = true;
-              s1.src = 'https://embed.tawk.to/69fa94af18351f1c34e5ce75/1jntd9jtd';
-              s1.charset = 'UTF-8';
-              s1.setAttribute('crossorigin', '*');
-              s0.parentNode.insertBefore(s1, s0);
-            })();
-          `}
-        </Script>
-        {GA_MEASUREMENT_ID ? <GoogleAnalytics gaId={GA_MEASUREMENT_ID} /> : null}
+        <TawkToLoader />
+        <RouteAnalytics gaId={GA_MEASUREMENT_ID} />
       </body>
     </html>
   )

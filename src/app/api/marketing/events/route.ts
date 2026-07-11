@@ -16,9 +16,18 @@ const ALLOWED_EVENTS = new Set([
   'cta_click',
   'pricing_view',
   'faq_open',
+  'vietnam_bridge_page_view',
+  'service_card_expand',
+  'service_question_click',
+  'chat_open',
+  'pricing_click',
+  'lead_form_start',
+  'lead_form_submit',
+  'scroll_50',
+  'scroll_90',
 ])
 
-const FORM_EVENTS = new Set(['contact_form_submit', 'order_form_submit', 'referral_signup', 'referral_submission'])
+const FORM_EVENTS = new Set(['contact_form_submit', 'order_form_submit', 'referral_signup', 'referral_submission', 'lead_form_submit'])
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
 const duplicateEvents = new Map<string, number>()
 

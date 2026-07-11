@@ -24,6 +24,23 @@ interface LeadData {
   message: string
 }
 
+type OpenChatDetail = {
+  language?: string
+  selected_service?: string
+  message?: string
+  page_url?: string
+  utm_source?: string
+  utm_medium?: string
+  utm_campaign?: string
+  utm_content?: string
+}
+
+declare global {
+  interface Window {
+    __azPendingChatDetail?: OpenChatDetail
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────
 // FAQ Knowledge Base
 // ─────────────────────────────────────────────────────────────────
@@ -247,6 +264,8 @@ const HUMAN_TRIGGERS = [
   'contact me', 'reach me', 'book', 'get a quote', 'book a consultation',
   'yes contact me', 'schedule', 'appointment', 'leave my details',
   'speak with', 'get in touch', 'connect me',
+  'để lại thông tin', 'de lai thong tin', 'liên hệ', 'lien he',
+  'tư vấn', 'tu van', 'nói chuyện với a-z', 'noi chuyen voi a-z',
 ]
 
 const AFFIRMATIVES = [
@@ -346,11 +365,25 @@ const GREETING = botMsg(
   MAIN_QUICK_REPLIES,
 )
 
+const VI_GREETING = botMsg(
+  'Xin chào! A-Z Housing có thể hỗ trợ bạn tìm hiểu dịch vụ chỗ ở, xem nhà từ xa, đón sân bay, giám hộ cho học sinh dưới 18 tuổi, bảng giá hoặc các nhu cầu khác khi đến Canada.',
+  ['Để lại thông tin', 'Bảng giá', 'Nói chuyện với A-Z'],
+)
+
 const LEAD_PROMPTS: Record<LeadField, string> = {
   name:    'Sure! Let\'s get you connected with our team.\n\nWhat\'s your **full name**?',
   email:   'Thanks! What\'s the best **email address** to reach you at?',
   phone:   'Got it. And your **phone number**?\n*(Press Enter or type "skip" to leave blank)*',
   message: 'Almost there! Briefly describe how we can help you:',
+}
+
+const VI_QUICK_REPLIES = ['Để lại thông tin', 'Bảng giá', 'Nói chuyện với A-Z']
+
+const LEAD_PROMPTS_VI: Record<LeadField, string> = {
+  name: 'Được rồi, A-Z sẽ ghi nhận thông tin để liên hệ lại.\n\nBạn cho A-Z xin **họ và tên** nhé?',
+  email: 'Cảm ơn bạn. Địa chỉ **email** tốt nhất để liên hệ là gì?',
+  phone: 'Bạn cho A-Z xin **số điện thoại** nhé?\n*(Bạn có thể nhập "bỏ qua" nếu chưa muốn cung cấp.)*',
+  message: 'Bạn mô tả ngắn gọn nhu cầu cần hỗ trợ nhé:',
 }
 
 const LEAD_ORDER: LeadField[] = ['name', 'email', 'phone', 'message']
@@ -359,8 +392,10 @@ const LEAD_ORDER: LeadField[] = ['name', 'email', 'phone', 'message']
 // Component
 // ─────────────────────────────────────────────────────────────────
 export default function LiveChatWidget() {
+  const isVietnamBridge =
+    typeof window !== 'undefined' && window.location.pathname.startsWith('/vi/ho-tro-den-canada')
   const [open, setOpen]             = useState(false)
-  const [messages, setMessages]     = useState<Message[]>([GREETING])
+  const [messages, setMessages]     = useState<Message[]>(() => [isVietnamBridge ? VI_GREETING : GREETING])
   const [input, setInput]           = useState('')
   const [collecting, setCollecting] = useState<CollectionStep>(null)
   const [lead, setLead]             = useState<LeadData>({ name: '', email: '', phone: '', message: '' })
@@ -368,13 +403,37 @@ export default function LiveChatWidget() {
   const [unread, setUnread]         = useState(0)
   const [isTyping, setIsTyping]     = useState(false)
   const [lastFaqId, setLastFaqId]   = useState<string | null>(null)
+  const [chatContext, setChatContext] = useState<OpenChatDetail | null>(null)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLInputElement>(null)
+  const isVietnamese = chatContext?.language === 'vi' || isVietnamBridge
 
   // Allow external triggers (e.g. contact page "Live Support" card)
   useEffect(() => {
-    const handler = () => setOpen(true)
+    const applyDetail = (detail?: OpenChatDetail) => {
+      setOpen(true)
+      if (!detail) return
+      setChatContext(detail)
+      const message = detail.message
+      if (message) {
+        const msg = botMsg(message, detail.language === 'vi' ? VI_QUICK_REPLIES : MAIN_QUICK_REPLIES)
+        if (detail.language === 'vi') {
+          setMessages([msg])
+        } else {
+          setMessages(prev => [...prev, msg])
+        }
+      }
+    }
+    const handler = (event: Event) => {
+      const detail = event instanceof CustomEvent ? event.detail as OpenChatDetail | undefined : undefined
+      applyDetail(detail)
+    }
+    if (window.__azPendingChatDetail) {
+      const pending = window.__azPendingChatDetail
+      window.__azPendingChatDetail = undefined
+      applyDetail(pending)
+    }
     window.addEventListener('az:openchat', handler)
     return () => window.removeEventListener('az:openchat', handler)
   }, [])
@@ -401,8 +460,8 @@ export default function LiveChatWidget() {
 
   const startLeadCollection = useCallback(() => {
     setCollecting('name')
-    addBotReply(botMsg(LEAD_PROMPTS['name']))
-  }, [addBotReply])
+    addBotReply(botMsg(isVietnamese ? LEAD_PROMPTS_VI['name'] : LEAD_PROMPTS['name']))
+  }, [addBotReply, isVietnamese])
 
   const handleSend = useCallback(async (text: string) => {
     const trimmed = text.trim()
@@ -414,7 +473,8 @@ export default function LiveChatWidget() {
     // ── Lead collection flow ──────────────────────────────────
     if (collecting && collecting !== 'done') {
       const field = collecting as LeadField
-      const isSkip = trimmed.toLowerCase() === 'skip'
+      const lowerTrimmed = trimmed.toLowerCase()
+      const isSkip = lowerTrimmed === 'skip' || lowerTrimmed === 'bỏ qua' || lowerTrimmed === 'bo qua'
       const value  = (field === 'phone' && isSkip) ? '' : trimmed
       const updatedLead = { ...lead, [field]: value }
       setLead(updatedLead)
@@ -424,31 +484,52 @@ export default function LiveChatWidget() {
 
       if (next) {
         setCollecting(next)
-        addBotReply(botMsg(LEAD_PROMPTS[next]))
+        addBotReply(botMsg(isVietnamese ? LEAD_PROMPTS_VI[next] : LEAD_PROMPTS[next]))
       } else {
         setCollecting('done')
         setSending(true)
-        addBotReply(botMsg('One moment while I send your details to our team... ⏳'))
+        addBotReply(botMsg(isVietnamese ? 'A-Z đang gửi thông tin của bạn đến đội ngũ tư vấn...' : 'One moment while I send your details to our team... ⏳'))
 
         try {
+          const contextLines = chatContext
+            ? [
+                chatContext.selected_service ? `Dịch vụ đã chọn: ${chatContext.selected_service}` : '',
+                chatContext.language ? `Ngôn ngữ: ${chatContext.language}` : '',
+                chatContext.page_url ? `Đường dẫn trang: ${chatContext.page_url}` : '',
+                chatContext.utm_source ? `UTM source: ${chatContext.utm_source}` : '',
+                chatContext.utm_medium ? `UTM medium: ${chatContext.utm_medium}` : '',
+                chatContext.utm_campaign ? `UTM campaign: ${chatContext.utm_campaign}` : '',
+                chatContext.utm_content ? `UTM content: ${chatContext.utm_content}` : '',
+              ].filter(Boolean).join('\n')
+            : ''
+          const leadPayload = contextLines
+            ? { ...updatedLead, message: `${updatedLead.message}\n\n---\n${contextLines}` }
+            : updatedLead
+
           const res = await fetch('/api/chat-lead', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedLead),
+            body: JSON.stringify(leadPayload),
           })
           if (res.ok) {
             addBotReply(botMsg(
-              `✅ **Thank you, ${updatedLead.name}!** Our team will contact you at ${updatedLead.email} shortly.\n\nIs there anything else I can help you with?`,
-              MAIN_QUICK_REPLIES,
+              isVietnamese
+                ? `**Cảm ơn ${updatedLead.name}!** Đội ngũ A-Z sẽ liên hệ qua ${updatedLead.email} trong thời gian sớm nhất.\n\nBạn còn cần A-Z hỗ trợ thêm gì không?`
+                : `✅ **Thank you, ${updatedLead.name}!** Our team will contact you at ${updatedLead.email} shortly.\n\nIs there anything else I can help you with?`,
+              isVietnamese ? VI_QUICK_REPLIES : MAIN_QUICK_REPLIES,
             ))
           } else {
             addBotReply(botMsg(
-              'There was a hiccup sending your details. Please reach us directly:\n📧 info@azhouse.ca\n📞 +1 (647) 6932-932',
+              isVietnamese
+                ? 'Thông tin chưa gửi được. Bạn có thể liên hệ trực tiếp với A-Z:\nEmail: info@azhouse.ca\nĐiện thoại: +1 (647) 6932-932'
+                : 'There was a hiccup sending your details. Please reach us directly:\n📧 info@azhouse.ca\n📞 +1 (647) 6932-932',
             ))
           }
         } catch {
           addBotReply(botMsg(
-            'Network error. Please reach us at:\n📧 info@azhouse.ca\n📞 +1 (647) 2932-932',
+            isVietnamese
+              ? 'Kết nối đang gặp lỗi. Bạn có thể liên hệ A-Z qua:\nEmail: info@azhouse.ca\nĐiện thoại: +1 (647) 2932-932'
+              : 'Network error. Please reach us at:\n📧 info@azhouse.ca\n📞 +1 (647) 2932-932',
           ))
         } finally {
           setSending(false)
@@ -523,7 +604,7 @@ export default function LiveChatWidget() {
       'I\'m not sure I understood that — I\'m a chatbot with limited knowledge 😊. Try one of the topics below, or let me connect you with our team for a quick answer.',
       [...MAIN_QUICK_REPLIES, 'Speak to someone'],
     ))
-  }, [collecting, lead, lastFaqId, addBotReply, startLeadCollection])
+  }, [collecting, lead, lastFaqId, chatContext, isVietnamese, addBotReply, startLeadCollection])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -550,7 +631,7 @@ export default function LiveChatWidget() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(o => !o)}
-        aria-label={open ? 'Close chat' : 'Open chat'}
+        aria-label={isVietnamese ? (open ? 'Đóng chat' : 'Mở chat') : (open ? 'Close chat' : 'Open chat')}
         style={{
           position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
           width: 58, height: 58, borderRadius: '50%',
@@ -619,12 +700,12 @@ export default function LiveChatWidget() {
               </div>
               <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 5, marginTop: 2 }}>
                 <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4caf50', display: 'inline-block' }} />
-                Online · Usually replies instantly
+                {isVietnamese ? 'Đang trực tuyến · Thường phản hồi nhanh' : 'Online · Usually replies instantly'}
               </div>
             </div>
             <button
               onClick={() => setOpen(false)}
-              aria-label="Close"
+              aria-label={isVietnamese ? 'Đóng' : 'Close'}
               style={{
                 marginLeft: 'auto', background: 'rgba(255,255,255,0.12)',
                 border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer',
@@ -717,7 +798,9 @@ export default function LiveChatWidget() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={
-                collecting && collecting !== 'done' ? 'Type your answer…' : 'Ask me anything…'
+                collecting && collecting !== 'done'
+                  ? (isVietnamese ? 'Nhập câu trả lời...' : 'Type your answer...')
+                  : (isVietnamese ? 'Nhập câu hỏi của bạn...' : 'Ask me anything...')
               }
               disabled={sending}
               style={{
@@ -732,7 +815,7 @@ export default function LiveChatWidget() {
             <button
               onClick={() => handleSend(input)}
               disabled={!input.trim() || sending}
-              aria-label="Send"
+              aria-label={isVietnamese ? 'Gửi' : 'Send'}
               style={{
                 width: 38, height: 38, borderRadius: '50%',
                 background: input.trim() && !sending ? 'var(--dark, #1e2a45)' : 'rgba(0,0,0,0.1)',
