@@ -28,7 +28,7 @@ export default function VietnamBridgePage() {
       <section className={styles.hero}>
         <div className={styles.topbar}>
           <Image src="/logo.png" alt="A-Z Housing Solutions" width={124} height={54} priority />
-          <a className={styles.textButton} href="https://m.me/azhouse.ca" target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="hero_top">
+          <a className={styles.textButton} href="https://m.me/azhousesolution" target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="hero_top">
             Messenger
           </a>
         </div>

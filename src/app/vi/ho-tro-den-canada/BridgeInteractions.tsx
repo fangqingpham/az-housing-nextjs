@@ -20,7 +20,7 @@ type Props = {
   services: ClientService[]
 }
 
-const MESSENGER_URL = 'https://m.me/azhouse.ca'
+const MESSENGER_URL = 'https://m.me/azhousesolution'
 
 function utmFields() {
   if (typeof window === 'undefined') return {}
