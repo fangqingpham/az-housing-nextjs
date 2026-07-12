@@ -19,6 +19,7 @@ const ALLOWED_EVENTS = new Set([
   'vietnam_bridge_page_view',
   'service_card_expand',
   'service_question_click',
+  'landing_arrangement_read_more_click',
   'chat_open',
   'pricing_click',
   'lead_form_start',

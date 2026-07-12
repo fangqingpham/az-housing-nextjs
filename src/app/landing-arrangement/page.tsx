@@ -6,7 +6,7 @@ import { getStoredLeadTracking } from "@/lib/client/lead-tracking";
 import { trackFormEventOnce, trackMarketingEvent } from "@/lib/client/marketing-events";
 
 /**
- * Landing Arrangement — standalone bilingual page (English default + Tiếng Việt toggle).
+ * Landing Arrangement — standalone bilingual page (Vietnamese default + English toggle).
  *
  * Does NOT use the global useLanguage (EN/ZH) system. Manages its own local `lang`
  * state ('en' | 'vi') with parallel COPY.en / COPY.vi objects (identical keys).
@@ -506,7 +506,7 @@ const gridStyle: React.CSSProperties = { display: "grid", gridTemplateColumns: "
 const fullStyle: React.CSSProperties = { ...inputStyle, gridColumn: "1 / -1" };
 
 export default function LandingArrangementPage() {
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>("vi");
   const L = COPY[lang];
 
   const [form, setForm] = useState<FormData>(initialForm);

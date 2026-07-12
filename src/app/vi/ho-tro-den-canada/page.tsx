@@ -1,8 +1,15 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import { Be_Vietnam_Pro } from 'next/font/google'
 import BridgeInteractions from './BridgeInteractions'
 import { clientServices, heroSources, services, trustPoints } from './content'
 import styles from './page.module.css'
+
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ['vietnamese'],
+  weight: ['400', '500', '700', '800'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Đến Canada không lo chỗ ở',
@@ -24,10 +31,17 @@ export const metadata: Metadata = {
 
 export default function VietnamBridgePage() {
   return (
-    <main className={styles.page} lang="vi">
+    <main className={`${beVietnamPro.className} ${styles.page}`} lang="vi">
       <section className={styles.hero}>
         <div className={styles.topbar}>
-          <Image src="/logo.png" alt="A-Z Housing Solutions" width={124} height={54} priority />
+          <Image
+            src="/images/az-housing-logo-blue.png"
+            alt="A-Z Housing Solutions"
+            width={88}
+            height={90}
+            priority
+            className={styles.logo}
+          />
           <a className={styles.textButton} href="https://m.me/azhousesolution" target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="hero_top">
             Messenger
           </a>
@@ -50,7 +64,7 @@ export default function VietnamBridgePage() {
               <button className={styles.primaryButton} data-az-action="chat" data-location="hero_primary">
                 Chat ngay với A-Z
               </button>
-              <a className={styles.secondaryButton} href="https://m.me/azhouse.ca" target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="hero_secondary">
+              <a className={styles.secondaryButton} href="https://m.me/azhousesolution" target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="hero_secondary">
                 Nhắn tin qua Messenger
               </a>
             </div>
@@ -127,6 +141,14 @@ export default function VietnamBridgePage() {
                         <dd>{service.price}</dd>
                       </div>
                     </dl>
+                    <a
+                      className={styles.readMoreButton}
+                      href="/landing-arrangement"
+                      data-az-action="landing-arrangement-read-more"
+                      data-service-id={service.id}
+                    >
+                      Đọc thêm
+                    </a>
                   </div>
                 </details>
                 <button className={styles.cardButton} data-az-action="service-question" data-service-id={service.id}>

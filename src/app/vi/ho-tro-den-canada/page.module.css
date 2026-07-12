@@ -1,12 +1,21 @@
 .page {
-  --bridge-red: #b91f2d;
   --bridge-navy: #13284b;
+  --bridge-orange: #f5a623;
+  --bridge-orange-dark: #b85c00;
+  --bridge-orange-hover: #d98c00;
   --bridge-blue: #eaf3fb;
   --bridge-line: #e8edf3;
   background: #ffffff;
   color: var(--bridge-navy);
   min-height: 100vh;
   padding-bottom: 76px;
+}
+
+.page button,
+.page input,
+.page textarea,
+.page select {
+  font: inherit;
 }
 
 .hero {
@@ -21,6 +30,12 @@
   justify-content: space-between;
   margin: 0 auto 22px;
   max-width: 1160px;
+}
+
+.logo {
+  height: 82px;
+  object-fit: contain;
+  width: 82px;
 }
 
 .textButton {
@@ -45,11 +60,10 @@
 }
 
 .heroCopy h1 {
-  font-family: var(--sans);
   font-size: clamp(38px, 11vw, 78px);
-  font-weight: 900;
-  letter-spacing: 0;
-  line-height: .98;
+  font-weight: 800;
+  letter-spacing: -.015em;
+  line-height: 1.06;
   margin: 10px 0 16px;
 }
 
@@ -58,13 +72,13 @@
 }
 
 .heroCopy h1 span:first-child {
-  color: var(--bridge-red);
+  color: var(--bridge-orange-dark);
 }
 
 .label {
-  color: var(--bridge-red);
+  color: var(--bridge-orange-dark);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: .08em;
   margin: 0;
   text-transform: uppercase;
@@ -111,7 +125,7 @@
   border-radius: 12px;
   display: inline-flex;
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 700;
   justify-content: center;
   min-height: 46px;
   padding: 12px 18px;
@@ -119,10 +133,15 @@
 }
 
 .primaryButton {
-  background: var(--bridge-red);
-  border: 1px solid var(--bridge-red);
-  color: #fff;
-  box-shadow: 0 12px 24px rgba(185, 31, 45, .2);
+  background: var(--bridge-orange);
+  border: 1px solid var(--bridge-orange);
+  color: var(--bridge-navy);
+  box-shadow: 0 12px 24px rgba(245, 166, 35, .24);
+}
+
+.primaryButton:hover {
+  background: var(--bridge-orange-hover);
+  border-color: var(--bridge-orange-hover);
 }
 
 .secondaryButton {
@@ -161,7 +180,7 @@
 }
 
 .arrivalCard strong {
-  color: var(--bridge-red);
+  color: var(--bridge-orange-dark);
   font-size: 15px;
 }
 
@@ -185,9 +204,8 @@
 .leadForm h2,
 .successBox h2 {
   color: var(--bridge-navy);
-  font-family: var(--sans);
   font-size: clamp(27px, 6vw, 44px);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0;
   line-height: 1.08;
   margin: 8px 0 0;
@@ -242,7 +260,7 @@
 .cardToggle strong {
   display: block;
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.2;
 }
 
@@ -258,7 +276,7 @@
   align-items: center;
   background: #f6f8fb;
   border-radius: 50%;
-  color: var(--bridge-red);
+  color: var(--bridge-orange-dark);
   display: inline-flex;
   flex: 0 0 auto;
   font-size: 22px;
@@ -299,9 +317,9 @@
 }
 
 .expanded dt {
-  color: var(--bridge-red);
+  color: var(--bridge-orange-dark);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
@@ -316,6 +334,27 @@
   color: #fff;
   margin-top: 16px;
   width: 100%;
+}
+
+.readMoreButton {
+  align-items: center;
+  border: 1px solid var(--bridge-orange-dark);
+  border-radius: 999px;
+  color: var(--bridge-orange-dark);
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 700;
+  justify-content: center;
+  margin-top: -2px;
+  min-height: 40px;
+  padding: 9px 15px;
+  text-decoration: none;
+}
+
+.readMoreButton:hover {
+  background: #fff7e8;
+  border-color: var(--bridge-orange-hover);
+  color: #8a4500;
 }
 
 .bottomCta {
@@ -354,7 +393,7 @@
   color: #fff;
   display: inline-flex;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 700;
   justify-content: center;
   min-height: 42px;
 }
@@ -365,7 +404,8 @@
 }
 
 .mobileBar button:nth-child(3) {
-  background: var(--bridge-red);
+  background: var(--bridge-orange);
+  color: var(--bridge-navy);
 }
 
 .modalBackdrop {
@@ -427,12 +467,27 @@
 
 .leadForm input:focus,
 .leadForm textarea:focus {
-  border-color: var(--bridge-red);
+  border-color: var(--bridge-orange-hover);
 }
 
 .error {
-  color: var(--bridge-red) !important;
+  color: #8a4500 !important;
   font-size: 13px;
+}
+
+.textButton:focus-visible,
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible,
+.cardButton:focus-visible,
+.readMoreButton:focus-visible,
+.mobileBar button:focus-visible,
+.mobileBar a:focus-visible,
+.modalClose:focus-visible,
+.leadForm input:focus-visible,
+.leadForm textarea:focus-visible,
+.cardToggle:focus-visible {
+  outline: 3px solid rgba(184, 92, 0, .35);
+  outline-offset: 3px;
 }
 
 .successBox {
@@ -448,6 +503,11 @@
   .heroImageWrap {
     aspect-ratio: 4 / 3;
     min-height: 300px;
+  }
+
+  .logo {
+    height: 112px;
+    width: 112px;
   }
 
   .heroGrid {

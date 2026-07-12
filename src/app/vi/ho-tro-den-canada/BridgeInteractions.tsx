@@ -116,6 +116,18 @@ export default function BridgeInteractions({ services }: Props) {
           metadata: { location: target.dataset.location || 'cta', language: 'vi', ...utmFields() },
         })
       }
+      if (action === 'landing-arrangement-read-more' && service) {
+        void trackMarketingEvent('landing_arrangement_read_more_click', {
+          service: service.title,
+          selected_service: service.title,
+          metadata: {
+            selected_service: service.title,
+            service_id: service.id,
+            language: 'vi',
+            ...utmFields(),
+          },
+        })
+      }
       if (action === 'lead') {
         event.preventDefault()
         setLeadOpen(true)
