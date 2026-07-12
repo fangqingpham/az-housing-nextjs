@@ -17,7 +17,7 @@ export default function LanguagePicker() {
     }
   }, [showPicker])
 
-  if (pathname === '/vi/ho-tro-den-canada') return null
+  if (pathname === '/vi/ho-tro-den-canada' || pathname === '/landing-arrangement') return null
 
   if (!showPicker && !visible) return null
 

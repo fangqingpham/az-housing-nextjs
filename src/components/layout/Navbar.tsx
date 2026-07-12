@@ -181,6 +181,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const navRef = useRef<HTMLElement>(null)
+  const showGlobalLanguageToggle = pathname !== '/landing-arrangement'
 
   // Build nav from translations
   const NAV: NavItem[] = [
@@ -391,7 +392,7 @@ export default function Navbar() {
         {/* Desktop right actions */}
         {!isMobile && (
           <div className="nav-actions" style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0, position: 'relative' }}>
-            <LangToggle />
+            {showGlobalLanguageToggle && <LangToggle />}
 
             {user ? (
               <>
@@ -425,7 +426,7 @@ export default function Navbar() {
         {/* Mobile hamburger */}
         {isMobile && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
-            <LangToggle />
+            {showGlobalLanguageToggle && <LangToggle />}
             <button
               type="button"
               onClick={() => setMobileOpen(v => !v)}
