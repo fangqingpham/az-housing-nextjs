@@ -160,6 +160,7 @@ export default function BridgeInteractions({ services }: Props) {
           metadata: {
             selected_service: service.title,
             service_id: service.id,
+            location: 'service_card',
             language: 'vi',
             ...utmFields(),
           },

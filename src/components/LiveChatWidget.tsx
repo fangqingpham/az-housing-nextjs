@@ -630,7 +630,6 @@ export default function LiveChatWidget() {
         ...bridgeUtmContext(),
       },
     })
-    window.location.href = '/landing-arrangement'
   }, [bridgeUtmContext, chatContext, isVietnamese, selectedService])
 
   const resetChat = useCallback(() => {
@@ -678,6 +677,10 @@ export default function LiveChatWidget() {
   }, [addBotReply, bridgeUtmContext, chatContext, isVietnamese, selectedService])
 
   const handleQuickReply = useCallback((reply: QuickReply) => {
+    if (reply.action === 'read-more') {
+      trackReadMore()
+      return
+    }
     if (quickReplyBusy) return
     setQuickReplyBusy(true)
     setActiveQuickReplyMessageId(null)
@@ -709,10 +712,6 @@ export default function LiveChatWidget() {
     if (reply.action === 'messenger') {
       openMessenger()
       setTimeout(() => setQuickReplyBusy(false), 350)
-      return
-    }
-    if (reply.action === 'read-more') {
-      trackReadMore()
       return
     }
     if (reply.action === 'faq' && reply.faqId) {
@@ -1041,28 +1040,52 @@ export default function LiveChatWidget() {
                 </div>
                 {msg.quickReplies && msg.quickReplies.length > 0 && msg.id === activeQuickReplyMessageId && !collecting && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxWidth: '92%' }}>
-                    {msg.quickReplies.map(qr => (
-                      <button
-                        key={`${msg.id}-${qr.label}`}
-                        onClick={() => handleQuickReply(qr)}
-                        disabled={quickReplyBusy}
-                        style={{
-                          background: '#fff',
-                          border: '1.5px solid var(--accent, #f5a623)',
-                          borderRadius: 999, padding: '5px 13px',
-                          fontSize: 12, fontWeight: 600,
-                          color: 'var(--dark, #1e2a45)',
-                          cursor: quickReplyBusy ? 'default' : 'pointer',
-                          opacity: quickReplyBusy ? 0.55 : 1,
-                          transition: 'background 0.15s',
-                          whiteSpace: 'nowrap',
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent, #f5a623)' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = '#fff' }}
-                      >
-                        {qr.label}
-                      </button>
-                    ))}
+                    {msg.quickReplies.map(qr => {
+                      const quickReplyStyle = {
+                        background: '#fff',
+                        border: '1.5px solid var(--accent, #f5a623)',
+                        borderRadius: 999,
+                        padding: '5px 13px',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: 'var(--dark, #1e2a45)',
+                        cursor: quickReplyBusy && qr.action !== 'read-more' ? 'default' : 'pointer',
+                        opacity: quickReplyBusy && qr.action !== 'read-more' ? 0.55 : 1,
+                        transition: 'background 0.15s',
+                        whiteSpace: 'nowrap',
+                        textDecoration: 'none',
+                      } as const
+
+                      if (qr.action === 'read-more') {
+                        return (
+                          <a
+                            key={`${msg.id}-${qr.label}`}
+                            href="https://azhouse.ca/landing-arrangement"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={trackReadMore}
+                            style={quickReplyStyle}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent, #f5a623)' }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#fff' }}
+                          >
+                            {qr.label}
+                          </a>
+                        )
+                      }
+
+                      return (
+                        <button
+                          key={`${msg.id}-${qr.label}`}
+                          onClick={() => handleQuickReply(qr)}
+                          disabled={quickReplyBusy}
+                          style={quickReplyStyle}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent, #f5a623)' }}
+                          onMouseLeave={e => { e.currentTarget.style.background = '#fff' }}
+                        >
+                          {qr.label}
+                        </button>
+                      )
+                    })}
                   </div>
                 )}
               </div>

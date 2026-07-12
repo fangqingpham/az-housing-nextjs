@@ -151,7 +151,9 @@ export default function VietnamBridgePage() {
                     </dl>
                     <a
                       className={styles.readMoreButton}
-                      href="/landing-arrangement"
+                      href="https://azhouse.ca/landing-arrangement"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       data-az-action="landing-arrangement-read-more"
                       data-service-id={service.id}
                     >
