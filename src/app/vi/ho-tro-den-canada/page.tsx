@@ -37,14 +37,22 @@ export default function VietnamBridgePage() {
           <Image
             src="/images/az-housing-logo-blue.png"
             alt="A-Z Housing Solutions"
-            width={88}
-            height={90}
+            width={50}
+            height={50}
             priority
             className={styles.logo}
           />
-          <a className={styles.textButton} href="https://m.me/azhousesolution" target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="hero_top">
-            Messenger
-          </a>
+          <div className={styles.topActions} aria-label="Liên kết nhanh">
+            <a className={styles.textButton} href="https://azhouse.ca" target="_blank" rel="noopener noreferrer" data-az-action="bridge-top-home" data-location="top_header">
+              Trang chủ
+            </a>
+            <a className={styles.textButton} href="https://azhouse.ca/landing-arrangement" target="_blank" rel="noopener noreferrer" data-az-action="bridge-top-service" data-location="top_header">
+              Dịch vụ
+            </a>
+            <a className={`${styles.textButton} ${styles.messengerButton}`} href="https://m.me/azhousesolution" target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="top_header">
+              Messenger
+            </a>
+          </div>
         </div>
 
         <div className={styles.heroGrid}>

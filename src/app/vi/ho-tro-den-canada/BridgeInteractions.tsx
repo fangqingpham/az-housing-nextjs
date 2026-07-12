@@ -128,6 +128,31 @@ export default function BridgeInteractions({ services }: Props) {
           metadata: { location: target.dataset.location || 'cta', language: 'vi', ...utmFields() },
         })
       }
+      if (action === 'bridge-top-home') {
+        void trackMarketingEvent('bridge_top_home_click', {
+          service: 'Trang chủ',
+          selected_service: 'Trang chủ',
+          metadata: {
+            location: 'top_header',
+            language: 'vi',
+            destination_url: 'https://azhouse.ca',
+            ...utmFields(),
+          },
+        })
+      }
+      if (action === 'bridge-top-service') {
+        void trackMarketingEvent('bridge_top_service_click', {
+          service: 'Landing Arrangement',
+          selected_service: 'Landing Arrangement',
+          metadata: {
+            selected_service: 'Landing Arrangement',
+            location: 'top_header',
+            language: 'vi',
+            destination_url: 'https://azhouse.ca/landing-arrangement',
+            ...utmFields(),
+          },
+        })
+      }
       if (action === 'landing-arrangement-read-more' && service) {
         void trackMarketingEvent('landing_arrangement_read_more_click', {
           service: service.title,

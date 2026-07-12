@@ -27,15 +27,26 @@
 .topbar {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
   justify-content: space-between;
-  margin: 0 auto 22px;
+  margin: 0 auto 16px;
   max-width: 1160px;
 }
 
 .logo {
-  height: 82px;
+  flex: 0 0 auto;
+  height: 48px;
   object-fit: contain;
-  width: 82px;
+  width: 48px;
+}
+
+.topActions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .textButton {
@@ -45,9 +56,29 @@
   border-radius: 999px;
   color: var(--bridge-navy);
   display: inline-flex;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
   justify-content: center;
-  padding: 9px 16px;
+  min-height: 34px;
+  padding: 7px 11px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.textButton:hover {
+  background: #f7fbff;
+  border-color: #b9c6d8;
+}
+
+.messengerButton {
+  border-color: var(--bridge-orange-dark);
+  color: var(--bridge-orange-dark);
+}
+
+.messengerButton:hover {
+  background: #fff7e8;
+  border-color: var(--bridge-orange-hover);
+  color: #8a4500;
 }
 
 .heroGrid {
@@ -495,6 +526,23 @@
   gap: 14px;
 }
 
+@media (max-width: 430px) {
+  .topbar {
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .topActions {
+    flex: 1 1 230px;
+  }
+
+  .textButton {
+    font-size: 12px;
+    min-height: 32px;
+    padding: 6px 9px;
+  }
+}
+
 @media (min-width: 760px) {
   .hero {
     padding-top: 24px;
@@ -506,8 +554,18 @@
   }
 
   .logo {
-    height: 112px;
-    width: 112px;
+    height: 60px;
+    width: 60px;
+  }
+
+  .topbar {
+    flex-wrap: nowrap;
+    margin-bottom: 18px;
+  }
+
+  .textButton {
+    min-height: 38px;
+    padding: 8px 14px;
   }
 
   .heroGrid {
