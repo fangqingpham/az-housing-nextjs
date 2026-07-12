@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 
 export default function TawkToLoader() {
   const pathname = usePathname()
-  if (pathname === '/vi/ho-tro-den-canada' || pathname?.startsWith('/admin')) return null
+  if (pathname === '/vi/ho-tro-den-canada' || pathname === '/landing-arrangement' || pathname?.startsWith('/admin')) return null
 
   return (
     <Script id="tawk-to-live-chat" strategy="afterInteractive">
