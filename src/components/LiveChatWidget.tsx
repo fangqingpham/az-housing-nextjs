@@ -1,17 +1,34 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { trackMarketingEvent } from '@/lib/client/marketing-events'
 
 // ─────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────
 type Role = 'bot' | 'user'
 
+type QuickReplyAction =
+  | 'services'
+  | 'pricing'
+  | 'lead-form'
+  | 'messenger'
+  | 'service-question'
+  | 'faq'
+  | 'read-more'
+  | 'reset'
+
+type QuickReply = {
+  label: string
+  action: QuickReplyAction
+  faqId?: string
+}
+
 interface Message {
   id: number
   role: Role
   text: string
-  quickReplies?: string[]
+  quickReplies?: QuickReply[]
 }
 
 type LeadField = 'name' | 'email' | 'phone' | 'message'
@@ -26,7 +43,10 @@ interface LeadData {
 
 type OpenChatDetail = {
   language?: string
+  service_id?: string
   selected_service?: string
+  service_price?: string
+  service_summary?: string
   message?: string
   page_url?: string
   utm_source?: string
@@ -264,8 +284,7 @@ const HUMAN_TRIGGERS = [
   'contact me', 'reach me', 'book', 'get a quote', 'book a consultation',
   'yes contact me', 'schedule', 'appointment', 'leave my details',
   'speak with', 'get in touch', 'connect me',
-  'để lại thông tin', 'de lai thong tin', 'liên hệ', 'lien he',
-  'tư vấn', 'tu van', 'nói chuyện với a-z', 'noi chuyen voi a-z',
+  'liên hệ', 'lien he', 'tư vấn', 'tu van',
 ]
 
 const AFFIRMATIVES = [
@@ -287,12 +306,12 @@ const CLOSING_TRIGGERS = [
   'thank you bye',
 ]
 
-const MAIN_QUICK_REPLIES = [
-  'Tenant Placement',
-  'Property Management',
-  'Mortgage Help',
-  'Realtor Service',
-  'Contact Us',
+const MAIN_QUICK_REPLIES: QuickReply[] = [
+  { label: 'Tenant Placement', action: 'faq', faqId: 'tenant-placement' },
+  { label: 'Property Management', action: 'faq', faqId: 'property-management' },
+  { label: 'Mortgage Help', action: 'faq', faqId: 'mortgage' },
+  { label: 'Realtor Service', action: 'faq', faqId: 'buying' },
+  { label: 'Contact Us', action: 'lead-form' },
 ]
 
 const QUICK_REPLY_MAP: Record<string, string> = {
@@ -313,6 +332,58 @@ const QUICK_REPLY_MAP: Record<string, string> = {
   'Connect me with a paralegal':'eviction',
   'Tell me about pricing':      'pricing',
   'Get started':                'how-to-start',
+}
+
+const VI_MAIN_QUICK_REPLIES: QuickReply[] = [
+  { label: 'Tìm hiểu dịch vụ', action: 'services' },
+  { label: 'Bảng giá', action: 'pricing' },
+  { label: 'Để lại thông tin', action: 'lead-form' },
+  { label: 'Chat với nhân viên', action: 'messenger' },
+]
+
+const VI_SERVICE_QUICK_REPLIES: QuickReply[] = [
+  { label: 'Xem chi phí', action: 'pricing' },
+  { label: 'Đọc thông tin chi tiết', action: 'read-more' },
+  { label: 'Để lại thông tin', action: 'lead-form' },
+  { label: 'Chat với nhân viên', action: 'messenger' },
+  { label: 'Bắt đầu lại', action: 'reset' },
+]
+
+const VI_PRICING_QUICK_REPLIES: QuickReply[] = [
+  { label: 'Xem dịch vụ', action: 'services' },
+  { label: 'Đọc thông tin chi tiết', action: 'read-more' },
+  { label: 'Để lại thông tin', action: 'lead-form' },
+  { label: 'Chat với nhân viên', action: 'messenger' },
+  { label: 'Bắt đầu lại', action: 'reset' },
+]
+
+const KNOWN_QUICK_REPLY_LABELS = new Set([
+  ...Object.keys(QUICK_REPLY_MAP),
+  ...MAIN_QUICK_REPLIES.map(reply => reply.label),
+  ...VI_MAIN_QUICK_REPLIES.map(reply => reply.label),
+  ...VI_SERVICE_QUICK_REPLIES.map(reply => reply.label),
+  ...VI_PRICING_QUICK_REPLIES.map(reply => reply.label),
+  'Leave my details',
+  'Speak to someone',
+])
+
+function quickReplyFromLabel(label: string): QuickReply {
+  const faqId = QUICK_REPLY_MAP[label]
+  if (faqId) return { label, action: 'faq', faqId }
+  const lower = label.toLowerCase()
+  if (lower.includes('price') || lower.includes('pricing')) return { label, action: 'pricing' }
+  if (lower.includes('contact') || lower.includes('quote') || lower.includes('started') || lower.includes('consultation') || lower.includes('details')) {
+    return { label, action: 'lead-form' }
+  }
+  return { label, action: 'faq' }
+}
+
+function mapQuickReplyLabels(labels?: string[]): QuickReply[] | undefined {
+  return labels?.map(quickReplyFromLabel)
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
 function scoreEntry(entry: FAQEntry, input: string): number {
@@ -353,7 +424,7 @@ function isClosingMessage(input: string): boolean {
 let _id = 0
 const uid = () => ++_id
 
-function botMsg(text: string, quickReplies?: string[]): Message {
+function botMsg(text: string, quickReplies?: QuickReply[]): Message {
   return { id: uid(), role: 'bot', text, quickReplies }
 }
 function userMsg(text: string): Message {
@@ -361,13 +432,13 @@ function userMsg(text: string): Message {
 }
 
 const GREETING = botMsg(
-  'Hi there! 👋 Welcome to **A-Z Housing Solutions**.\n\nI can answer questions about our services, pricing, mortgage, tenant placement, property management, and more — or connect you with our team.\n\nWhat can I help you with today?',
+  'Hi there! Welcome to **A-Z Housing Solutions**.\n\nI can explain our services, share pricing information, answer common questions, or help you leave your details for our team.\n\nWhat can I help you with today?',
   MAIN_QUICK_REPLIES,
 )
 
 const VI_GREETING = botMsg(
-  'Xin chào! A-Z Housing có thể hỗ trợ bạn tìm hiểu dịch vụ chỗ ở, xem nhà từ xa, đón sân bay, giám hộ cho học sinh dưới 18 tuổi, bảng giá hoặc các nhu cầu khác khi đến Canada.',
-  ['Để lại thông tin', 'Bảng giá', 'Nói chuyện với A-Z'],
+  'Xin chào! Tôi là trợ lý tự động của A-Z Housing. Tôi có thể giúp bạn tìm hiểu dịch vụ, xem bảng giá hoặc kết nối với đội ngũ A-Z qua Messenger.',
+  VI_MAIN_QUICK_REPLIES,
 )
 
 const LEAD_PROMPTS: Record<LeadField, string> = {
@@ -376,8 +447,6 @@ const LEAD_PROMPTS: Record<LeadField, string> = {
   phone:   'Got it. And your **phone number**?\n*(Press Enter or type "skip" to leave blank)*',
   message: 'Almost there! Briefly describe how we can help you:',
 }
-
-const VI_QUICK_REPLIES = ['Để lại thông tin', 'Bảng giá', 'Nói chuyện với A-Z']
 
 const LEAD_PROMPTS_VI: Record<LeadField, string> = {
   name: 'Được rồi, A-Z sẽ ghi nhận thông tin để liên hệ lại.\n\nBạn cho A-Z xin **họ và tên** nhé?',
@@ -404,25 +473,61 @@ export default function LiveChatWidget() {
   const [isTyping, setIsTyping]     = useState(false)
   const [lastFaqId, setLastFaqId]   = useState<string | null>(null)
   const [chatContext, setChatContext] = useState<OpenChatDetail | null>(null)
+  const [activeQuickReplyMessageId, setActiveQuickReplyMessageId] = useState<number | null>(() => (isVietnamBridge ? VI_GREETING : GREETING).id)
+  const [quickReplyBusy, setQuickReplyBusy] = useState(false)
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLInputElement>(null)
+  const flowRef = useRef(0)
   const isVietnamese = chatContext?.language === 'vi' || isVietnamBridge
+
+  const bridgeUtmContext = useCallback(() => {
+    if (typeof window === 'undefined') return {}
+    const params = new URLSearchParams(window.location.search)
+    return {
+      page_url: chatContext?.page_url || window.location.href,
+      utm_source: chatContext?.utm_source || params.get('utm_source') || undefined,
+      utm_medium: chatContext?.utm_medium || params.get('utm_medium') || undefined,
+      utm_campaign: chatContext?.utm_campaign || params.get('utm_campaign') || undefined,
+      utm_content: chatContext?.utm_content || params.get('utm_content') || undefined,
+    }
+  }, [chatContext])
+
+  const resetLegacyLeadState = useCallback(() => {
+    setCollecting(null)
+    setLead({ name: '', email: '', phone: '', message: '' })
+    setSending(false)
+  }, [])
 
   // Allow external triggers (e.g. contact page "Live Support" card)
   useEffect(() => {
     const applyDetail = (detail?: OpenChatDetail) => {
       setOpen(true)
+      flowRef.current += 1
+      setIsTyping(false)
+      setQuickReplyBusy(false)
+      resetLegacyLeadState()
       if (!detail) return
       setChatContext(detail)
+      if (detail.language === 'vi') {
+        const serviceName = detail.selected_service && detail.selected_service !== 'Tư vấn chung'
+          ? detail.selected_service
+          : ''
+        const msg = serviceName
+          ? botMsg(
+              `Xin chào! Bạn đang tìm hiểu về dịch vụ **${serviceName}**.\n\n${detail.service_summary || 'Tôi có thể tóm tắt chi phí, mở thông tin chi tiết, hoặc giúp bạn để lại thông tin cho đội ngũ A-Z.'}`,
+              VI_SERVICE_QUICK_REPLIES,
+            )
+          : botMsg(VI_GREETING.text, VI_MAIN_QUICK_REPLIES)
+        setMessages([msg])
+        setActiveQuickReplyMessageId(msg.id)
+        return
+      }
       const message = detail.message
       if (message) {
-        const msg = botMsg(message, detail.language === 'vi' ? VI_QUICK_REPLIES : MAIN_QUICK_REPLIES)
-        if (detail.language === 'vi') {
-          setMessages([msg])
-        } else {
-          setMessages(prev => [...prev, msg])
-        }
+        const msg = botMsg(message, MAIN_QUICK_REPLIES)
+        setMessages(prev => [...prev, msg])
+        setActiveQuickReplyMessageId(msg.id)
       }
     }
     const handler = (event: Event) => {
@@ -436,7 +541,7 @@ export default function LiveChatWidget() {
     }
     window.addEventListener('az:openchat', handler)
     return () => window.removeEventListener('az:openchat', handler)
-  }, [])
+  }, [resetLegacyLeadState])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -449,19 +554,183 @@ export default function LiveChatWidget() {
     }
   }, [open])
 
-  const addBotReply = useCallback((msg: Message) => {
+  const addBotReply = useCallback((msg: Message, delay = 700) => {
+    const flowId = flowRef.current
     setIsTyping(true)
     setTimeout(() => {
+      if (flowId !== flowRef.current) return
       setIsTyping(false)
       setMessages(prev => [...prev, msg])
+      setActiveQuickReplyMessageId(msg.quickReplies?.length ? msg.id : null)
+      setQuickReplyBusy(false)
       if (!open) setUnread(n => n + 1)
-    }, 700)
+    }, delay)
   }, [open])
 
   const startLeadCollection = useCallback(() => {
+    if (isVietnamese && isVietnamBridge) return
     setCollecting('name')
+    setActiveQuickReplyMessageId(null)
     addBotReply(botMsg(isVietnamese ? LEAD_PROMPTS_VI['name'] : LEAD_PROMPTS['name']))
+  }, [addBotReply, isVietnamese, isVietnamBridge])
+
+  const selectedService = chatContext?.selected_service || (isVietnamBridge ? 'Tư vấn chung' : undefined)
+
+  const dispatchBridgeLeadForm = useCallback((location = 'chatbot') => {
+    if (typeof window === 'undefined') return
+    const detail = {
+      language: isVietnamese ? 'vi' : chatContext?.language,
+      selected_service: selectedService,
+      location,
+      ...bridgeUtmContext(),
+    }
+    window.dispatchEvent(new CustomEvent('az:openlead', { detail }))
+    addBotReply(botMsg(
+      isVietnamese
+        ? 'Vui lòng để lại thông tin trong biểu mẫu. Đội ngũ A-Z sẽ liên hệ lại với bạn trong thời gian sớm nhất.'
+        : 'Please leave your details in the form. The A-Z team will contact you as soon as possible.',
+      isVietnamese ? VI_MAIN_QUICK_REPLIES : MAIN_QUICK_REPLIES,
+    ), 250)
+  }, [addBotReply, bridgeUtmContext, chatContext?.language, isVietnamese, selectedService])
+
+  const openMessenger = useCallback(() => {
+    if (typeof window === 'undefined') return
+    const service = selectedService || 'Facebook Messenger'
+    void trackMarketingEvent('messenger_click', {
+      service,
+      selected_service: service,
+      metadata: {
+        selected_service: service,
+        location: 'chatbot',
+        language: isVietnamese ? 'vi' : chatContext?.language || 'en',
+        ...bridgeUtmContext(),
+      },
+    })
+    const msg = botMsg(
+      isVietnamese
+        ? 'Bạn sẽ được chuyển sang Facebook Messenger để trò chuyện trực tiếp với đội ngũ A-Z Housing.'
+        : 'You will be redirected to Facebook Messenger to chat directly with the A-Z Housing team.',
+      isVietnamese ? VI_MAIN_QUICK_REPLIES : MAIN_QUICK_REPLIES,
+    )
+    setMessages(prev => [...prev, msg])
+    setActiveQuickReplyMessageId(msg.id)
+    window.open('https://m.me/azhousesolution', '_blank', 'noopener,noreferrer')
+  }, [bridgeUtmContext, chatContext?.language, isVietnamese, selectedService])
+
+  const trackReadMore = useCallback(() => {
+    const service = selectedService || 'Landing Arrangement'
+    void trackMarketingEvent('landing_arrangement_read_more_click', {
+      service,
+      selected_service: service,
+      metadata: {
+        selected_service: service,
+        service_id: chatContext?.service_id,
+        location: 'chatbot',
+        language: isVietnamese ? 'vi' : chatContext?.language || 'en',
+        ...bridgeUtmContext(),
+      },
+    })
+    window.location.href = '/landing-arrangement'
+  }, [bridgeUtmContext, chatContext, isVietnamese, selectedService])
+
+  const resetChat = useCallback(() => {
+    flowRef.current += 1
+    setIsTyping(false)
+    setQuickReplyBusy(false)
+    resetLegacyLeadState()
+    setLastFaqId(null)
+    setChatContext(isVietnamBridge ? { language: 'vi' } : null)
+    const msg = isVietnamBridge ? botMsg(VI_GREETING.text, VI_MAIN_QUICK_REPLIES) : botMsg(GREETING.text, MAIN_QUICK_REPLIES)
+    setMessages([msg])
+    setActiveQuickReplyMessageId(msg.id)
+  }, [isVietnamBridge, resetLegacyLeadState])
+
+  const showServices = useCallback(() => {
+    addBotReply(botMsg(
+      isVietnamese
+        ? 'A-Z có thể hỗ trợ tìm chỗ ở phù hợp, xem nhà từ xa, đón sân bay, giám hộ cho học sinh dưới 18 tuổi, bảng giá và các dịch vụ ổn định cuộc sống ban đầu.'
+        : 'A-Z can help with tenant placement, property management, mortgage guidance, buying and selling, and related real estate services.',
+      isVietnamese ? VI_MAIN_QUICK_REPLIES : MAIN_QUICK_REPLIES,
+    ), 250)
   }, [addBotReply, isVietnamese])
+
+  const showPricing = useCallback(() => {
+    const service = selectedService || 'Bảng giá & Chi phí'
+    void trackMarketingEvent('pricing_click', {
+      service,
+      selected_service: service,
+      metadata: {
+        selected_service: service,
+        location: 'chatbot',
+        language: isVietnamese ? 'vi' : chatContext?.language || 'en',
+        ...bridgeUtmContext(),
+      },
+    })
+    const priceLine = chatContext?.service_price
+      ? `Chi phí tham khảo cho **${service}**: **${chatContext.service_price}**.`
+      : 'Bảng giá tham khảo: Xem nhà từ xa từ $99, đón sân bay từ $199, giám hộ từ $1,500/năm. Một số dịch vụ cần báo giá theo nhu cầu.'
+    addBotReply(botMsg(
+      isVietnamese
+        ? `${priceLine}\n\nChi phí thực tế có thể thay đổi theo thời gian, khu vực và yêu cầu cụ thể.`
+        : 'Pricing depends on the service and situation. Tenant placement starts from $995, property management is typically $120/month, and some services require a quote.',
+      isVietnamese ? VI_PRICING_QUICK_REPLIES : MAIN_QUICK_REPLIES,
+    ), 250)
+  }, [addBotReply, bridgeUtmContext, chatContext, isVietnamese, selectedService])
+
+  const handleQuickReply = useCallback((reply: QuickReply) => {
+    if (quickReplyBusy) return
+    setQuickReplyBusy(true)
+    setActiveQuickReplyMessageId(null)
+    setMessages(prev => [...prev, userMsg(reply.label)])
+
+    if (reply.action === 'reset') {
+      resetChat()
+      return
+    }
+    if (reply.action === 'services') {
+      showServices()
+      setTimeout(() => setQuickReplyBusy(false), 350)
+      return
+    }
+    if (reply.action === 'pricing') {
+      showPricing()
+      setTimeout(() => setQuickReplyBusy(false), 350)
+      return
+    }
+    if (reply.action === 'lead-form') {
+      if (isVietnamese && isVietnamBridge) {
+        dispatchBridgeLeadForm('chatbot')
+      } else {
+        startLeadCollection()
+      }
+      setTimeout(() => setQuickReplyBusy(false), 350)
+      return
+    }
+    if (reply.action === 'messenger') {
+      openMessenger()
+      setTimeout(() => setQuickReplyBusy(false), 350)
+      return
+    }
+    if (reply.action === 'read-more') {
+      trackReadMore()
+      return
+    }
+    if (reply.action === 'faq' && reply.faqId) {
+      const entry = FAQ.find(f => f.id === reply.faqId)
+      if (entry) {
+        setLastFaqId(entry.id)
+        addBotReply(botMsg(entry.answer, mapQuickReplyLabels(entry.quickReplies) ?? MAIN_QUICK_REPLIES), 250)
+      }
+      setTimeout(() => setQuickReplyBusy(false), 350)
+      return
+    }
+    if (reply.action === 'service-question') {
+      showServices()
+      setTimeout(() => setQuickReplyBusy(false), 350)
+      return
+    }
+    setTimeout(() => setQuickReplyBusy(false), 350)
+  }, [addBotReply, dispatchBridgeLeadForm, isVietnamBridge, isVietnamese, openMessenger, quickReplyBusy, resetChat, showPricing, showServices, startLeadCollection, trackReadMore])
 
   const handleSend = useCallback(async (text: string) => {
     const trimmed = text.trim()
@@ -474,7 +743,18 @@ export default function LiveChatWidget() {
     if (collecting && collecting !== 'done') {
       const field = collecting as LeadField
       const lowerTrimmed = trimmed.toLowerCase()
+      const isKnownQuickReply = KNOWN_QUICK_REPLY_LABELS.has(trimmed)
       const isSkip = lowerTrimmed === 'skip' || lowerTrimmed === 'bỏ qua' || lowerTrimmed === 'bo qua'
+      if (isKnownQuickReply || (field === 'email' && !isValidEmail(trimmed)) || (field === 'name' && trimmed.length < 2)) {
+        addBotReply(botMsg(
+          isVietnamese
+            ? 'Thông tin này chưa hợp lệ. Vui lòng nhập đúng thông tin liên hệ, không dùng nút lựa chọn nhanh.'
+            : field === 'email'
+              ? 'Please enter a valid email address.'
+              : 'Please enter your contact information, not a navigation option.',
+        ))
+        return
+      }
       const value  = (field === 'phone' && isSkip) ? '' : trimmed
       const updatedLead = { ...lead, [field]: value }
       setLead(updatedLead)
@@ -512,11 +792,12 @@ export default function LiveChatWidget() {
             body: JSON.stringify(leadPayload),
           })
           if (res.ok) {
+            resetLegacyLeadState()
             addBotReply(botMsg(
               isVietnamese
                 ? `**Cảm ơn ${updatedLead.name}!** Đội ngũ A-Z sẽ liên hệ qua ${updatedLead.email} trong thời gian sớm nhất.\n\nBạn còn cần A-Z hỗ trợ thêm gì không?`
                 : `✅ **Thank you, ${updatedLead.name}!** Our team will contact you at ${updatedLead.email} shortly.\n\nIs there anything else I can help you with?`,
-              isVietnamese ? VI_QUICK_REPLIES : MAIN_QUICK_REPLIES,
+              isVietnamese ? VI_MAIN_QUICK_REPLIES : MAIN_QUICK_REPLIES,
             ))
           } else {
             addBotReply(botMsg(
@@ -540,6 +821,21 @@ export default function LiveChatWidget() {
 
     const lower = trimmed.toLowerCase()
 
+    if (isVietnamese && isVietnamBridge) {
+      if (lower.includes('bảng giá') || lower.includes('bang gia')) {
+        showPricing()
+        return
+      }
+      if (lower.includes('để lại thông tin') || lower.includes('de lai thong tin')) {
+        dispatchBridgeLeadForm('chatbot')
+        return
+      }
+      if (lower.includes('chat với nhân viên') || lower.includes('chat voi nhan vien') || lower.includes('messenger')) {
+        openMessenger()
+        return
+      }
+    }
+
     // ── Closing / goodbye intent ──────────────────────────────
     if (isClosingMessage(trimmed)) {
       addBotReply(botMsg('Thank you for contacting us. Bye for now.'))
@@ -548,7 +844,11 @@ export default function LiveChatWidget() {
 
     // ── Human / lead trigger ──────────────────────────────────
     if (HUMAN_TRIGGERS.some(t => lower.includes(t))) {
-      startLeadCollection()
+      if (isVietnamese && isVietnamBridge) {
+        dispatchBridgeLeadForm('chatbot')
+      } else {
+        startLeadCollection()
+      }
       return
     }
 
@@ -566,7 +866,7 @@ export default function LiveChatWidget() {
       const entry = FAQ.find(f => f.id === QUICK_REPLY_MAP[trimmed])
       if (entry) {
         setLastFaqId(entry.id)
-        addBotReply(botMsg(entry.answer, entry.quickReplies ?? MAIN_QUICK_REPLIES))
+        addBotReply(botMsg(entry.answer, mapQuickReplyLabels(entry.quickReplies) ?? MAIN_QUICK_REPLIES))
         if (entry.triggerLead) setTimeout(startLeadCollection, 1400)
         return
       }
@@ -576,7 +876,7 @@ export default function LiveChatWidget() {
     if (lower === 'contact us' || lower === 'contact') {
       addBotReply(botMsg(
         '📧 info@azhouse.ca\n📞 +1 (647) 6932-932\n🏢 18 King Street East, Suite 1400, Toronto, ON\n\nOr leave your details here and we\'ll reach out!',
-        ['Leave my details', ...MAIN_QUICK_REPLIES.slice(0, 3)],
+        [{ label: 'Leave my details', action: 'lead-form' }, ...MAIN_QUICK_REPLIES.slice(0, 3)],
       ))
       return
     }
@@ -586,7 +886,7 @@ export default function LiveChatWidget() {
 
     if (best && best.score >= 2) {
       setLastFaqId(best.entry.id)
-      addBotReply(botMsg(best.entry.answer, best.entry.quickReplies ?? MAIN_QUICK_REPLIES))
+      addBotReply(botMsg(best.entry.answer, mapQuickReplyLabels(best.entry.quickReplies) ?? MAIN_QUICK_REPLIES))
       if (best.entry.triggerLead) setTimeout(startLeadCollection, 1400)
       return
     }
@@ -602,9 +902,9 @@ export default function LiveChatWidget() {
     // ── Fallback ──────────────────────────────────────────────
     addBotReply(botMsg(
       'I\'m not sure I understood that — I\'m a chatbot with limited knowledge 😊. Try one of the topics below, or let me connect you with our team for a quick answer.',
-      [...MAIN_QUICK_REPLIES, 'Speak to someone'],
+      [...MAIN_QUICK_REPLIES, { label: 'Speak to someone', action: 'messenger' }],
     ))
-  }, [collecting, lead, lastFaqId, chatContext, isVietnamese, addBotReply, startLeadCollection])
+  }, [collecting, lead, lastFaqId, isVietnamese, isVietnamBridge, addBotReply, startLeadCollection, showPricing, dispatchBridgeLeadForm, openMessenger, resetLegacyLeadState])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -700,7 +1000,7 @@ export default function LiveChatWidget() {
               </div>
               <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 5, marginTop: 2 }}>
                 <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4caf50', display: 'inline-block' }} />
-                {isVietnamese ? 'Đang trực tuyến · Thường phản hồi nhanh' : 'Online · Usually replies instantly'}
+                {isVietnamese ? 'Trợ lý tự động · Hỗ trợ thông tin 24/7' : 'Automated assistant · Information available 24/7'}
               </div>
             </div>
             <button
@@ -739,26 +1039,28 @@ export default function LiveChatWidget() {
                 }}>
                   {renderText(msg.text)}
                 </div>
-                {msg.quickReplies && msg.quickReplies.length > 0 && (
+                {msg.quickReplies && msg.quickReplies.length > 0 && msg.id === activeQuickReplyMessageId && !collecting && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxWidth: '92%' }}>
                     {msg.quickReplies.map(qr => (
                       <button
-                        key={qr}
-                        onClick={() => handleSend(qr)}
+                        key={`${msg.id}-${qr.label}`}
+                        onClick={() => handleQuickReply(qr)}
+                        disabled={quickReplyBusy}
                         style={{
                           background: '#fff',
                           border: '1.5px solid var(--accent, #f5a623)',
                           borderRadius: 999, padding: '5px 13px',
                           fontSize: 12, fontWeight: 600,
                           color: 'var(--dark, #1e2a45)',
-                          cursor: 'pointer',
+                          cursor: quickReplyBusy ? 'default' : 'pointer',
+                          opacity: quickReplyBusy ? 0.55 : 1,
                           transition: 'background 0.15s',
                           whiteSpace: 'nowrap',
                         }}
                         onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent, #f5a623)' }}
                         onMouseLeave={e => { e.currentTarget.style.background = '#fff' }}
                       >
-                        {qr}
+                        {qr.label}
                       </button>
                     ))}
                   </div>

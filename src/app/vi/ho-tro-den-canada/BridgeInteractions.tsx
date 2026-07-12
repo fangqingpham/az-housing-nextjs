@@ -20,6 +20,17 @@ type Props = {
   services: ClientService[]
 }
 
+type LeadOpenDetail = {
+  language?: string
+  selected_service?: string
+  location?: string
+  page_url?: string
+  utm_source?: string
+  utm_medium?: string
+  utm_campaign?: string
+  utm_content?: string
+}
+
 const MESSENGER_URL = 'https://m.me/azhousesolution'
 
 function utmFields() {
@@ -44,6 +55,7 @@ export default function BridgeInteractions({ services }: Props) {
   const [leadError, setLeadError] = useState('')
   const [sending, setSending] = useState(false)
   const [lead, setLead] = useState({ name: '', email: '', phone: '', message: '' })
+  const [leadContext, setLeadContext] = useState<LeadOpenDetail>({})
 
   useEffect(() => {
     captureLeadTrackingFromUrl()
@@ -130,14 +142,7 @@ export default function BridgeInteractions({ services }: Props) {
       }
       if (action === 'lead') {
         event.preventDefault()
-        setLeadOpen(true)
-        setLeadSent(false)
-        void trackMarketingEvent('lead_form_start', {
-          service: 'Để lại thông tin',
-          selected_service: 'Để lại thông tin',
-          form_name: 'vietnam_bridge_lead',
-          metadata: { language: 'vi', ...utmFields() },
-        })
+        openLeadForm({ language: 'vi', selected_service: 'Để lại thông tin', location: target.dataset.location || 'cta', ...utmFields() })
       }
       if (action === 'pricing') {
         event.preventDefault()
@@ -150,22 +155,61 @@ export default function BridgeInteractions({ services }: Props) {
       }
     }
 
+    const onOpenLead = (event: Event) => {
+      const detail = event instanceof CustomEvent ? event.detail as LeadOpenDetail | undefined : undefined
+      openLeadForm({ language: 'vi', ...(detail || {}), location: detail?.location || 'chatbot' })
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true })
     document.addEventListener('toggle', onToggle, true)
     document.addEventListener('click', onClick)
+    window.addEventListener('az:openlead', onOpenLead)
     return () => {
       window.removeEventListener('scroll', onScroll)
       document.removeEventListener('toggle', onToggle, true)
       document.removeEventListener('click', onClick)
+      window.removeEventListener('az:openlead', onOpenLead)
     }
   }, [serviceMap])
+
+  const openLeadForm = (detail: LeadOpenDetail = {}) => {
+    const selectedService = detail.selected_service || 'Để lại thông tin'
+    setLeadContext(detail)
+    setLeadOpen(true)
+    setLeadSent(false)
+    setLeadError('')
+    setLead(value => ({
+      ...value,
+      message: value.message || (selectedService && selectedService !== 'Để lại thông tin'
+        ? `Tôi muốn tìm hiểu thêm về ${selectedService}.`
+        : ''),
+    }))
+    void trackMarketingEvent('lead_form_start', {
+      service: selectedService,
+      selected_service: selectedService,
+      form_name: 'vietnam_bridge_lead',
+      metadata: {
+        selected_service: selectedService,
+        language: 'vi',
+        location: detail.location || 'cta',
+        ...(detail.page_url ? { page_url: detail.page_url } : {}),
+        ...(detail.utm_source ? { utm_source: detail.utm_source } : {}),
+        ...(detail.utm_medium ? { utm_medium: detail.utm_medium } : {}),
+        ...(detail.utm_campaign ? { utm_campaign: detail.utm_campaign } : {}),
+        ...(detail.utm_content ? { utm_content: detail.utm_content } : {}),
+      },
+    })
+  }
 
   const openChat = (service?: ClientService, location = 'cta') => {
     const selectedService = service?.title || 'Tư vấn chung'
     const detail = {
       language: 'vi',
+      service_id: service?.id,
       selected_service: selectedService,
-      message: service?.prompt || 'Xin chào! Mình muốn được A-Z tư vấn bằng tiếng Việt về dịch vụ hỗ trợ khi đến Canada.',
+      service_price: service?.price,
+      service_summary: service?.summary,
+      message: service ? `Xin chào! Bạn đang tìm hiểu về dịch vụ ${service.title}.` : 'Xin chào! Tôi là trợ lý tự động của A-Z Housing.',
       ...utmFields(),
     }
     void trackMarketingEvent('chat_open', {
@@ -185,8 +229,14 @@ export default function BridgeInteractions({ services }: Props) {
       lead.message || 'Khách muốn được tư vấn dịch vụ hỗ trợ đến Canada.',
       '',
       'Nguồn: Trang quảng cáo Facebook tiếng Việt',
+      leadContext.selected_service ? `Dịch vụ đã chọn: ${leadContext.selected_service}` : '',
+      leadContext.location ? `Vị trí mở biểu mẫu: ${leadContext.location}` : '',
       `Đường dẫn trang: ${typeof window !== 'undefined' ? window.location.href : '/vi/ho-tro-den-canada'}`,
-    ].join('\n')
+      leadContext.utm_source ? `UTM source: ${leadContext.utm_source}` : '',
+      leadContext.utm_medium ? `UTM medium: ${leadContext.utm_medium}` : '',
+      leadContext.utm_campaign ? `UTM campaign: ${leadContext.utm_campaign}` : '',
+      leadContext.utm_content ? `UTM content: ${leadContext.utm_content}` : '',
+    ].filter(Boolean).join('\n')
 
     try {
       const res = await fetch('/api/chat-lead', {
@@ -197,10 +247,10 @@ export default function BridgeInteractions({ services }: Props) {
       if (!res.ok) throw new Error('submit failed')
       setLeadSent(true)
       void trackMarketingEvent('lead_form_submit', {
-        service: 'Để lại thông tin',
-        selected_service: 'Để lại thông tin',
+        service: leadContext.selected_service || 'Để lại thông tin',
+        selected_service: leadContext.selected_service || 'Để lại thông tin',
         form_name: 'vietnam_bridge_lead',
-        metadata: { language: 'vi', ...utmFields() },
+        metadata: { selected_service: leadContext.selected_service || 'Để lại thông tin', language: 'vi', location: leadContext.location || 'cta', ...utmFields() },
       })
     } catch {
       setLeadError('Chưa gửi được thông tin. Vui lòng thử lại hoặc chat trực tiếp với A-Z.')
