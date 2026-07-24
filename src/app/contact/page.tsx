@@ -5,6 +5,7 @@ import { useLanguage } from '@/hooks/useLanguage'
 import LeadTrackingFields from '@/components/LeadTrackingFields'
 import { getStoredLeadTracking } from '@/lib/client/lead-tracking'
 import { trackFormEventOnce, trackMarketingEvent } from '@/lib/client/marketing-events'
+import { SHOW_LISTINGS } from '@/lib/features'
 
 const SUPPORT_CARDS = [
   { icon: '📧', titleKey: 'emailSupport',  detail: 'info@azhouse.ca',              sub: 'emailSub',   href: 'mailto:info@azhouse.ca' },
@@ -39,6 +40,7 @@ export default function ContactPage() {
   const { t, lang } = useLanguage()
   const c = t.contact
   const labels = SUPPORT_LABELS[lang]
+  const topics = SHOW_LISTINGS ? c.topics : c.topics.filter((topic: string) => topic !== 'Listing Support' && topic !== '房源支持')
 
   const [form, setForm] = useState({ name: '', email: '', phone: '', topic: '', message: '' })
   const [sent, setSent] = useState(false)
@@ -134,7 +136,7 @@ export default function ContactPage() {
                 <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)', display: 'block', marginBottom: 6 }}>{c.topic}</label>
                 <select value={form.topic} onChange={e => set('topic', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid rgba(0,0,0,0.15)', borderRadius: 8, fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box' }}>
                   <option value="">{c.topicPlaceholder}</option>
-                  {c.topics.map((topic: string) => <option key={topic} value={topic}>{topic}</option>)}
+                  {topics.map((topic: string) => <option key={topic} value={topic}>{topic}</option>)}
                 </select>
               </div>
               <div>
@@ -181,7 +183,7 @@ export default function ContactPage() {
           <div style={{ background: 'var(--dark)', borderRadius: 14, padding: '24px 22px', color: '#fff' }}>
             <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{c.quickAnswers}</div>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>{c.quickAnswersBody}</p>
-            <a href="/landlord" style={{ background: 'var(--accent)', color: '#fff', textDecoration: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 13, display: 'inline-block' }}>{c.viewFaqs}</a>
+            <a href={SHOW_LISTINGS ? "/landlord" : "/services/landlords"} style={{ background: 'var(--accent)', color: '#fff', textDecoration: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 13, display: 'inline-block' }}>{c.viewFaqs}</a>
           </div>
         </div>
       </div>

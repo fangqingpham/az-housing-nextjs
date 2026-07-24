@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
 import { getListings, getSavedIds, toggleSaved } from '@/lib/api';
+import { SHOW_LISTINGS } from '@/lib/features';
 import type { Listing } from '@/types';
 
 export default function HomePage() {
@@ -26,15 +27,17 @@ export default function HomePage() {
 
   useEffect(() => {
     async function load() {
-      const [allListings, settings] = await Promise.all([
-        getListings(),
-        fetch('/api/settings').then(r => (r.ok ? r.json() : null)).catch(() => null),
-      ]);
-      setSaleListings(allListings.filter((l: any) => l.price_type === 'sale').slice(0, 3));
-      setRentListings(allListings.filter((l: any) => l.price_type === 'rent').slice(0, 3));
+      const settings = await fetch('/api/settings').then(r => (r.ok ? r.json() : null)).catch(() => null);
       if (settings?.hero) setHeroText(settings.hero);
-      if (settings?.herosub) setHeroSub(settings.herosub);
-      if (user) {
+      if (SHOW_LISTINGS && settings?.herosub) setHeroSub(settings.herosub);
+
+      if (SHOW_LISTINGS) {
+        const allListings = await getListings();
+        setSaleListings(allListings.filter((l: any) => l.price_type === 'sale').slice(0, 3));
+        setRentListings(allListings.filter((l: any) => l.price_type === 'rent').slice(0, 3));
+      }
+
+      if (SHOW_LISTINGS && user) {
         const ids = await getSavedIds(user.id);
         setSavedIds(ids);
       }
@@ -87,7 +90,7 @@ export default function HomePage() {
     <>
       <Toast message={message} visible={visible} />
 
-      <VideoHero heroText={heroText || undefined} heroSub={heroSub || undefined} />
+      <VideoHero heroText={heroText || undefined} heroSub={SHOW_LISTINGS ? heroSub || undefined : undefined} />
       {/* Services section */}
       <section style={{ background: '#f7f4ef', padding: 'clamp(48px,7vw,88px) 24px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>

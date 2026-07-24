@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
+import { SHOW_LISTINGS } from "@/lib/features";
 
 const SERVICES_EN = [
   {
@@ -177,7 +178,7 @@ export default function LandlordsServicesPage() {
         <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.6rem,4vw,2.4rem)", marginBottom: 14 }}>{ls.ctaTitle}</h2>
         <p style={{ color: "rgba(255,255,255,0.82)", marginBottom: 32, maxWidth: 480, margin: "0 auto 32px", fontSize: "1.05rem" }}>{ls.ctaSub}</p>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/post-listing" style={{ background: "#fff", color: "var(--accent)", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 800, fontSize: 15 }}>{ls.postProperty}</Link>
+          {SHOW_LISTINGS && <Link href="/post-listing" style={{ background: "#fff", color: "var(--accent)", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 800, fontSize: 15 }}>{ls.postProperty}</Link>}
           <Link href="/contact" style={{ background: "rgba(255,255,255,0.18)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.4)" }}>{ls.speakAdvisor}</Link>
         </div>
       </section>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
+import { SHOW_LISTINGS } from "@/lib/features";
 
 const SECTIONS_EN = [
   {
@@ -144,10 +145,12 @@ export default function BuyersSellersPage() {
               <p style={{ color: s.color, fontWeight: 600, fontSize: "1.05rem", marginBottom: 18 }}>{s.tagline}</p>
               {s.paras.map((p, j) => <p key={j} style={{ color: "var(--mid)", lineHeight: 1.8, marginBottom: 14 }}>{p}</p>)}
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
-                {s.id === 'mortgage'
-                  ? <a href="https://docs.google.com/forms/d/e/1FAIpQLScB8sezPbDQ8uawN-MlFSWfdP7E4ZrHhxlcbpqI4d68vtNlKQ/viewform" target="_blank" rel="noopener noreferrer" style={{ background: s.color, color: "#fff", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 700, fontSize: 14 }}>{bs.getPreApproval}</a>
-                  : <Link href="/buy" style={{ background: s.color, color: "#fff", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 700, fontSize: 14 }}>{bs.browseListings}</Link>
-                }
+                {s.id === 'mortgage' && (
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLScB8sezPbDQ8uawN-MlFSWfdP7E4ZrHhxlcbpqI4d68vtNlKQ/viewform" target="_blank" rel="noopener noreferrer" style={{ background: s.color, color: "#fff", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 700, fontSize: 14 }}>{bs.getPreApproval}</a>
+                )}
+                {SHOW_LISTINGS && s.id !== 'mortgage' && (
+                  <Link href="/buy" style={{ background: s.color, color: "#fff", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 700, fontSize: 14 }}>{bs.browseListings}</Link>
+                )}
                 <Link href="/contact" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "11px 24px", fontWeight: 600, fontSize: 14, border: "1px solid rgba(0,0,0,0.12)" }}>{bs.getAdvice}</Link>
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
+import { SHOW_LISTINGS } from "@/lib/features";
 
 /* ─── Package data ─────────────────────────────────────────── */
 
@@ -619,7 +620,7 @@ export default function PricingPage() {
           {px.ctaSub}
         </p>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/post-listing" style={{ background: "#fff", color: "var(--accent)", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 800, fontSize: 15 }}>{px.postProperty}</Link>
+          {SHOW_LISTINGS && <Link href="/post-listing" style={{ background: "#fff", color: "var(--accent)", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 800, fontSize: 15 }}>{px.postProperty}</Link>}
           <Link href="/contact" style={{ background: "rgba(255,255,255,0.18)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 32px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(255,255,255,0.4)" }}>{px.contactUs}</Link>
         </div>
       </section>

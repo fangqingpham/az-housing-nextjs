@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { SHOW_LISTINGS } from "@/lib/features";
 
 const FEATURES_EN = [
   { icon: "🏠", title: "Easy Listing Creation",    description: "Post a property in minutes with our guided form. Upload photos, set pricing, and go live instantly." },
@@ -215,6 +216,44 @@ export default function LandlordPage() {
     ctaBtn1: 'Post a Listing — Free',
     ctaBtn2: 'Create an Account',
   };
+
+  if (!SHOW_LISTINGS) {
+    const hiddenHero = lang === 'zh' ? {
+      badge: '房东服务',
+      title: '房东支持服务',
+      sub: '我们继续为房东提供租客安置、租客筛选、租赁协助、物业管理和法律资源支持。',
+      primary: '查看房东服务',
+      secondary: '租客安置申请',
+    } : {
+      badge: 'Landlord Services',
+      title: 'Support for Landlords',
+      sub: 'We continue to support landlords with tenant placement, screening, leasing coordination, property management, and legal resources.',
+      primary: 'View Landlord Services',
+      secondary: 'Tenant Placement Application',
+    };
+
+    return (
+      <main style={{ background: "var(--cream)", minHeight: "100vh" }}>
+        <section style={{ background: "linear-gradient(135deg, var(--dark) 0%, #1a2a4a 100%)", color: "#fff", padding: "clamp(80px,12vw,140px) 24px", textAlign: "center" }}>
+          <div style={{ maxWidth: 720, margin: "0 auto" }}>
+            <span style={{ display: "inline-block", background: "rgba(196,162,90,0.2)", border: "1px solid rgba(196,162,90,0.4)", color: "var(--accent)", fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", borderRadius: 20, padding: "6px 18px", marginBottom: 28 }}>
+              {hiddenHero.badge}
+            </span>
+            <h1 style={{ fontFamily: "var(--serif)", fontSize: "clamp(2.2rem,6vw,4rem)", lineHeight: 1.2, marginBottom: 24 }}>
+              {hiddenHero.title}
+            </h1>
+            <p style={{ fontSize: "clamp(1rem,2vw,1.2rem)", color: "rgba(255,255,255,0.75)", maxWidth: 560, margin: "0 auto 40px", lineHeight: 1.7 }}>
+              {hiddenHero.sub}
+            </p>
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+              <Link href="/services/landlords" style={{ background: "var(--accent)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "14px 36px", fontWeight: 700, fontSize: 16 }}>{hiddenHero.primary}</Link>
+              <Link href="/tenant-placement" style={{ background: "rgba(255,255,255,0.1)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "14px 36px", fontWeight: 600, fontSize: 16, border: "1px solid rgba(255,255,255,0.25)" }}>{hiddenHero.secondary}</Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main style={{ background: "var(--cream)", minHeight: "100vh" }}>

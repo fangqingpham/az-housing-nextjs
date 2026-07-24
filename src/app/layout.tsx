@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/hooks/LanguageProvider'
 import LeadSourceTracker from '@/components/LeadSourceTracker'
 import TawkToLoader from '@/components/TawkToLoader'
 import RouteAnalytics from '@/components/RouteAnalytics'
+import { SHOW_LISTINGS } from '@/lib/features'
 
 const SITE_URL = 'https://www.azhouse.ca'
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
@@ -20,19 +21,18 @@ export const metadata: Metadata = {
     template: '%s | A-Z Housing Solutions',
   },
   description:
-    'Find homes for sale, rentals, tenant placement, and property management services across Canada. Trusted real estate professionals with 20+ years of experience.',
+    SHOW_LISTINGS
+      ? 'Find homes for sale, rentals, tenant placement, and property management services across Canada. Trusted real estate professionals with 20+ years of experience.'
+      : 'Tenant placement, property management, buyer and seller guidance, and real estate support across Canada. Trusted real estate professionals with 20+ years of experience.',
   keywords: [
     'real estate Canada',
-    'homes for sale Canada',
-    'rental properties Canada',
+    ...(SHOW_LISTINGS ? ['homes for sale Canada', 'rental properties Canada'] : []),
     'property management Canada',
     'tenant placement Canada',
-    'buy home Canada',
-    'rent home Canada',
+    ...(SHOW_LISTINGS ? ['buy home Canada', 'rent home Canada'] : ['home buying guidance Canada', 'tenant placement services Canada']),
     'mortgage agent Canada',
     'real estate agent Toronto',
-    'homes for sale Ontario',
-    'rental properties Ontario',
+    ...(SHOW_LISTINGS ? ['homes for sale Ontario', 'rental properties Ontario'] : []),
     'landlord services Canada',
     'property management Toronto',
     'A-Z Housing Solutions',
@@ -58,7 +58,9 @@ export const metadata: Metadata = {
     siteName: 'A-Z Housing Solutions',
     title: 'A-Z Housing Solutions | Real Estate & Property Management in Canada',
     description:
-      'Find homes for sale, rentals, tenant placement, and property management services across Canada. Trusted real estate professionals with 20+ years of experience.',
+      SHOW_LISTINGS
+        ? 'Find homes for sale, rentals, tenant placement, and property management services across Canada. Trusted real estate professionals with 20+ years of experience.'
+        : 'Tenant placement, property management, buyer and seller guidance, and real estate support across Canada. Trusted real estate professionals with 20+ years of experience.',
     images: [
       {
         url: '/og-image.jpg',
@@ -72,7 +74,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'A-Z Housing Solutions | Real Estate & Property Management in Canada',
     description:
-      'Find homes for sale, rentals, tenant placement, and property management across Canada.',
+      SHOW_LISTINGS
+        ? 'Find homes for sale, rentals, tenant placement, and property management across Canada.'
+        : 'Tenant placement, property management, buyer and seller guidance, and real estate support across Canada.',
     images: ['/og-image.jpg'],
   },
   alternates: {
@@ -89,7 +93,9 @@ const jsonLd = {
   logo: `${SITE_URL}/logo.png`,
   image: `${SITE_URL}/og-image.jpg`,
   description:
-    'Full-service real estate company offering home buying, selling, rentals, tenant placement, and property management across Canada.',
+    SHOW_LISTINGS
+      ? 'Full-service real estate company offering home buying, selling, rentals, tenant placement, and property management across Canada.'
+      : 'Real estate support company offering tenant placement, property management, buyer and seller guidance, and professional referrals across Canada.',
   telephone: '+1-647-2932-932',
   email: 'info@azhouse.ca',
   address: {
@@ -110,7 +116,7 @@ const jsonLd = {
     itemListElement: [
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Rental & Tenant Placement', url: `${SITE_URL}/tenant-placement` } },
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Property Management', url: `${SITE_URL}/services/landlords` } },
-      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Home Buying', url: `${SITE_URL}/buy` } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Home Buying', url: SHOW_LISTINGS ? `${SITE_URL}/buy` : `${SITE_URL}/services/buyers-sellers#purchasing` } },
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Home Selling', url: `${SITE_URL}/services/buyers-sellers` } },
       { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Mortgage Consultation', url: `${SITE_URL}/services/pricing` } },
     ],

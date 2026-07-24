@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
+import { SHOW_LISTINGS } from "@/lib/features";
 
 const REALTOR_RENTALS_URL = "https://www.realtor.ca/map#ZoomLevel=10&Center=43.708087%2C-79.376385&LatitudeMax=43.91916&LongitudeMax=-78.53181&LatitudeMin=43.49627&LongitudeMin=-80.22096&view=list&Sort=6-D&PGeoIds=g30_dpz89rm7&GeoName=Toronto%2C%20ON&PropertyTypeGroupID=1&TransactionTypeId=3&PropertySearchTypeId=0&Currency=CAD";
 const REALTOR_FOR_SALE_URL = "https://www.realtor.ca/map#ZoomLevel=10&Center=43.708087%2C-79.376385&LatitudeMax=43.91916&LongitudeMax=-78.53181&LatitudeMin=43.49627&LongitudeMin=-80.22096&view=list&Sort=6-D&PGeoIds=g30_dpz89rm7&GeoName=Toronto%2C%20ON&PropertyTypeGroupID=1&TransactionTypeId=2&PropertySearchTypeId=0&Currency=CAD";
@@ -97,14 +98,14 @@ export default function TenantsServicesPage() {
             {ts.heroSub}
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="#property-search" style={{ background: "#4a90d9", color: "#fff", textDecoration: "none", borderRadius: 8, padding: "10px 22px", fontSize: 14, fontWeight: 700 }}>{ts.propertySearch}</a>
+            {SHOW_LISTINGS && <a href="#property-search" style={{ background: "#4a90d9", color: "#fff", textDecoration: "none", borderRadius: 8, padding: "10px 22px", fontSize: 14, fontWeight: 700 }}>{ts.propertySearch}</a>}
             <a href="#landing-arrangement" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", color: "#fff", textDecoration: "none", borderRadius: 8, padding: "10px 22px", fontSize: 14, fontWeight: 500 }}>{la.navLabel}</a>
           </div>
         </div>
       </section>
 
       {/* Property Search */}
-      <section id="property-search" style={{ padding: "clamp(60px,8vw,100px) 24px", scrollMarginTop: 80 }}>
+      {SHOW_LISTINGS && <section id="property-search" style={{ padding: "clamp(60px,8vw,100px) 24px", scrollMarginTop: 80 }}>
         <div style={{ maxWidth: 1060, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🏠</div>
@@ -127,7 +128,7 @@ export default function TenantsServicesPage() {
             <a href={REALTOR_FOR_SALE_URL} target="_blank" rel="noopener noreferrer" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(0,0,0,0.12)" }}>{ts.browseForSale}</a>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Tips */}
       <section style={{ background: "#fff", padding: "clamp(50px,6vw,80px) 24px" }}>
@@ -185,7 +186,7 @@ export default function TenantsServicesPage() {
       <section style={{ background: "#4a90d9", padding: "clamp(50px,7vw,80px) 24px", textAlign: "center", color: "#fff" }}>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: "clamp(1.6rem,4vw,2.4rem)", marginBottom: 14 }}>{ts.ctaTitle}</h2>
         <p style={{ color: "rgba(255,255,255,0.8)", marginBottom: 32, maxWidth: 500, margin: "0 auto 32px" }}>{ts.ctaSub}</p>
-        <Link href="/rent" style={{ background: "#fff", color: "#4a90d9", textDecoration: "none", borderRadius: 10, padding: "14px 36px", fontWeight: 800, fontSize: 16 }}>{ts.startSearching}</Link>
+        <Link href="/landing-arrangement" style={{ background: "#fff", color: "#4a90d9", textDecoration: "none", borderRadius: 10, padding: "14px 36px", fontWeight: 800, fontSize: 16 }}>{la.cta}</Link>
       </section>
     </main>
   );

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useLanguage } from '@/hooks/useLanguage'
+import { SHOW_LISTINGS } from '@/lib/features'
 
 export default function Footer() {
   const { t } = useLanguage()
@@ -20,7 +21,7 @@ export default function Footer() {
         { label: f.mortgageAdvice, href: '/services/buyers-sellers#mortgage' },
       ],
     },
-    {
+    ...(SHOW_LISTINGS ? [{
       heading: f.listings2,
       links: [        
         { label: f.forSale, href: '/buy' },
@@ -29,7 +30,7 @@ export default function Footer() {
         { label: f.dashboard, href: '/dashboard' },
         { label: f.landlordPortal, href: '/landlord' },
       ],
-    },
+    }] : []),
     {
       heading: f.knowledgeHub,
       links: [

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useLanguage } from '@/hooks/useLanguage'
+import { SHOW_LISTINGS } from '@/lib/features'
 import { getInitials } from '@/lib/utils'
 import type { Lang } from '@/lib/translations'
 
@@ -77,11 +78,13 @@ function ServicesPanel({ groups, onClose }: { groups: ServiceGroup[]; onClose: (
             <span style={{ fontSize: 10, opacity: 0.5 }}>›</span>
           </button>
         ))}
-        <div style={{ margin: '10px 12px 6px', padding: '10px 6px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-          <Link href="/landlord" onClick={onClose} style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700, textDecoration: 'none' }}>
-            {groups[0]?.key === 'landlords' ? 'Landlord Portal →' : '房东门户 →'}
-          </Link>
-        </div>
+        {SHOW_LISTINGS && (
+          <div style={{ margin: '10px 12px 6px', padding: '10px 6px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+            <Link href="/landlord" onClick={onClose} style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700, textDecoration: 'none' }}>
+              {groups[0]?.key === 'landlords' ? 'Landlord Portal →' : '房东门户 →'}
+            </Link>
+          </div>
+        )}
       </div>
       <div style={{ flex: 1, padding: '8px 0' }}>
         <div style={{ padding: '8px 16px 6px', fontSize: 11, fontWeight: 700, letterSpacing: 1, color: 'var(--mid)', textTransform: 'uppercase' }}>
@@ -205,7 +208,7 @@ export default function Navbar() {
           label: t.nav.forTenants,
           key: 'tenants',
           items: [
-            { label: t.nav.propertySearch, href: '/services/tenants#property-search', desc: t.nav.propertySearchDesc },
+            ...(SHOW_LISTINGS ? [{ label: t.nav.propertySearch, href: '/services/tenants#property-search', desc: t.nav.propertySearchDesc }] : []),
             { label: t.nav.landingArrangement, href: '/landing-arrangement', desc: t.nav.landingArrangementDesc },
           ],
         },
@@ -230,8 +233,8 @@ export default function Navbar() {
         },
       ],
     },
-    {
-      kind: 'dropdown',
+    ...(SHOW_LISTINGS ? [{
+      kind: 'dropdown' as const,
       label: t.nav.listings,
       key: 'listings',
       items: [
@@ -240,7 +243,7 @@ export default function Navbar() {
         { label: t.nav.postProperty, href: '/post-listing', desc: t.nav.postPropertyDesc },
         { label: t.nav.dashboard, href: '/dashboard', desc: t.nav.dashboardDesc },
       ],
-    },
+    }] : []),
     {
       kind: 'dropdown',
       label: t.nav.knowledgeHub,
@@ -396,9 +399,11 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <Link href="/post-listing" className="btn btn-sm btn-accent" style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>
-                  {t.nav.listProperty}
-                </Link>
+                {SHOW_LISTINGS && (
+                  <Link href="/post-listing" className="btn btn-sm btn-accent" style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                    {t.nav.listProperty}
+                  </Link>
+                )}
                 <div className="nav-avatar" onClick={() => setUserMenuOpen(v => !v)} title={user.fname} style={{ cursor: 'pointer', flexShrink: 0 }}>
                   {getInitials(`${user.fname} ${user.lname || ''}`)}
                 </div>
@@ -406,7 +411,9 @@ export default function Navbar() {
                   <div style={{ position: 'absolute', top: 50, right: 0, background: '#fff', border: '1px solid var(--border)', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 180, zIndex: 6000, padding: '6px 0' }}>
                     <div style={{ padding: '10px 16px 8px', fontSize: 12, color: 'var(--mid)', borderBottom: '1px solid var(--border)' }}>{user.fname} {user.lname}</div>
                     <Link href="/dashboard" style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--dark)', textDecoration: 'none' }} onClick={() => setUserMenuOpen(false)}>{t.nav.dashboard}</Link>
-                    <Link href="/post-listing" style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--dark)', textDecoration: 'none' }} onClick={() => setUserMenuOpen(false)}>{t.nav.postProperty}</Link>
+                    {SHOW_LISTINGS && (
+                      <Link href="/post-listing" style={{ display: 'block', padding: '10px 16px', fontSize: 14, color: 'var(--dark)', textDecoration: 'none' }} onClick={() => setUserMenuOpen(false)}>{t.nav.postProperty}</Link>
+                    )}
                     <hr style={{ margin: '4px 0', borderColor: 'var(--border)' }} />
                     <button type="button" onClick={handleSignOut} style={{ width: '100%', textAlign: 'left', padding: '10px 16px', fontSize: 14, color: 'var(--red)', background: 'none', border: 'none', cursor: 'pointer' }}>
                       {t.nav.signOut}

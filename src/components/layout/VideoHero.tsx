@@ -1,6 +1,7 @@
 'use client'
 
 import { useLanguage } from '@/hooks/useLanguage'
+import { SHOW_LISTINGS } from '@/lib/features'
 
 const DEFAULT_YOUTUBE_URL = 'https://www.youtube.com/watch?v=H4-hQv7HDx8'
 
@@ -32,11 +33,13 @@ interface VideoHeroProps {
 }
 
 export default function VideoHero({ heroText, heroSub }: VideoHeroProps) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const h = t.hero
 
   const title = heroText || h.defaultTitle
-  const sub = heroSub || h.defaultSub
+  const sub = heroSub || (SHOW_LISTINGS ? h.defaultSub : (lang === 'zh'
+    ? '为房东、租户、买家和卖家提供租客安置、物业管理和房地产指导。'
+    : 'Tenant placement, property management, and real estate guidance for landlords, tenants, buyers, and sellers.'))
   const videoId = getYouTubeVideoId(process.env.NEXT_PUBLIC_HOMEPAGE_VIDEO_URL || DEFAULT_YOUTUBE_URL)
   const thumbnailUrl = videoId ? `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg` : '/og-image.jpg'
   const embedUrl = videoId
@@ -77,19 +80,20 @@ export default function VideoHero({ heroText, heroSub }: VideoHeroProps) {
         </p>
 
         
-        {/* Chips */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap', maxWidth: 680 }}>
-          {h.chips.map(f => (
-            <button
-              key={f}
-              style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.88)', border: '1px solid rgba(255,255,255,0.22)', borderRadius: 999, padding: '5px 14px', fontSize: 'clamp(11px, 2vw, 13px)', fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(6px)', transition: 'background .18s', whiteSpace: 'nowrap' }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.22)')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)')}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        {SHOW_LISTINGS && (
+          <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap', maxWidth: 680 }}>
+            {h.chips.map(f => (
+              <button
+                key={f}
+                style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.88)', border: '1px solid rgba(255,255,255,0.22)', borderRadius: 999, padding: '5px 14px', fontSize: 'clamp(11px, 2vw, 13px)', fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(6px)', transition: 'background .18s', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.22)')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)')}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
     </section>
