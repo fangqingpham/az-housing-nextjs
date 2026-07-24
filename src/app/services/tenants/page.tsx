@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
 
+const REALTOR_RENTALS_URL = "https://www.realtor.ca/map#ZoomLevel=10&Center=43.708087%2C-79.376385&LatitudeMax=43.91916&LongitudeMax=-78.53181&LatitudeMin=43.49627&LongitudeMin=-80.22096&view=list&Sort=6-D&PGeoIds=g30_dpz89rm7&GeoName=Toronto%2C%20ON&PropertyTypeGroupID=1&TransactionTypeId=3&PropertySearchTypeId=0&Currency=CAD";
+const REALTOR_FOR_SALE_URL = "https://www.realtor.ca/map#ZoomLevel=10&Center=43.708087%2C-79.376385&LatitudeMax=43.91916&LongitudeMax=-78.53181&LatitudeMin=43.49627&LongitudeMin=-80.22096&view=list&Sort=6-D&PGeoIds=g30_dpz89rm7&GeoName=Toronto%2C%20ON&PropertyTypeGroupID=1&TransactionTypeId=2&PropertySearchTypeId=0&Currency=CAD";
+
 const LANDING_ARRANGEMENT = {
   en: {
     navLabel: "Landing Arrangement",
@@ -120,8 +123,8 @@ export default function TenantsServicesPage() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            <Link href="/rent" style={{ background: "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 600, fontSize: 15 }}>{ts.browseRentals}</Link>
-            <Link href="/buy" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(0,0,0,0.12)" }}>{ts.browseForSale}</Link>
+            <a href={REALTOR_RENTALS_URL} target="_blank" rel="noopener noreferrer" style={{ background: "var(--dark)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 600, fontSize: 15 }}>{ts.browseRentals}</a>
+            <a href={REALTOR_FOR_SALE_URL} target="_blank" rel="noopener noreferrer" style={{ background: "var(--cream)", color: "var(--dark)", textDecoration: "none", borderRadius: 10, padding: "13px 28px", fontWeight: 600, fontSize: 15, border: "1px solid rgba(0,0,0,0.12)" }}>{ts.browseForSale}</a>
           </div>
         </div>
       </section>
