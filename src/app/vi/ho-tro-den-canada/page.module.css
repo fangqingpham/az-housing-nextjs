@@ -151,6 +151,7 @@
 
 .primaryButton,
 .secondaryButton,
+.zaloButton,
 .cardButton {
   align-items: center;
   border-radius: 12px;
@@ -161,6 +162,33 @@
   min-height: 46px;
   padding: 12px 18px;
   text-align: center;
+}
+
+.zaloButton {
+  background: #0068ff;
+  border: 1px solid #0068ff;
+  box-shadow: 0 12px 24px rgba(0, 104, 255, .18);
+  color: #fff;
+  gap: 8px;
+}
+
+.zaloButton span,
+.floatingZalo span {
+  align-items: center;
+  background: rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 24px;
+  padding: 2px 8px;
+}
+
+.zaloButton:hover,
+.floatingZalo:hover {
+  background: #0058d8;
+  border-color: #0058d8;
 }
 
 .primaryButton {
@@ -400,6 +428,29 @@
   padding: clamp(22px, 5vw, 38px);
 }
 
+.zaloSupportText {
+  margin-top: 10px !important;
+}
+
+.floatingZalo {
+  align-items: center;
+  background: #0068ff;
+  border: 1px solid #0068ff;
+  border-radius: 999px;
+  bottom: 24px;
+  box-shadow: 0 14px 32px rgba(0, 104, 255, .25);
+  color: #fff;
+  display: none;
+  font-size: 14px;
+  font-weight: 800;
+  gap: 8px;
+  min-height: 52px;
+  padding: 12px 18px;
+  position: fixed;
+  right: 104px;
+  z-index: 9997;
+}
+
 .mobileBar {
   background: rgba(255, 255, 255, .96);
   border-top: 1px solid var(--bridge-line);
@@ -407,7 +458,7 @@
   box-shadow: 0 -10px 30px rgba(19, 40, 75, .1);
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   left: 0;
   padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
   position: fixed;
@@ -429,12 +480,17 @@
   min-height: 42px;
 }
 
-.mobileBar a:nth-child(2) {
+.mobileBar button:nth-child(2) {
+  background: #0068ff;
+  color: #fff;
+}
+
+.mobileBar a:nth-child(3) {
   background: #f3f6fa;
   color: var(--bridge-navy);
 }
 
-.mobileBar button:nth-child(3) {
+.mobileBar button:nth-child(4) {
   background: var(--bridge-orange);
   color: var(--bridge-navy);
 }
@@ -453,7 +509,9 @@
 .modal {
   background: #fff;
   border-radius: 22px;
+  max-height: calc(100vh - 36px);
   max-width: 520px;
+  overflow-y: auto;
   padding: 24px;
   position: relative;
   width: 100%;
@@ -509,11 +567,14 @@
 .textButton:focus-visible,
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible,
+.zaloButton:focus-visible,
 .cardButton:focus-visible,
 .readMoreButton:focus-visible,
+.floatingZalo:focus-visible,
 .mobileBar button:focus-visible,
 .mobileBar a:focus-visible,
 .modalClose:focus-visible,
+.zaloQrButton:focus-visible,
 .leadForm input:focus-visible,
 .leadForm textarea:focus-visible,
 .cardToggle:focus-visible {
@@ -524,6 +585,73 @@
 .successBox {
   display: grid;
   gap: 14px;
+}
+
+.zaloModal {
+  max-width: min(720px, calc(100vw - 28px));
+  padding: clamp(18px, 4vw, 26px);
+}
+
+.zaloContent {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  text-align: center;
+}
+
+.zaloContent h2 {
+  color: var(--bridge-navy);
+  font-size: clamp(24px, 5vw, 34px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+  padding: 0 42px;
+}
+
+.zaloContent p {
+  color: #58677c;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 520px;
+}
+
+.zaloQrButton {
+  background: #f8fafc;
+  border: 1px solid #d9e1ec;
+  border-radius: 14px;
+  cursor: zoom-in;
+  display: block;
+  max-width: min(420px, 84vw);
+  padding: 8px;
+}
+
+.zaloQrButtonExpanded {
+  cursor: zoom-out;
+  max-width: min(720px, 94vw);
+}
+
+.zaloQrImage {
+  display: block;
+  height: auto;
+  max-height: min(58vh, 720px);
+  object-fit: contain;
+  width: 100%;
+}
+
+.zaloQrButtonExpanded .zaloQrImage {
+  max-height: none;
+}
+
+.mobileInstruction {
+  font-size: 14px;
+}
+
+.zaloActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
 }
 
 @media (max-width: 430px) {
@@ -595,6 +723,10 @@
 
   .mobileBar {
     display: none;
+  }
+
+  .floatingZalo {
+    display: inline-flex;
   }
 
   .page {

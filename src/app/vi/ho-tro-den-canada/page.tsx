@@ -72,6 +72,10 @@ export default function VietnamBridgePage() {
               <button className={styles.primaryButton} data-az-action="chat" data-location="hero_primary">
                 Chat ngay với A-Z
               </button>
+              <button className={styles.zaloButton} data-az-action="zalo" data-location="main_cta">
+                <span aria-hidden="true">Zalo</span>
+                Chat qua Zalo
+              </button>
               <a className={styles.secondaryButton} href="https://m.me/azhousesolution" target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="hero_secondary">
                 Nhắn tin qua Messenger
               </a>
@@ -175,10 +179,15 @@ export default function VietnamBridgePage() {
           <p className={styles.label}>Liên hệ nhanh</p>
           <h2>Bạn cần hỗ trợ ngay?</h2>
           <p>Chat trực tiếp với A-Z để được tư vấn hoặc để lại thông tin, chúng tôi sẽ liên hệ lại.</p>
+          <p className={styles.zaloSupportText}>Bạn đang ở Việt Nam? Liên hệ với A-Z Housing qua Zalo để được tư vấn thuận tiện hơn.</p>
         </div>
         <div className={styles.bottomActions}>
           <button className={styles.primaryButton} data-az-action="chat" data-location="bottom_cta">
             Chat ngay với A-Z
+          </button>
+          <button className={styles.zaloButton} data-az-action="zalo" data-location="main_cta">
+            <span aria-hidden="true">Zalo</span>
+            Chat qua Zalo
           </button>
           <button className={styles.secondaryButton} data-az-action="lead">
             Để lại thông tin

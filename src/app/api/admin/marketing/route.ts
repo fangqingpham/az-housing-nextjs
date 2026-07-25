@@ -3,7 +3,7 @@ import { requireStaff } from '@/lib/server/staff-auth'
 
 export const dynamic = 'force-dynamic'
 
-const CONTACT_EVENTS = ['whatsapp_click', 'messenger_click', 'phone_click', 'email_click', 'contact_form_submit']
+const CONTACT_EVENTS = ['whatsapp_click', 'messenger_click', 'zalo_click', 'phone_click', 'email_click', 'contact_form_submit']
 function isoDate(value: string | null, fallback: Date) {
   if (!value) return fallback
   const date = new Date(value)
@@ -189,6 +189,7 @@ export async function GET(request: Request) {
       contactFormSubmissions: formSubmissions,
       whatsappClicks: allEvents.filter(e => e.event_name === 'whatsapp_click').length,
       messengerClicks: allEvents.filter(e => e.event_name === 'messenger_click').length,
+      zaloClicks: allEvents.filter(e => e.event_name === 'zalo_click').length,
       phoneClicks: allEvents.filter(e => e.event_name === 'phone_click').length,
       emailClicks: allEvents.filter(e => e.event_name === 'email_click').length,
       orderFormStarts: orderStarts,

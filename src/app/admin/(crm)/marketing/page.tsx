@@ -13,7 +13,7 @@ const DATE_RANGES = [
 ] as const
 
 const EVENT_TYPES = [
-  'contact_form_submit', 'whatsapp_click', 'messenger_click', 'phone_click', 'email_click',
+  'contact_form_submit', 'whatsapp_click', 'messenger_click', 'zalo_click', 'phone_click', 'email_click',
   'order_form_start', 'order_form_submit', 'referral_signup', 'referral_submission',
   'cta_click', 'pricing_view', 'faq_open',
 ]
@@ -134,6 +134,7 @@ export default function AdminMarketingPage() {
             <Metric label="Contact form submissions" value={num(summary.contactFormSubmissions)} />
             <Metric label="WhatsApp clicks" value={num(summary.whatsappClicks)} />
             <Metric label="Messenger clicks" value={num(summary.messengerClicks)} />
+            <Metric label="Zalo clicks" value={num(summary.zaloClicks)} />
             <Metric label="Phone clicks" value={num(summary.phoneClicks)} />
             <Metric label="Email clicks" value={num(summary.emailClicks)} />
             <Metric label="Order form starts" value={num(summary.orderFormStarts)} />

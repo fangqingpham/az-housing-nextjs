@@ -7,6 +7,7 @@ const ALLOWED_EVENTS = new Set([
   'contact_form_submit',
   'whatsapp_click',
   'messenger_click',
+  'zalo_click',
   'phone_click',
   'email_click',
   'order_form_start',

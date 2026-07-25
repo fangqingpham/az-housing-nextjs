@@ -1,6 +1,7 @@
 'use client'
 
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { captureLeadTrackingFromUrl } from '@/lib/client/lead-tracking'
 import { trackMarketingEvent } from '@/lib/client/marketing-events'
 import styles from './page.module.css'
@@ -32,6 +33,9 @@ type LeadOpenDetail = {
 }
 
 const MESSENGER_URL = 'https://m.me/azhousesolution'
+const ZALO_QR_SRC = '/images/zalo-khanh-pham-qr.png'
+const TRACKING_PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid']
+const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
 
 function utmFields() {
   if (typeof window === 'undefined') return {}
@@ -45,6 +49,19 @@ function utmFields() {
   }
 }
 
+function preserveTrackingParams(destination: string) {
+  if (typeof window === 'undefined') return destination
+  const current = new URLSearchParams(window.location.search)
+  if (TRACKING_PARAMS.every(param => !current.has(param))) return destination
+
+  const url = new URL(destination, window.location.origin)
+  TRACKING_PARAMS.forEach(param => {
+    const value = current.get(param)
+    if (value && !url.searchParams.has(param)) url.searchParams.set(param, value)
+  })
+  return url.toString()
+}
+
 export default function BridgeInteractions({ services }: Props) {
   const serviceMap = useMemo(
     () => new Map(services.map(service => [service.id, service])),
@@ -56,6 +73,51 @@ export default function BridgeInteractions({ services }: Props) {
   const [sending, setSending] = useState(false)
   const [lead, setLead] = useState({ name: '', email: '', phone: '', message: '' })
   const [leadContext, setLeadContext] = useState<LeadOpenDetail>({})
+  const [zaloOpen, setZaloOpen] = useState(false)
+  const [zaloPlacement, setZaloPlacement] = useState('main_cta')
+  const [qrExpanded, setQrExpanded] = useState(false)
+  const zaloDialogRef = useRef<HTMLDivElement>(null)
+  const zaloOpenerRef = useRef<HTMLElement | null>(null)
+
+  const trackZalo = useCallback((action: 'open_qr' | 'enlarge_qr' | 'save_qr', placement = zaloPlacement) => {
+    void trackMarketingEvent('zalo_click', {
+      service: 'Zalo',
+      selected_service: 'Zalo',
+      metadata: {
+        contact_method: 'zalo',
+        action,
+        placement,
+        language: 'vi',
+        ...utmFields(),
+      },
+    })
+  }, [zaloPlacement])
+
+  const openZaloModal = useCallback((placement: string, opener?: HTMLElement | null) => {
+    zaloOpenerRef.current = opener || null
+    setZaloPlacement(placement)
+    setQrExpanded(false)
+    setZaloOpen(true)
+    trackZalo('open_qr', placement)
+  }, [trackZalo])
+
+  const closeZaloModal = useCallback(() => {
+    setZaloOpen(false)
+    setQrExpanded(false)
+    window.setTimeout(() => zaloOpenerRef.current?.focus(), 0)
+  }, [])
+
+  const saveZaloQr = useCallback(() => {
+    trackZalo('save_qr')
+    window.setTimeout(() => {
+      const link = document.createElement('a')
+      link.href = ZALO_QR_SRC
+      link.download = 'zalo-khanh-pham-qr.png'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    }, 80)
+  }, [trackZalo])
 
   useEffect(() => {
     captureLeadTrackingFromUrl()
@@ -128,6 +190,10 @@ export default function BridgeInteractions({ services }: Props) {
           metadata: { location: target.dataset.location || 'cta', language: 'vi', ...utmFields() },
         })
       }
+      if (action === 'zalo') {
+        event.preventDefault()
+        openZaloModal(target.dataset.location || 'main_cta', target)
+      }
       if (action === 'bridge-top-home') {
         void trackMarketingEvent('bridge_top_home_click', {
           service: 'Trang chủ',
@@ -141,6 +207,7 @@ export default function BridgeInteractions({ services }: Props) {
         })
       }
       if (action === 'bridge-top-service') {
+        if (target instanceof HTMLAnchorElement) target.href = preserveTrackingParams(target.href)
         void trackMarketingEvent('bridge_top_service_click', {
           service: 'Landing Arrangement',
           selected_service: 'Landing Arrangement',
@@ -154,6 +221,7 @@ export default function BridgeInteractions({ services }: Props) {
         })
       }
       if (action === 'landing-arrangement-read-more' && service) {
+        if (target instanceof HTMLAnchorElement) target.href = preserveTrackingParams(target.href)
         void trackMarketingEvent('landing_arrangement_read_more_click', {
           service: service.title,
           selected_service: service.title,
@@ -196,7 +264,44 @@ export default function BridgeInteractions({ services }: Props) {
       document.removeEventListener('click', onClick)
       window.removeEventListener('az:openlead', onOpenLead)
     }
-  }, [serviceMap])
+  }, [openZaloModal, serviceMap])
+
+  useEffect(() => {
+    if (!zaloOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.setTimeout(() => {
+      const first = zaloDialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
+      first?.focus()
+    }, 0)
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeZaloModal()
+        return
+      }
+      if (event.key !== 'Tab') return
+      const focusable = Array.from(zaloDialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) || [])
+        .filter(element => !element.hasAttribute('disabled') && element.offsetParent !== null)
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [closeZaloModal, zaloOpen])
 
   const openLeadForm = (detail: LeadOpenDetail = {}) => {
     const selectedService = detail.selected_service || 'Để lại thông tin'
@@ -287,8 +392,14 @@ export default function BridgeInteractions({ services }: Props) {
 
   return (
     <>
+      <button className={styles.floatingZalo} data-az-action="zalo" data-location="floating_button">
+        <span aria-hidden="true">Zalo</span>
+        Chat qua Zalo
+      </button>
+
       <div className={styles.mobileBar} aria-label="Liên hệ nhanh trên điện thoại">
         <button data-az-action="chat" data-location="mobile_bar">Chat</button>
+        <button data-az-action="zalo" data-location="floating_button">Zalo</button>
         <a href={MESSENGER_URL} target="_blank" rel="noopener noreferrer" data-az-action="messenger" data-location="mobile_bar">Messenger</a>
         <button data-az-action="pricing">Bảng giá</button>
       </div>
@@ -317,6 +428,49 @@ export default function BridgeInteractions({ services }: Props) {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {zaloOpen && (
+        <div className={styles.modalBackdrop} role="presentation" onClick={closeZaloModal}>
+          <div
+            className={`${styles.modal} ${styles.zaloModal}`}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="zalo-modal-title"
+            ref={zaloDialogRef}
+            onClick={event => event.stopPropagation()}
+          >
+            <button className={styles.modalClose} onClick={closeZaloModal} aria-label="Đóng">×</button>
+            <div className={styles.zaloContent}>
+              <h2 id="zalo-modal-title">Liên hệ qua Zalo</h2>
+              <button
+                type="button"
+                className={`${styles.zaloQrButton} ${qrExpanded ? styles.zaloQrButtonExpanded : ''}`}
+                onClick={() => {
+                  setQrExpanded(value => !value)
+                  if (!qrExpanded) trackZalo('enlarge_qr')
+                }}
+                aria-label={qrExpanded ? 'Thu nhỏ mã QR Zalo' : 'Phóng to mã QR Zalo'}
+              >
+                <Image
+                  src={ZALO_QR_SRC}
+                  alt="Mã QR Zalo của Khanh Pham tại A-Z Housing Solutions"
+                  width={1020}
+                  height={1469}
+                  sizes={qrExpanded ? '(max-width: 760px) 94vw, 720px' : '(max-width: 760px) 84vw, 420px'}
+                  unoptimized
+                  className={styles.zaloQrImage}
+                />
+              </button>
+              <p>Quét mã QR để kết nối với A-Z Housing trên Zalo.</p>
+              <p className={styles.mobileInstruction}>Nếu bạn đang xem trên điện thoại, hãy lưu mã QR rồi mở Zalo để quét mã từ thư viện ảnh.</p>
+              <div className={styles.zaloActions}>
+                <button type="button" className={styles.primaryButton} onClick={saveZaloQr}>Lưu mã QR</button>
+                <button type="button" className={styles.secondaryButton} onClick={closeZaloModal}>Đóng</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

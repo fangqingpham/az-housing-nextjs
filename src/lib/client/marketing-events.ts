@@ -6,6 +6,7 @@ export type MarketingEventName =
   | 'contact_form_submit'
   | 'whatsapp_click'
   | 'messenger_click'
+  | 'zalo_click'
   | 'phone_click'
   | 'email_click'
   | 'order_form_start'
@@ -66,7 +67,8 @@ function rememberSentKey(key: string) {
 function pageContext() {
   if (typeof window === 'undefined') return {}
   return {
-    page_path: window.location.pathname,
+    page_location: window.location.href,
+    page_path: window.location.pathname + window.location.search,
     page_title: document.title,
     referrer: document.referrer || undefined,
     device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
@@ -116,7 +118,9 @@ export async function trackMarketingEvent(eventName: MarketingEventName, payload
   window.gtag?.('event', gaEventName(eventName), {
     event_category: 'marketing',
     event_label: payload.service || payload.form_name || eventName,
+    page_location: body.page_location,
     page_path: body.page_path,
+    page_title: body.page_title,
     service: payload.service,
     campaign: body.campaign,
   })
